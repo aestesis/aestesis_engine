@@ -19,9 +19,9 @@ import FlutterMacOS
 extension FlutterError: Swift.Error {}
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
-public class AestesisEnginePlugin: NSObject, FlutterPlugin, FlutterAlibApi {
+public class AestesisEnginePlugin: NSObject, FlutterPlugin, AestesisEngineApi {
     static var instance: AestesisEnginePlugin = AestesisEnginePlugin()
-    static var message: MessageFlutterAlibApi?
+    static var message: MessageAestesisEngineApi?
     public static func register(with registrar: FlutterPluginRegistrar) {
 #if os(iOS)
         let messenger = registrar.messenger()
@@ -30,8 +30,8 @@ public class AestesisEnginePlugin: NSObject, FlutterPlugin, FlutterAlibApi {
 #endif
         let viewFactory = AlibViewFactory(messenger: messenger)
         registrar.register(viewFactory, withId: "@views/alibview-view-type")
-        FlutterAlibApiSetup.setUp(binaryMessenger: messenger, api: instance)
-        message = MessageFlutterAlibApi(binaryMessenger: messenger)
+        AestesisEngineApiSetup.setUp(binaryMessenger: messenger, api: instance)
+        message = MessageAestesisEngineApi(binaryMessenger: messenger)
         instance.textures = registrar.textures
     }
     
