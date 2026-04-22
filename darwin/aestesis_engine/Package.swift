@@ -7,19 +7,21 @@ let package = Package(
     name: "aestesis_engine",
     platforms: [
         .iOS("13.0"),
-        .macOS("10.15")
+        .macOS("10.15"),
     ],
     products: [
         .library(name: "aestesis-engine", targets: ["aestesis_engine"])
     ],
     dependencies: [
-        .package(name: "FlutterFramework", path: "../FlutterFramework")
+        .package(name: "FlutterFramework", path: "../FlutterFramework"),
+        .package(url: "https://github.com/aestesis/aestesis_alib.git", from: "1.0.5"),
     ],
     targets: [
         .target(
             name: "aestesis_engine",
             dependencies: [
-                .product(name: "FlutterFramework", package: "FlutterFramework")
+                "aestesis_alib",
+                .product(name: "FlutterFramework", package: "FlutterFramework"),
             ],
             resources: [
                 // If your plugin requires a privacy manifest, for example if it collects user

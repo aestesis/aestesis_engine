@@ -1,0 +1,23 @@
+{
+  "pins" : [
+    {
+      "identity" : "aestesis_alib",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/aestesis/aestesis_alib.git",
+      "state" : {
+        "revision" : "2ed341b96420ce35e80586c8f2c9703bcaf4635b",
+        "version" : "1.0.5"
+      }
+    },
+    {
+      "identity" : "libtess",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/aestesis/libtess.git",
+      "state" : {
+        "revision" : "45e1819be91de0374f0fecfde1f6811a8cb5ee95",
+        "version" : "1.0.5"
+      }
+    }
+  ],
+  "version" : 2
+}
