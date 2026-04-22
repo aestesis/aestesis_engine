@@ -20,7 +20,7 @@ extension FlutterError: Swift.Error {}
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 public class AestesisEnginePlugin: NSObject, FlutterPlugin, AestesisEngineApi {
-    static var instance: AestesisEnginePlugin = AestesisEnginePlugin()
+        static var instance: AestesisEnginePlugin = AestesisEnginePlugin()
     static var message: MessageAestesisEngineApi?
     public static func register(with registrar: FlutterPluginRegistrar) {
 #if os(iOS)
@@ -158,7 +158,7 @@ public class AestesisEnginePlugin: NSObject, FlutterPlugin, AestesisEngineApi {
         }
     }
     
-    func cameraDevices(completion: @escaping (Result<[CameraDevice], Error>) -> Void) {
+    func cameraDevices(completion: @escaping (Result<[CameraDevice], Swift.Error>) -> Void) {
         let cameraType: ((AVCaptureDevice.DeviceType) -> CameraType) = { type in
             switch type {
             case .builtInWideAngleCamera:
@@ -216,13 +216,13 @@ public class AestesisEnginePlugin: NSObject, FlutterPlugin, AestesisEngineApi {
         }
     }
     
-    func audioDevices(completion: @escaping (Result<[AudioDevice], Error>) -> Void) {
+    func audioDevices(completion: @escaping (Result<[AudioDevice], Swift.Error>) -> Void) {
         completion(Result.success(AudioDevice.devices))
     }
     
     func pickFiles(
         title: String, directory: String?, multiple: Bool, extensions: [String],
-        completion: @escaping (Result<[String], Error>) -> Void
+        completion: @escaping (Result<[String], Swift.Error>) -> Void
     ) {
 #if os(iOS)
         let controller = UIDocumentPickerViewController()

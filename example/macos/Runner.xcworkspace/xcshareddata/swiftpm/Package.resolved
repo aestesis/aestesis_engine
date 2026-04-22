@@ -6,7 +6,7 @@
       "location" : "https://github.com/aestesis/aestesis_alib.git",
       "state" : {
         "branch" : "main",
-        "revision" : "b1b2172da50dbf671e1d4d41082076b228472b5e"
+        "revision" : "eae65b3e83f7a14553862f51bf23b5d560e91f98"
       }
     },
     {
@@ -14,8 +14,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/aestesis/libtess.git",
       "state" : {
-        "revision" : "45e1819be91de0374f0fecfde1f6811a8cb5ee95",
-        "version" : "1.0.5"
+        "branch" : "master",
+        "revision" : "45e1819be91de0374f0fecfde1f6811a8cb5ee95"
       }
     }
   ],

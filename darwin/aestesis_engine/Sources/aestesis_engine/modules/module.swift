@@ -8,6 +8,7 @@
 import CoreImage
 import Foundation
 import simd
+import aestesis_alib
 
 #if os(iOS)
 import UIKit
@@ -19,7 +20,7 @@ import FlutterMacOS
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
-class ModuleUI: NodeUI {
+public class ModuleUI: NodeUI {
     var output: SynchronizedValue<SharedBitmap> = SynchronizedValue<SharedBitmap>()
     var assetOutputs: SynchronizedDictionnary<String, FlutterBitmap> = SynchronizedDictionnary<String, FlutterBitmap>()
     private let _textureCache:TextureCache

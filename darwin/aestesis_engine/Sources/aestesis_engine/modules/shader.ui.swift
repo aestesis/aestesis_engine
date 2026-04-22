@@ -7,6 +7,7 @@
 
 import Foundation
 import SpriteKit
+import aestesis_alib
 
 // https://www.shadertoy.com/howto
 
@@ -29,8 +30,6 @@ class ShaderUI: ModuleUI {
             // http://battleofbrothers.com/sirryan/understanding-shaders-in-spritekit/
             
             let src = """
-
-
 vec4 mainImage(vec2 fragCoord) {
     float ts = sin(iTime*0.1156154)*5.0+12.0;
     vec2 uv = fragCoord/iResolution.xy;

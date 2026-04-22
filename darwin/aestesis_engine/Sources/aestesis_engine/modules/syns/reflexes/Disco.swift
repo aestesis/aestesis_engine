@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import aestesis_alib
 
 class Disco : Reflex {
     var sprites=[[PointSprite]]()

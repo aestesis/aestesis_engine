@@ -8,6 +8,7 @@
 import Foundation
 import MetalKit
 import MetalPerformanceShaders
+import aestesis_alib
 
 #if os(iOS)
 import UIKit

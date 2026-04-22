@@ -6,6 +6,8 @@
 //
 
 import Foundation
+import aestesis_alib
+
 // filters: https://github.com/Profiteam/iOS-Swift-Demos/blob/master/MetalImageFilters/MetalImageFilters/ImageFilters.swift
 // blend: https://medium.com/@s1ddok/combine-the-power-of-coregraphics-and-metal-by-sharing-resource-memory-eabb4c1be615
 

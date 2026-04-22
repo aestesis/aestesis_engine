@@ -12,7 +12,7 @@ import Foundation
 #endif
 
 /// Error class for passing custom error details to Dart side.
-final class PigeonError: Error {
+final class PigeonError: Swift.Error {
   let code: String
   let message: String?
   let details: Sendable?
@@ -1219,9 +1219,9 @@ protocol AestesisEngineApi {
   func outputView(show: Bool) throws
   func startRecording(path: String) throws
   func stopRecording() throws
-  func cameraDevices(completion: @escaping (Result<[CameraDevice], Error>) -> Void)
-  func audioDevices(completion: @escaping (Result<[AudioDevice], Error>) -> Void)
-  func pickFiles(title: String, directory: String?, multiple: Bool, extensions: [String], completion: @escaping (Result<[String], Error>) -> Void)
+    func cameraDevices(completion: @escaping (Result<[CameraDevice], Swift.Error>) -> Void)
+    func audioDevices(completion: @escaping (Result<[AudioDevice], Swift.Error>) -> Void)
+    func pickFiles(title: String, directory: String?, multiple: Bool, extensions: [String], completion: @escaping (Result<[String], Swift.Error>) -> Void)
   func setAssetData(key: String, json: String) throws
   func getAssetData(key: String) throws -> String?
   func setAssetDatas(json: String) throws
