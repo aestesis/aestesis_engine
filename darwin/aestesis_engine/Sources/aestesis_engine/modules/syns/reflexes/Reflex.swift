@@ -1,0 +1,45 @@
+//
+//  Reflex.swift
+//  waves
+//
+//  Created by renan jegouzo on 28/05/2016.
+//
+//
+
+import Foundation
+
+class Reflex : NodeUI {
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////
+    init(parent:NodeUI) {
+        super.init(parent:parent)
+    }
+    func draw(graphics g:Graphics,rect:Rect,time:Double,audio:AudioAnalyzer.Info,power:Double) {
+    }
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////
+    static var all:[String] {
+        return [ "Shades", "Reflex"]   // , "Potatoes", "Triad", "Disco", "BarColor"
+    }
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////
+    static func create(_ name:String,parent:NodeUI) -> Reflex? {
+        if name == "Triad" {
+            return Triad(parent:parent)
+        } else if name == "Shades" {
+            return Shades(parent:parent)
+        } else if name == "Potatoes" {
+            return Potatoes(parent:parent)
+        } else if name == "Disco" {
+            return Disco(parent:parent)
+        } else if name == "Reflex" {
+            return Reflex(parent:parent)
+        } else if name == "BarColor" {
+            return BarColor(parent:parent)
+        } else {
+            Debug.error("Reflex \(name) not found",#file,#line)
+        }
+        return nil
+    }
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////
+}

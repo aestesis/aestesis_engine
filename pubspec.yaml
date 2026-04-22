@@ -20,6 +20,8 @@ dev_dependencies:
   pigeon: any
 
 flutter:
+  config:
+    enable-swift-package-manager: true
   plugin:
     platforms:
       ios:
