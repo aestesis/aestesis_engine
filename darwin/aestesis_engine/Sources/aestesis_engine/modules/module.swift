@@ -47,7 +47,7 @@ public class ModuleUI: NodeUI {
         _textureCache = TextureCache(device: parent.viewport!.gpu.device!)
         super.init(parent: parent)
     }
-    override func detach() {
+    override public func detach() {
         output.value?.detach()
         output.value = nil
         for oo in assetOutputs.values {
