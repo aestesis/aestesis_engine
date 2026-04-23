@@ -19,8 +19,8 @@ import FlutterMacOS
 extension FlutterError: Swift.Error {}
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
-public class AestesisEnginePlugin: NSObject, FlutterPlugin, AestesisEngineApi {
-        static var instance: AestesisEnginePlugin = AestesisEnginePlugin()
+@MainActor public class AestesisEnginePlugin: NSObject, FlutterPlugin, AestesisEngineApi {
+    static var instance: AestesisEnginePlugin = AestesisEnginePlugin()
     static var message: MessageAestesisEngineApi?
     public static func register(with registrar: FlutterPluginRegistrar) {
 #if os(iOS)
@@ -36,11 +36,12 @@ public class AestesisEnginePlugin: NSObject, FlutterPlugin, AestesisEngineApi {
     }
     
     var textures:FlutterTextureRegistry?
-    let _dummy = DummyOsView()
+    var _dummy : DummyOsView?
     var _composition: CompositionUI?
     
     override init() {
         super.init()
+        _dummy = DummyOsView(); 
         _composition = CompositionUI(parent: _dummy.viewport!)
     }
     
@@ -288,46 +289,46 @@ public class AestesisEnginePlugin: NSObject, FlutterPlugin, AestesisEngineApi {
 
 
 /*
-
- 2026 generated 
-// Import the correct Flutter module and UI framework for each platform
-#if os(iOS)
-import Flutter
-import UIKit
-#elseif os(macOS)
-import FlutterMacOS
-import Cocoa
-#endif
-
-public class AestesisEnginePlugin: NSObject, FlutterPlugin {
-  public static func register(with registrar: FlutterPluginRegistrar) {
-    // The registrar's `messenger` is a method on iOS and a property on macOS.
-    // Use a compile-time condition to handle this difference.
-    #if os(iOS)
-      let messenger = registrar.messenger()
-    #else
-      let messenger = registrar.messenger
-    #endif
-    let channel = FlutterMethodChannel(name: "aestesis_engine", binaryMessenger: messenger)
-    let instance = AestesisEnginePlugin()
-    registrar.addMethodCallDelegate(instance, channel: channel)
-  }
-
-  public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-    switch call.method {
-    case "getPlatformVersion":
-      // Use compile-time conditions to return the correct OS version string.
-      #if os(iOS)
-        result("iOS " + UIDevice.current.systemVersion)
-      #elseif os(macOS)
-        result("macOS " + ProcessInfo.processInfo.operatingSystemVersionString)
-      #else
-        // A fallback for any other Apple platform that might be supported in the future.
-        result(FlutterMethodNotImplemented)
-      #endif
-    default:
-      result(FlutterMethodNotImplemented)
-    }
-  }
-}
-*/
+ 
+ 2026 generated
+ // Import the correct Flutter module and UI framework for each platform
+ #if os(iOS)
+ import Flutter
+ import UIKit
+ #elseif os(macOS)
+ import FlutterMacOS
+ import Cocoa
+ #endif
+ 
+ public class AestesisEnginePlugin: NSObject, FlutterPlugin {
+ public static func register(with registrar: FlutterPluginRegistrar) {
+ // The registrar's `messenger` is a method on iOS and a property on macOS.
+ // Use a compile-time condition to handle this difference.
+ #if os(iOS)
+ let messenger = registrar.messenger()
+ #else
+ let messenger = registrar.messenger
+ #endif
+ let channel = FlutterMethodChannel(name: "aestesis_engine", binaryMessenger: messenger)
+ let instance = AestesisEnginePlugin()
+ registrar.addMethodCallDelegate(instance, channel: channel)
+ }
+ 
+ public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+ switch call.method {
+ case "getPlatformVersion":
+ // Use compile-time conditions to return the correct OS version string.
+ #if os(iOS)
+ result("iOS " + UIDevice.current.systemVersion)
+ #elseif os(macOS)
+ result("macOS " + ProcessInfo.processInfo.operatingSystemVersionString)
+ #else
+ // A fallback for any other Apple platform that might be supported in the future.
+ result(FlutterMethodNotImplemented)
+ #endif
+ default:
+ result(FlutterMethodNotImplemented)
+ }
+ }
+ }
+ */

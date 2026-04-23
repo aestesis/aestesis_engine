@@ -51,8 +51,7 @@ class CompositionOutput: NodeUI {
     
     func push(image: SharedBitmap) {
         if let videoWriter = videoWriter, videoWriter.status == .writing,
-           let cvPixelBuffer = image.pixelBuffer
-        {
+           let cvPixelBuffer = image.pixelBuffer {
             queue.async {
                 videoWriter.write(pixels: cvPixelBuffer)
             }
@@ -74,11 +73,11 @@ class CompositionOutput: NodeUI {
         self.preview?.detach()
         self.preview = nil
         if show {
-            self.preview = CompositionPreview(parent: self, ratio: settings?.size.ratio ?? 16/9)
+            self.preview = CompositionPreview(parent: self, ratio: settings?.size.ratio ?? 16 / 9)
             self.preview!.onClose.once { [weak self] in
                 guard let self = self else { return }
-                preview?.detach()
-                preview = nil
+                self.preview?.detach()
+                self.preview = nil
                 queue.async {
                     self.states.previewing = false
                 }
@@ -98,7 +97,8 @@ class CompositionOutput: NodeUI {
             return
         }
         let url = URL(filePath: file).checkFile(strategy: .rename)
-        let options: [VideoWriter.Option] = settings.audioSettings == nil ? [.video] : [.audio, .video]
+        let options: [VideoWriter.Option] =
+        settings.audioSettings == nil ? [.video] : [.audio, .video]
         queue.async {
             do {
                 self.videoWriter = try VideoWriter(

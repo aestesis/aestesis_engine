@@ -7,3 +7,4 @@ typealias Thread = aestesis_alib.Thread
 typealias Timer = aestesis_alib.Timer
 typealias VideoWriter = aestesis_alib.VideoWriter
 typealias Stream = aestesis_alib.Stream
+typealias SharedBitmap = aestesis_alib.SharedBitmap
