@@ -24,7 +24,8 @@ public class ModuleUI: NodeUI {
     var output: SynchronizedValue<SharedBitmap> = SynchronizedValue<SharedBitmap>()
     var assetOutputs: SynchronizedDictionnary<String, FlutterBitmap> = SynchronizedDictionnary<String, FlutterBitmap>()
     private let _textureCache:TextureCache
-    override var textureCache:TextureCache? {
+    override public var textureCache:TextureCache? {
+        // overriding texture cache to prevent texture leaks
         return _textureCache
     }
     var composition: CompositionUI? {
@@ -44,7 +45,7 @@ public class ModuleUI: NodeUI {
     }
     init(parent: NodeUI, id: String) {
         self.id = id
-        _textureCache = TextureCache(device: parent.viewport!.gpu.device!)
+        _textureCache = TextureCache(device: parent.viewport!.gpu.device)
         super.init(parent: parent)
     }
     override public func detach() {

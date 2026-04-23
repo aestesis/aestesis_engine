@@ -19,7 +19,7 @@ import FlutterMacOS
 extension FlutterError: Swift.Error {}
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
-@MainActor public class AestesisEnginePlugin: NSObject, FlutterPlugin, AestesisEngineApi {
+public class AestesisEnginePlugin: NSObject, FlutterPlugin, AestesisEngineApi {
     static var instance: AestesisEnginePlugin = AestesisEnginePlugin()
     static var message: MessageAestesisEngineApi?
     public static func register(with registrar: FlutterPluginRegistrar) {
@@ -42,7 +42,7 @@ extension FlutterError: Swift.Error {}
     override init() {
         super.init()
         _dummy = DummyOsView(); 
-        _composition = CompositionUI(parent: _dummy.viewport!)
+        _composition = CompositionUI(parent: _dummy!.viewport!)
     }
     
     func newComposition() throws -> Composition {
@@ -136,7 +136,7 @@ extension FlutterError: Swift.Error {}
             _composition!.sync {
                 _composition!.update(settings: settings)
             }
-            _dummy.fps = settings.fps
+            _dummy!.fps = settings.fps
         }
         return _composition!.settings
     }

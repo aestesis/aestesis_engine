@@ -21,7 +21,7 @@ class ShaderUI: ModuleUI {
         super.init(parent: parent, id: id)
         if let composition = composition {
             output.value = FlutterBitmap(parent:self,assetId:id,size:composition.settings.size)
-            renderer = SKRenderer(device: viewport!.gpu.device!)
+            renderer = SKRenderer(device: viewport!.gpu.device)
             renderer?.scene = SKScene(size:composition.settings.size.system)
             let sprite = SKSpriteNode(color:.white,size:composition.settings.size.system)
             sprite.position = (composition.settings.size*0.5).point.system

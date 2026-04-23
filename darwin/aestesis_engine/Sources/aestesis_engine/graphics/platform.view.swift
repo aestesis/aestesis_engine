@@ -50,7 +50,8 @@ class AlibView: NSView {
         })
         view = OsView(
             frame: CGRect(x: 0, y: 0, width: frame.width, height: frame.height),
-            device: AestesisEnginePlugin.instance._composition?.viewport?.gpu.device, threads: false)
+            device: AestesisEnginePlugin.instance._composition?.viewport?.gpu.device, threads: false
+        )
         super.addSubview(view!)
         view!.onStartUI.once { viewport in
             viewport.rootView = VideoView(viewport: viewport)
@@ -59,14 +60,14 @@ class AlibView: NSView {
             }
         }
     }
-    
+
     required init?(coder: NSCoder) {
         super.init(coder: coder)
     }
-    
+
     deinit {
     }
-    
+
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         switch call.method {
         case "updateView":
@@ -77,7 +78,7 @@ class AlibView: NSView {
             result(FlutterMethodNotImplemented)
         }
     }
-    
+
     public func handleArguments(_ args: [String: Any]) {
         let rargs = args as! [String: String?]
         if let videoView = self.view?.viewport?.rootView as? VideoView {
@@ -97,7 +98,7 @@ class VideoView: View {
     var bitmap: SharedBitmap?
     var pause: Bool = false
     var generandom: Double = 0
-    var gain:Double = 1
+    var gain: Double = 1
     var key: String {
         return "\(moduleId!).\(assetId!)"
     }
@@ -127,10 +128,12 @@ class VideoView: View {
             }
         }
     }
-    
+
     override func draw(to g: Graphics) {
         if let bitmap = bitmap {
-            g.draw(rect: bounds, image: bitmap, from: bitmap.bounds.crop(bounds.ratio), color: Color(rgb:color.rgb*gain))
+            g.draw(
+                rect: bounds, image: bitmap, from: bitmap.bounds.crop(bounds.ratio),
+                color: Color(rgb: color.rgb * gain))
             if let viewport = viewport, !viewport.systemView.pauseRefresh && pause {
                 viewport.systemView.pauseRefresh = true
             }
