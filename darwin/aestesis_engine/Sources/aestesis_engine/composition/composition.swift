@@ -152,9 +152,7 @@ class CompositionUI: NodeUI {
                             if let self = self, let stream = self.audioStream {
                                 let stereo = stream.read(stream.available)
                                 let mono = stereoToMono(stereo: stereo)
-                                self.bg {
-                                    self.audioAnalyzer.feed(mono, offset: 0, count: mono.count)
-                                }
+                                self.audioAnalyzer.feed(mono, offset: 0, count: mono.count)
                                 self.compositionOutput?.push(pcm:stereo)
                             }
                         }
