@@ -21,12 +21,15 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    //initPlatformState();
+    initPlatformState();
   }
 
   // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initPlatformState() async {
     final composition = await aestesis.composition();
+    aestesis.message.listenStatistics((statistics) {
+      Debug.info('statistics: $statistics');
+    });
     Debug.info('composition: ${composition.id}');
   }
 

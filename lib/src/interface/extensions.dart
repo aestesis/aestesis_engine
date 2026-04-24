@@ -13,7 +13,7 @@ extension CompositionSettingsExtension on CompositionSettings {
       'width': width,
       'height': height,
       'fps': fps,
-      if (audioSettings != null) 'audio': audioSettings!.toJson()
+      if (audioSettings != null) 'audio': audioSettings!.toJson(),
     };
   }
 
@@ -73,9 +73,9 @@ extension CompositionExtension on Composition {
   List<Module> diff(Composition other) {
     final List<Module> different = [];
     for (final module in modules.whereType<Module>()) {
-      final otherModule = other.modules
-          .whereType<Module>()
-          .firstWhere((m) => m.id == module.id);
+      final otherModule = other.modules.whereType<Module>().firstWhere(
+        (m) => m.id == module.id,
+      );
       if (!module.equals(otherModule)) {
         different.add(module);
       }
@@ -406,80 +406,94 @@ extension ModuleTypeExtension on ModuleType {
     switch (this) {
       case ModuleType.analog:
         return [
-          ...AnalogControl.values.map((c) => Control(
-                id: c.id,
-                moduleId: moduleId,
-                type: c.type,
-                name: c.name,
-                value: 0,
-                count: 0,
-              ))
+          ...AnalogControl.values.map(
+            (c) => Control(
+              id: c.id,
+              moduleId: moduleId,
+              type: c.type,
+              name: c.name,
+              value: 0,
+              count: 0,
+            ),
+          ),
         ];
       case ModuleType.camera:
         return [
-          ...CameraControl.values.map((c) => Control(
-                id: c.id,
-                moduleId: moduleId,
-                type: c.type,
-                name: c.name,
-                value: 0,
-                count: 0,
-              ))
+          ...CameraControl.values.map(
+            (c) => Control(
+              id: c.id,
+              moduleId: moduleId,
+              type: c.type,
+              name: c.name,
+              value: 0,
+              count: 0,
+            ),
+          ),
         ];
       case ModuleType.fx:
         return [
-          ...FxControl.values.map((c) => Control(
-                id: c.id,
-                moduleId: moduleId,
-                type: c.type,
-                name: c.name,
-                value: 0,
-                count: 0,
-              ))
+          ...FxControl.values.map(
+            (c) => Control(
+              id: c.id,
+              moduleId: moduleId,
+              type: c.type,
+              name: c.name,
+              value: 0,
+              count: 0,
+            ),
+          ),
         ];
       case ModuleType.lut:
         return [
-          ...LutControl.values.map((c) => Control(
-                id: c.id,
-                moduleId: moduleId,
-                type: c.type,
-                name: c.name,
-                value: 0,
-                count: 0,
-              ))
+          ...LutControl.values.map(
+            (c) => Control(
+              id: c.id,
+              moduleId: moduleId,
+              type: c.type,
+              name: c.name,
+              value: 0,
+              count: 0,
+            ),
+          ),
         ];
       case ModuleType.player:
         return [
-          ...PlayerControl.values.map((c) => Control(
-                id: c.id,
-                moduleId: moduleId,
-                type: c.type,
-                name: c.name,
-                value: 0,
-                count: 0,
-              ))
+          ...PlayerControl.values.map(
+            (c) => Control(
+              id: c.id,
+              moduleId: moduleId,
+              type: c.type,
+              name: c.name,
+              value: 0,
+              count: 0,
+            ),
+          ),
         ];
       case ModuleType.shader:
         return [
-          ...ShaderControl.values.map((c) => Control(
-                id: c.id,
-                moduleId: moduleId,
-                type: c.type,
-                name: c.name,
-                value: 0,
-                count: 0,
-              ))
+          ...ShaderControl.values.map(
+            (c) => Control(
+              id: c.id,
+              moduleId: moduleId,
+              type: c.type,
+              name: c.name,
+              value: 0,
+              count: 0,
+            ),
+          ),
         ];
       case ModuleType.syn:
         return [
-          ...SynControl.values.map((c) => Control(
-                id: c.id,
-                moduleId: moduleId,
-                type: c.type,
-                name: c.name,
-                value: 0,
-                count: 0,
-              ))
+          ...SynControl.values.map(
+            (c) => Control(
+              id: c.id,
+              moduleId: moduleId,
+              type: c.type,
+              name: c.name,
+              value: 0,
+              count: 0,
+            ),
+          ),
         ];
     }
   }
@@ -496,18 +510,20 @@ extension ModuleTypeExtension on ModuleType {
   Module create() {
     final id = const Uuid().v4();
     return Module(
-        id: id,
-        name: name,
-        type: this,
-        controls: controls(id),
-        assets: assets(id));
+      id: id,
+      name: name,
+      type: this,
+      controls: controls(id),
+      assets: assets(id),
+    );
   }
 
   String toJson() => toString().split('.').last;
 
   static ModuleType fromJson(String json) => ModuleType.values.firstWhere(
-      (element) => element.toString().split('.').last == json,
-      orElse: () => ModuleType.camera);
+    (element) => element.toString().split('.').last == json,
+    orElse: () => ModuleType.camera,
+  );
 }
 
 /// ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -525,33 +541,42 @@ extension ModuleExtension on Module {
     }
   }
 
-  Module copyWith(
-      {String? name, List<Control?>? controls, List<Asset?>? assets}) {
+  Module copyWith({
+    String? name,
+    List<Control?>? controls,
+    List<Asset?>? assets,
+  }) {
     return Module(
-        id: id,
-        name: name ?? this.name,
-        type: type,
-        controls: controls ?? this.controls,
-        assets: assets ?? this.assets);
+      id: id,
+      name: name ?? this.name,
+      type: type,
+      controls: controls ?? this.controls,
+      assets: assets ?? this.assets,
+    );
   }
 
   bool equals(Module other) {
-    final basic = id == other.id &&
+    final basic =
+        id == other.id &&
         name == other.name &&
         type == other.type &&
         controls?.length == other.controls?.length &&
         assets?.length == other.assets?.length;
     if (!basic) return false;
     for (final control in (controls ?? []).whereType<Control>()) {
-      final otherControl = other.controls
-          ?.firstWhere((c) => c?.id == control.id, orElse: () => null);
+      final otherControl = other.controls?.firstWhere(
+        (c) => c?.id == control.id,
+        orElse: () => null,
+      );
       if (otherControl == null || !control.equals(otherControl)) {
         return false;
       }
     }
     for (final asset in (assets ?? []).whereType<Asset>()) {
-      final otherAsset = other.assets
-          ?.firstWhere((a) => a?.id == asset.id, orElse: () => null);
+      final otherAsset = other.assets?.firstWhere(
+        (a) => a?.id == asset.id,
+        orElse: () => null,
+      );
       if (otherAsset == null || !asset.equals(otherAsset)) {
         return false;
       }
@@ -617,8 +642,9 @@ extension ModuleExtension on Module {
 extension ControlTypeExtension on ControlType {
   String toJson() => toString().split('.').last;
   static ControlType fromJson(String json) => ControlType.values.firstWhere(
-      (element) => element.toString().split('.').last == json,
-      orElse: () => ControlType.integer);
+    (element) => element.toString().split('.').last == json,
+    orElse: () => ControlType.integer,
+  );
 }
 
 /// ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -683,11 +709,7 @@ class ControlState {
     required this.count,
   });
   Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'value': value,
-      'count': count,
-    };
+    return {'id': id, 'value': value, 'count': count};
   }
 
   factory ControlState.fromJson(Map<String, dynamic> map) {
@@ -733,11 +755,11 @@ extension CameraDeviceExtension on CameraDevice {
 /// ///////////////////////////////////////////////////////////////////////////////////////////////////////
 extension PreviewExtension on mess.Preview {
   PreviewInfo get info => PreviewInfo(
-        moduleId: moduleId,
-        assetId: assetId,
-        //  width: width,
-        //  height: height,
-      );
+    moduleId: moduleId,
+    assetId: assetId,
+    //  width: width,
+    //  height: height,
+  );
 }
 
 /// ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -746,10 +768,12 @@ class PreviewInfo {
   String? assetId;
   //int width;
   //int height;
-  PreviewInfo({required this.moduleId, this.assetId
-      //required this.width,
-      //required this.height,
-      });
+  PreviewInfo({
+    required this.moduleId,
+    this.assetId,
+    //required this.width,
+    //required this.height,
+  });
 }
 
 /// ///////////////////////////////////////////////////////////////////////////////////////////////////////
