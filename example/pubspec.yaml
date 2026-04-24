@@ -12,6 +12,10 @@ dependencies:
   aestesis_engine:
     path: ../
 
+  bb_dart:
+    git: https://github.com/aestesis/bb.dart.git
+  bb.flutter:
+    git: https://github.com/aestesis/bb.flutter.git
 
 dev_dependencies:
   integration_test:

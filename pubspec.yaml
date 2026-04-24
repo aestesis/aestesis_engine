@@ -12,6 +12,13 @@ dependencies:
   flutter:
     sdk: flutter
   plugin_platform_interface: ^2.0.2
+  collection: any
+  uuid: any
+  bb_dart:
+    git: https://github.com/aestesis/bb.dart.git
+  bb.flutter:
+    git: https://github.com/aestesis/bb.flutter.git
+
 
 dev_dependencies:
   flutter_test:
