@@ -142,7 +142,7 @@ class CompositionUI: NodeUI {
                     self.audioStream = nil
                 }
                 if let audioSettings = settings.audioSettings,
-                   let device = AudioDevice.getDevice(name: audioSettings.deviceName)
+                   let device = aestesis_alib.AudioDevice.getDevice(name: audioSettings.deviceName)
                 {
                     do {
                         self.audioStream = try device.open(

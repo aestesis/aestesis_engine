@@ -14,7 +14,7 @@ class CompositionPreview: NodeUI {
     let onClose = Event<Void>()
     var window: OsWindow?
     private var closed = false
-    var ratio:Double {
+    public var ratio:Double {
         get {
             return window?.ratio ?? 16/9
         }

@@ -20,14 +20,16 @@ import FlutterMacOS
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
-public class ModuleUI: NodeUI {
+public class ModuleUI: aestesis_alib.NodeUI {
     var output: SynchronizedValue<SharedBitmap> = SynchronizedValue<SharedBitmap>()
     var assetOutputs: SynchronizedDictionnary<String, FlutterBitmap> = SynchronizedDictionnary<String, FlutterBitmap>()
     private let _textureCache:TextureCache
+    /*
     override public var textureCache:TextureCache? {
         // overriding texture cache to prevent texture leaks
         return _textureCache
     }
+    */
     var composition: CompositionUI? {
         return self.ancestor() as CompositionUI?
     }

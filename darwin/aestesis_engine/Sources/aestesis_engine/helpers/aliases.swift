@@ -9,3 +9,4 @@ typealias VideoWriter = aestesis_alib.VideoWriter
 typealias Stream = aestesis_alib.Stream
 typealias SharedBitmap = aestesis_alib.SharedBitmap
 typealias OsView = aestesis_alib.OsView
+typealias JSON = aestesis_alib.JSON

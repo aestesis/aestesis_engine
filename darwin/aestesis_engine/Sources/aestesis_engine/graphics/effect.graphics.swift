@@ -341,8 +341,7 @@ class EffectGraphics: Graphics {
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
     static func initShareds(store: NodeUI) {
-        let library = ProgramLibrary(parent: store, filename: "default")
-        store["metalsharedlibrary"] = library
+        let library = store.viewport!.gpu.library         
         Program.populateDefaultBlendModes(
             store: store, key: "program.fx.dynamic.cartesian.float2", library: library, vertex: "textureFuncVertex_float",
             fragment: "fxDynamicCartesianFloat2", vertexFormat: [.float3, .float4, .float2])
