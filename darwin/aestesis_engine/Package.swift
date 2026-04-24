@@ -24,7 +24,8 @@ let package = Package(
                 .product(name: "FlutterFramework", package: "FlutterFramework"),
             ],
             resources: [
-                .process("shaders/default.metal")
+                .process("shaders/default.metal"),
+                .process("assets/")
             ]
         )
     ]
