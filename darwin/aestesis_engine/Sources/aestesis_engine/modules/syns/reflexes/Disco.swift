@@ -14,7 +14,7 @@ class Disco : Reflex {
     var sprite:Bitmap?=nil
     override init(parent: NodeUI) {
         super.init(parent:parent)
-        sprite=Bitmap(parent:self,path:"Sprites/sprite-32.png",bundle: Bundle(for: Disco.self))
+        sprite=Bitmap(parent:self,path:"assets/Sprites/sprite-32.png",bundle: Bundle(for: Disco.self))
     }
     override func detach() {
         if let sp=sprite {

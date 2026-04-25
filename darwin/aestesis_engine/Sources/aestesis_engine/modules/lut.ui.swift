@@ -26,7 +26,7 @@ class LutUI: ModuleUI {
             output.value = FlutterBitmap(parent: self, assetId: id, size: composition.settings.size)
             self.io { [weak self] in
                 guard let self=self, self.attached else { return }
-                previewSource = Bitmap(parent:self,path:"Luts/true.color.png",bundle:Bundle(for: LutUI.self))
+                previewSource = Bitmap(parent:self,path:"assets/Luts/true.color.png",bundle:Bundle(for: LutUI.self))
             }
         }
     }

@@ -46,7 +46,7 @@ class SynSoundscape: SynRenderer {
             material: "material.eq3d.waves")
         self.bg {
             self.mask = Bitmap(
-                parent: self, path: "Effects/medusa.2.png", bundle: Bundle(for: SynSoundscape.self))
+                parent: self, path: "assets/Effects/medusa.2.png", bundle: Bundle(for: SynSoundscape.self))
             self.waveform = Bitmap(parent: self, size: Size(self.sampleCount, 1), format: .height)
             self.gradient = ColorGradient([
                 0: .aeMagenta * 0.25, 0.2: .aeMagenta * 0.5, 0.8: .aeOrange, 1: .white,

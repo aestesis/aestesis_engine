@@ -40,7 +40,7 @@ class SynMoonWater: SynRenderer {
         renderer!.world = world
         renderer!.camera = camera
         self.io {
-            let b = Bitmap(parent: self, path: "Effects/sea.png", bundle: Bundle(for: SynMoonWater.self))
+            let b = Bitmap(parent: self, path: "assets/Effects/sea.png", bundle: Bundle(for: SynMoonWater.self))
             if let bc = self.material?.texture as? Bitmap {
                 let g = Graphics(image: bc)
                 g.draw(rect: bc.bounds, image: b)

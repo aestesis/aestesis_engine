@@ -117,7 +117,7 @@ class FxUI: ModuleUI {
     func sendPreviews() {
         for si in SynInfo.all {
             guard assetOutputs[si.name] == nil else { continue }
-            let b = Bitmap(parent:self,path: "Syns/\(si.name).png",bundle:Bundle(for: SynUI.self))
+            let b = Bitmap(parent:self,path: "assets/Syns/\(si.name).png",bundle:Bundle(for: SynUI.self))
             guard let cg = b.cgImage else { continue }
             sendPreview(assetId:si.name,cgImage:cg,ratio:b.size.ratio)
         }

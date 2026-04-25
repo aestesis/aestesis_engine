@@ -32,7 +32,7 @@ class WavesKiss : WavesEffect {
     required init(parent:NodeUI,size:Size) {
         self.size = size
         super.init(parent: parent, size: size)
-        sprite = Bitmap(parent:self,path:"Sprites/sprite-blanc.png", bundle: Bundle(for: WavesKiss.self))
+        sprite = Bitmap(parent:self,path:"assets/Sprites/sprite-blanc.png", bundle: Bundle(for: WavesKiss.self))
         swap[0] = Bitmap(parent:self,size:size)
         swap[1] = Bitmap(parent:self,size:size)
         functions=[triangle,star,quad,ovale]
