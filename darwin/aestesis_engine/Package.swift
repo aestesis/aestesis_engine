@@ -25,7 +25,7 @@ let package = Package(
             ],
             resources: [
                 .process("shaders/default.metal"),
-                .process("assets/")
+                .copy("assets/")
             ]
         )
     ]
