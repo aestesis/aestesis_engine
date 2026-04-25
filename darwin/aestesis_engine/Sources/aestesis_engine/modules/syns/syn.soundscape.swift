@@ -5,10 +5,10 @@
 //  Created by renan jegouzo on 07/02/2024.
 //
 
-import Foundation
 import Accelerate
-import simd
+import Foundation
 import aestesis_alib
+import simd
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -32,11 +32,13 @@ class SynSoundscape: SynRenderer {
         renderer!.camera = Camera3D(parent: world, position: Vec3(z: -10), direction: Vec3(z: 1))
         let attenuation = Attenuation(quadratic: 0.005)
         light = PointLight(
-            parent: world, position: Vec3(x: 1, y: -3, z: -5), color: .white, attenuation: attenuation)
+            parent: world, position: Vec3(x: 1, y: -3, z: -5), color: .white,
+            attenuation: attenuation)
         plan = Plan(parent: self, factor: 320)
         self["mesh.plan"] = plan
         material = MaterialHeightMap(
-            parent: self, name: "eq3d.waves", blend: .alpha, cull: .front, ambient: Color(hex: "404040"),
+            parent: self, name: "eq3d.waves", blend: .alpha, cull: .front,
+            ambient: Color(hex: "404040"),
             diffuse: Color(hex: "A0A0A0"), specular: .white, shininess: 100,
             textureSize: Size(1024, 1024), heightSize: Size(sampleCount, sampleCount),
             heightFormat: .height, scale: 0.4, adjustNormals: 0.2)
@@ -46,33 +48,35 @@ class SynSoundscape: SynRenderer {
             material: "material.eq3d.waves")
         self.bg {
             self.mask = Bitmap(
-                parent: self, path: "assets/Effects/medusa.2.png", bundle: Bundle(for: SynSoundscape.self))
+                parent: self, path: "assets/Effects/medusa.2.png", bundle: Bundle.aestesis)
             self.waveform = Bitmap(parent: self, size: Size(self.sampleCount, 1), format: .height)
             self.gradient = ColorGradient([
                 0: .aeMagenta * 0.25, 0.2: .aeMagenta * 0.5, 0.8: .aeOrange, 1: .white,
             ]).createBitmap(parent: self, width: 32)
         }
         initMFFT()
-        
+
         // _ = Object(parent: onode!, box: Box(center: .zero, size: .unity*10))
     }
     override func render(
-        time: Double, dtime: Double, fps:Double, audio: AudioAnalyzer.Info, output: Bitmap,
+        time: Double, dtime: Double, fps: Double, audio: AudioAnalyzer.Info, output: Bitmap,
         _ fn: @escaping () -> Void
     ) {
         guard let plan = plan, plan.initialized, let renderer = renderer, let light = light,
-              let camera = renderer.camera, let onode = onode
+            let camera = renderer.camera, let onode = onode
         else { return }
-        
+
         updateWaveform(dtime: dtime, audio: audio)
         updateMaterial(time: time)
-        
+
         let pl = Point(x: sin(time * 0.05141), y: sin(time * 0.01141)) * 3 + Point(0, -3)
         light.position = Vec3(x: pl.x, y: pl.y, z: -5)
         let pc = Point(x: sin(time * 0.1141), y: sin(time * 0.2141)) * 3
-        camera.position = Vec3(x: pc.x, y: pc.y, z: -10 - sin(time * 0.12341) + sin(time * 0.012511) + sin(time * 0.0018141))
+        camera.position = Vec3(
+            x: pc.x, y: pc.y,
+            z: -10 - sin(time * 0.12341) + sin(time * 0.012511) + sin(time * 0.0018141))
         camera.lookAt(node: onode)
-        
+
         let g = Graphics(image: output, clear: Color(hex: "000020"), depthClear: 1)
         renderer.render(to: g, size: output.size)
         /* debug
@@ -87,7 +91,7 @@ class SynSoundscape: SynRenderer {
     }
     func updateWaveform(dtime: Double, audio: AudioAnalyzer.Info) {
         guard let waveform = waveform else { return }
-        let sample = getSample(dtime:dtime,audio:audio)
+        let sample = getSample(dtime: dtime, audio: audio)
         var data = [UInt16](repeating: 0, count: sampleCount)
         for xi in 0..<sampleCount {
             let l = max(min(sample[xi] * 0.5 + 0.5, 1), 0)
@@ -103,7 +107,7 @@ class SynSoundscape: SynRenderer {
         }
 
     }
-    func getSample(dtime:Double, audio:AudioAnalyzer.Info) -> [Float] {
+    func getSample(dtime: Double, audio: AudioAnalyzer.Info) -> [Float] {
         var sample = [Float](repeating: 0, count: sampleCount)
         let di: Double = 64.0 / Double(mffts.count)
         for i in 0..<mffts.count {
@@ -114,10 +118,10 @@ class SynSoundscape: SynRenderer {
             mffts[i].amplitude = mffts[i].amplitude * 0.5 + v
         }
         let mt = 128 / Double(sampleCount)
-        var smp = [SIMD16<Float>](repeating: SIMD16<Float>(), count:sampleCount / 16)
+        var smp = [SIMD16<Float>](repeating: SIMD16<Float>(), count: sampleCount / 16)
         for f in mffts {
             let a = Float(f.amplitude)
-            let amp = SIMD16<Float>(a,a,a,a,a,a,a,a,a,a,a,a,a,a,a,a)
+            let amp = SIMD16<Float>(a, a, a, a, a, a, a, a, a, a, a, a, a, a, a, a)
             var t = Float(f.time)
             let dt = Float(-(f.freq * mt))
             var ismp = 0
@@ -198,7 +202,8 @@ class SynSoundscape: SynRenderer {
     }
     func updateMaterial(time: Double) {
         guard let material = material, let mask = mask, let texture = material.texture as? Bitmap,
-              let height = material.height as? Bitmap, let heightBase = waveform, let gradient = gradient
+            let height = material.height as? Bitmap, let heightBase = waveform,
+            let gradient = gradient
         else { return }
         let gHeight = EffectGraphics(image: height)
         let rz: Size = height.size * 0.1
@@ -300,7 +305,7 @@ class SynSoundscape: SynRenderer {
         var time: Double
         var amplitude: Double
     }
-    
+
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////

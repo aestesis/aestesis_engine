@@ -29,18 +29,20 @@ class SynMoonWater: SynRenderer {
         let camera = Camera3D(parent: world, position: Vec3(z: -5), direction: Vec3(z: 1))
         let attenuation = Attenuation(quadratic: 0.005)
         light = PointLight(
-            parent: world, position: Vec3(x: 1, y: -3, z: -5), color: .white, attenuation: attenuation)
+            parent: world, position: Vec3(x: 1, y: -3, z: -5), color: .white,
+            attenuation: attenuation)
         plan = Plan(parent: self, factor: 32)
         self["mesh.plan"] = plan
         material = MaterialHeightMap(
             parent: self, name: "eq3d.waves", cull: .front, ambient: Color(hex: "404040"),
-            diffuse: Color(hex: "606060"), specular: .white, shininess: 3, size: Size(32, 32), scale: 0.2,
+            diffuse: Color(hex: "606060"), specular: .white, shininess: 3, size: Size(32, 32),
+            scale: 0.2,
             adjustNormals: 0.2)
         self["material.eq3d.waves"] = material
         renderer!.world = world
         renderer!.camera = camera
         self.io {
-            let b = Bitmap(parent: self, path: "assets/Effects/sea.png", bundle: Bundle(for: SynMoonWater.self))
+            let b = Bitmap(parent: self, path: "assets/Effects/sea.png", bundle: Bundle.aestesis)
             if let bc = self.material?.texture as? Bitmap {
                 let g = Graphics(image: bc)
                 g.draw(rect: bc.bounds, image: b)
@@ -52,7 +54,7 @@ class SynMoonWater: SynRenderer {
             material: "material.eq3d.waves")
     }
     override func render(
-        time: Double, dtime: Double, fps:Double, audio: AudioAnalyzer.Info, output: Bitmap,
+        time: Double, dtime: Double, fps: Double, audio: AudioAnalyzer.Info, output: Bitmap,
         _ fn: @escaping () -> Void
     ) {
         guard let bh = material?.height, let plan = plan, plan.initialized, let renderer = renderer
@@ -74,7 +76,8 @@ class SynMoonWater: SynRenderer {
                 for z in zygos {
                     let dx = x - z.pos.x
                     let dy = y - z.pos.y
-                    v += (sin(sqrt(dx * dx + dy * dy) * z.freq + time * z.speed) * 0.5 + 0.5) * z.amp
+                    v +=
+                        (sin(sqrt(dx * dx + dy * dy) * z.freq + time * z.speed) * 0.5 + 0.5) * z.amp
                 }
                 c.r = v
                 data[d] = c.bgra
@@ -114,16 +117,20 @@ class SynMoonWater: SynRenderer {
                     var nx = x + factor
                     for _ in 0..<factor - 1 {
                         if ypair {
-                            self.appendFace(material: mat, v0: Int32(x), v1: Int32(x + 1), v2: Int32(nx))
-                            self.appendFace(material: mat, v0: Int32(x + 1), v1: Int32(nx + 1), v2: Int32(nx))
+                            self.appendFace(
+                                material: mat, v0: Int32(x), v1: Int32(x + 1), v2: Int32(nx))
+                            self.appendFace(
+                                material: mat, v0: Int32(x + 1), v1: Int32(nx + 1), v2: Int32(nx))
                         } else {
-                            self.appendFace(material: mat, v0: Int32(x), v1: Int32(nx + 1), v2: Int32(nx))
-                            self.appendFace(material: mat, v0: Int32(x), v1: Int32(x + 1), v2: Int32(nx + 1))
+                            self.appendFace(
+                                material: mat, v0: Int32(x), v1: Int32(nx + 1), v2: Int32(nx))
+                            self.appendFace(
+                                material: mat, v0: Int32(x), v1: Int32(x + 1), v2: Int32(nx + 1))
                         }
                         x += 1
                         nx += 1
                     }
-                    
+
                 }
                 self.dispatchInitialized()
             }

@@ -37,7 +37,7 @@ class WavesSpline: WavesEffect {
         swap[1] = Bitmap(parent: self, size: size)
         sprite = Bitmap(
             parent: self, path: "assets/Sprites/sprite-gris-16x32-no-alpha.png",
-            bundle: Bundle(for: WavesSpline.self))
+            bundle: Bundle.aestesis)
         _output = Bitmap(parent: self, size: size)
         computerPalette()
     }

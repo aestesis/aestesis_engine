@@ -24,9 +24,9 @@ class SynCoastalWaves: Syn {
         io {
             self.sprite = Bitmap(
                 parent: self, path: "assets/Sprites/sprite-blanc.png",
-                bundle: Bundle(for: SynCoastalWaves.self))
+                bundle: Bundle.aestesis
             self.ghost = Bitmap(
-                parent: self, path: "assets/ghosts/ghost-01.png", bundle: Bundle(for: SynCoastalWaves.self)
+                parent: self, path: "assets/ghosts/ghost-01.png", bundle: Bundle.aestesis
             )
             self.line = Bitmap(parent: self, size: Size(512, 1))
         }

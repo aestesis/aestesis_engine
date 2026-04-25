@@ -9,11 +9,11 @@ import Foundation
 import aestesis_alib
 
 #if os(iOS)
-import UIKit
-import Flutter
+    import UIKit
+    import Flutter
 #else
-import AppKit
-import FlutterMacOS
+    import AppKit
+    import FlutterMacOS
 #endif
 
 // // liquid simulation: https://andrewkchan.dev/posts/fire.html
@@ -49,17 +49,17 @@ class FxUI: ModuleUI {
     static let assets: [Asset] = FxInfo.all.map { Asset(id: $0.name, name: $0.name) }
     var fxs: [FxInfo: Fx] = [:]
     var lastFxInfo: FxInfo?
-    var level:Double = 0
-    var source:ModuleUI? {
-        guard let composition=composition else { return nil }
+    var level: Double = 0
+    var source: ModuleUI? {
+        guard let composition = composition else { return nil }
         let index = composition.composition.modules.firstIndex(where: { $0!.id == id })! - 1
-        guard index>=0 else { return nil }
+        guard index >= 0 else { return nil }
         return composition.modules[composition.composition.modules[index]!.id]
     }
     override init(parent: NodeUI, id: String) {
         super.init(parent: parent, id: id)
         if let composition = composition {
-            output.value = FlutterBitmap(parent:self,assetId:id,size:composition.settings.size)
+            output.value = FlutterBitmap(parent: self, assetId: id, size: composition.settings.size)
             io {
                 self.sendPreviews()
             }
@@ -73,7 +73,7 @@ class FxUI: ModuleUI {
     }
     override func update(settings: CompositionSettings) {
         if let o = output.value, o.size != settings.size {
-            output.value = FlutterBitmap(parent:self,assetId:id,size:settings.size)
+            output.value = FlutterBitmap(parent: self, assetId: id, size: settings.size)
             for fx in fxs.values {
                 fx.resize(size: settings.size)
             }
@@ -89,7 +89,8 @@ class FxUI: ModuleUI {
         }
     }
     override func process(
-        time: Double, dtime: Double, beat: Double, dbeat: Double, fps:Double, audio: AudioAnalyzer.Info
+        time: Double, dtime: Double, beat: Double, dbeat: Double, fps: Double,
+        audio: AudioAnalyzer.Info
     ) {
         guard let casset = module![FxControl.asset.id] else { return }
         guard let clevel = module![FxControl.level.id] else { return }
@@ -108,7 +109,9 @@ class FxUI: ModuleUI {
             lastFxInfo = si
         }
         if let fx = fxs[si], let output = output.value {
-            fx.process(dtime: dtime, fps:fps, audio: audio, input: input, output: output, level: level) {
+            fx.process(
+                dtime: dtime, fps: fps, audio: audio, input: input, output: output, level: level
+            ) {
                 output.updated()
                 self.updateAssetOutput(assetId: si.name, bitmap: output)
             }
@@ -117,9 +120,10 @@ class FxUI: ModuleUI {
     func sendPreviews() {
         for si in SynInfo.all {
             guard assetOutputs[si.name] == nil else { continue }
-            let b = Bitmap(parent:self,path: "assets/Syns/\(si.name).png",bundle:Bundle(for: SynUI.self))
+            let b = Bitmap(
+                parent: self, path: "assets/Syns/\(si.name).png", bundle: Bundle.aestesis)
             guard let cg = b.cgImage else { continue }
-            sendPreview(assetId:si.name,cgImage:cg,ratio:b.size.ratio)
+            sendPreview(assetId: si.name, cgImage: cg, ratio: b.size.ratio)
         }
     }
     func sendPreview(assetId: String, cgImage: CGImage, ratio: Double) {
@@ -127,11 +131,14 @@ class FxUI: ModuleUI {
         let width = Int(Double(height) * ratio)
         var sizedImage: CGImage = cgImage
         if cgImage.height != height || cgImage.width != width {
-            guard let sImage = cgImage.croppedResize(size: CGSize(width: width, height: height)) else { return }
+            guard let sImage = cgImage.croppedResize(size: CGSize(width: width, height: height))
+            else { return }
             sizedImage = sImage
         }
         let data = sizedImage.pngData()
-        let preview = Preview(moduleId: id, assetId: assetId, width: Int64(sizedImage.width),height: Int64(sizedImage.height), data: FlutterStandardTypedData(bytes: data))
+        let preview = Preview(
+            moduleId: id, assetId: assetId, width: Int64(sizedImage.width),
+            height: Int64(sizedImage.height), data: FlutterStandardTypedData(bytes: data))
         preview.send()
     }
 }
@@ -142,16 +149,24 @@ class Fx: NodeUI {
     init(parent: NodeUI) {
         super.init(parent: parent)
     }
-    func process(dtime: Double, fps:Double, audio: AudioAnalyzer.Info, input: Bitmap, output: Bitmap, level: Double, _ fn: @escaping () -> Void){
+    func process(
+        dtime: Double, fps: Double, audio: AudioAnalyzer.Info, input: Bitmap, output: Bitmap,
+        level: Double, _ fn: @escaping () -> Void
+    ) {
         time += dtime
-        render(time: time, dtime: dtime, fps:fps, audio: audio, input: input, output: output, level: level, fn)
+        render(
+            time: time, dtime: dtime, fps: fps, audio: audio, input: input, output: output,
+            level: level, fn)
     }
-    func resize(size:Size) {}
-    func render(time: Double, dtime: Double, fps:Double, audio: AudioAnalyzer.Info, input: Bitmap, output: Bitmap, level: Double,_ fn: @escaping () -> Void) {}
+    func resize(size: Size) {}
+    func render(
+        time: Double, dtime: Double, fps: Double, audio: AudioAnalyzer.Info, input: Bitmap,
+        output: Bitmap, level: Double, _ fn: @escaping () -> Void
+    ) {}
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
-class FxRenderer : Fx, RendererProtocol {
+class FxRenderer: Fx, RendererProtocol {
     var renderer: Renderer?
     var db: NodeUI { return self }
     override init(parent: NodeUI) {

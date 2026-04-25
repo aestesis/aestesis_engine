@@ -9,11 +9,11 @@ import Foundation
 import aestesis_alib
 
 #if os(iOS)
-import UIKit
-import Flutter
+    import UIKit
+    import Flutter
 #else
-import AppKit
-import FlutterMacOS
+    import AppKit
+    import FlutterMacOS
 #endif
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -55,7 +55,7 @@ class SynUI: ModuleUI {
     override init(parent: NodeUI, id: String) {
         super.init(parent: parent, id: id)
         if let composition = composition {
-            output.value = FlutterBitmap(parent:self,assetId:id,size:composition.settings.size)
+            output.value = FlutterBitmap(parent: self, assetId: id, size: composition.settings.size)
             io {
                 self.sendPreviews()
             }
@@ -69,7 +69,7 @@ class SynUI: ModuleUI {
     }
     override func update(settings: CompositionSettings) {
         if let o = output.value, o.size != settings.size {
-            output.value = FlutterBitmap(parent:self,assetId:id,size:settings.size)
+            output.value = FlutterBitmap(parent: self, assetId: id, size: settings.size)
             for syn in syns.values {
                 syn.resize(size: settings.size)
             }
@@ -85,7 +85,8 @@ class SynUI: ModuleUI {
         }
     }
     override func process(
-        time: Double, dtime: Double, beat: Double, dbeat: Double, fps:Double, audio: AudioAnalyzer.Info
+        time: Double, dtime: Double, beat: Double, dbeat: Double, fps: Double,
+        audio: AudioAnalyzer.Info
     ) {
         guard let control = module![SynControl.asset.id] else { return }
         let si = SynInfo.all[Int(control.value)]
@@ -101,7 +102,7 @@ class SynUI: ModuleUI {
             lastSynInfo = si
         }
         if let syn = syns[si], let output = output.value {
-            syn.process(dtime: dtime, fps:fps, audio: audio, output: output) {
+            syn.process(dtime: dtime, fps: fps, audio: audio, output: output) {
                 output.updated()
                 self.updateAssetOutput(assetId: si.name, bitmap: output)
             }
@@ -110,9 +111,10 @@ class SynUI: ModuleUI {
     func sendPreviews() {
         for si in SynInfo.all {
             guard assetOutputs[si.name] == nil else { continue }
-            let b = Bitmap(parent:self,path: "assets/Syns/\(si.name).png",bundle:Bundle(for: SynUI.self))
+            let b = Bitmap(
+                parent: self, path: "assets/Syns/\(si.name).png", bundle: Bundle.aestesis)
             guard let cg = b.cgImage else { continue }
-            sendPreview(assetId:si.name,cgImage:cg,ratio:b.size.ratio)
+            sendPreview(assetId: si.name, cgImage: cg, ratio: b.size.ratio)
         }
     }
     func sendPreview(assetId: String, cgImage: CGImage, ratio: Double) {
@@ -120,11 +122,14 @@ class SynUI: ModuleUI {
         let width = Int(Double(height) * ratio)
         var sizedImage: CGImage = cgImage
         if cgImage.height != height || cgImage.width != width {
-            guard let sImage = cgImage.croppedResize(size: CGSize(width: width, height: height)) else { return }
+            guard let sImage = cgImage.croppedResize(size: CGSize(width: width, height: height))
+            else { return }
             sizedImage = sImage
         }
         let data = sizedImage.pngData()
-        let preview = Preview(moduleId: id, assetId: assetId, width: Int64(sizedImage.width),height: Int64(sizedImage.height), data: FlutterStandardTypedData(bytes: data))
+        let preview = Preview(
+            moduleId: id, assetId: assetId, width: Int64(sizedImage.width),
+            height: Int64(sizedImage.height), data: FlutterStandardTypedData(bytes: data))
         preview.send()
     }
 }
@@ -135,16 +140,22 @@ class Syn: NodeUI {
     init(parent: NodeUI) {
         super.init(parent: parent)
     }
-    func process(dtime: Double, fps:Double, audio: AudioAnalyzer.Info, output: Bitmap, _ fn: @escaping () -> Void){
+    func process(
+        dtime: Double, fps: Double, audio: AudioAnalyzer.Info, output: Bitmap,
+        _ fn: @escaping () -> Void
+    ) {
         time += dtime
-        render(time: time, dtime: dtime, fps:fps, audio: audio, output: output, fn)
+        render(time: time, dtime: dtime, fps: fps, audio: audio, output: output, fn)
     }
-    func resize(size:Size) {}
-    func render(time: Double, dtime: Double, fps:Double, audio: AudioAnalyzer.Info, output: Bitmap,_ fn: @escaping () -> Void) {}
+    func resize(size: Size) {}
+    func render(
+        time: Double, dtime: Double, fps: Double, audio: AudioAnalyzer.Info, output: Bitmap,
+        _ fn: @escaping () -> Void
+    ) {}
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
-class SynRenderer : Syn, RendererProtocol {
+class SynRenderer: Syn, RendererProtocol {
     var renderer: Renderer?
     var db: NodeUI { return self }
     override init(parent: NodeUI) {
