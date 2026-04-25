@@ -1,6 +1,6 @@
 # Aestesis Engine
 
-A high-performance video composition engine for Flutter, built on Swift/SwiftShader for macOS and iOS.
+A high-performance video composition engine for Flutter, built on Swift/Metal for macOS and iOS.
 
 [![Platform](https://img.shields.io/badge/platform-macOS%2FiOS-blue.svg)](https://flutter.dev)
 [![Flutter](https://img.shields.io/badge/Flutter-3.3.0+-326F1B.svg)](https://flutter.dev)
@@ -215,7 +215,7 @@ for (final device in audioDevices) {
 | `fx` | Visual effects module | Filters, transforms |
 | `lut` | Look-up table module | Color transforms |
 | `player` | Media player module | Playing video files |
-| `shader` | Custom shader module | GLSL shaders |
+| `shader` | Custom shader module | metal shaders |
 | `syn` | Synthesizer module | Audio synthesis |
 
 ---
