@@ -28,7 +28,7 @@ class _MyAppState extends State<MyApp> {
   Future<void> initPlatformState() async {
     final composition = await aestesis.composition();
     aestesis.message.listenStatistics((statistics) {
-      Debug.info('statistics: $statistics');
+      Debug.info('statistics: ${statistics.pigeonString()}');
     });
     Debug.info('composition: ${composition.id}');
   }
