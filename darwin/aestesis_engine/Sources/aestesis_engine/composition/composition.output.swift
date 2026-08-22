@@ -104,7 +104,7 @@ class CompositionOutput: NodeUI {
     
     func startRecording(file: String) {
         guard let settings = settings else {
-            Debug.error(Error("composition.output: no settings"))
+            Debug.error(AlibError("composition.output: no settings"))
             return
         }
         let url = URL(filePath: file).checkFile(strategy: .rename)

@@ -3,11 +3,11 @@ import Foundation
 import aestesis_alib
 
 #if os(iOS)
-import UIKit
-import Flutter
+    import UIKit
+    import Flutter
 #else
-import AppKit
-import FlutterMacOS
+    import AppKit
+    import FlutterMacOS
 #endif
 
 // TODO: add NDI https://ndi.video/  (ethernet video cable)
@@ -22,7 +22,7 @@ class CompositionUI: NodeUI {
     var composition = Composition(id: UUID().uuidString, name: "Composition", modules: [])
     var settings = CompositionSettings(width: 1920, height: 1080, fps: 60)
     var modules: [String: ModuleUI] = [:]
-    var compositionOutput:CompositionOutput?
+    var compositionOutput: CompositionOutput?
     var frame: Int = 0
     var fps: Double = 60
     let startTime = ß.time
@@ -32,8 +32,10 @@ class CompositionUI: NodeUI {
     var ratio: Double {
         return settings.width / settings.height
     }
-    var output:SharedBitmap? {
-        guard !composition.modules.isEmpty, let module = composition.modules.last as? Module, let output = modules[module.id]?.output else { return nil }
+    var output: SharedBitmap? {
+        guard !composition.modules.isEmpty, let module = composition.modules.last as? Module,
+            let output = modules[module.id]?.output
+        else { return nil }
         return output.value
     }
     init(parent: NodeUI) {
@@ -49,7 +51,8 @@ class CompositionUI: NodeUI {
             if statFrame % 10 == 0 {
                 self.io {
                     let cpu = cpuUsage()
-                    let stats = CompositionStatistics(fps: fps, cpu: cpu.user, gpu: 0, ram: memoryMbUsed())
+                    let stats = CompositionStatistics(
+                        fps: fps, cpu: cpu.user, gpu: 0, ram: memoryMbUsed())
                     stats.send()
                 }
             }
@@ -58,12 +61,13 @@ class CompositionUI: NodeUI {
                 let level = AudioLevel(
                     peak: Double(info.peak),
                     eq: Equalizer(
-                        low: Double(info.eq.low), mid: Double(info.eq.medium), high: Double(info.eq.high)))
+                        low: Double(info.eq.low), mid: Double(info.eq.medium),
+                        high: Double(info.eq.high)))
                 level.send()
             }
             statFrame += 1
         }
-        compositionOutput = CompositionOutput(parent:self)
+        compositionOutput = CompositionOutput(parent: self)
     }
     override func detach() {
         compositionOutput?.detach()
@@ -91,11 +95,11 @@ class CompositionUI: NodeUI {
             }
         }
         frame += 1
-        if let compositionOutput=compositionOutput, let output = output {
-            compositionOutput.push(image:output)
+        if let compositionOutput = compositionOutput, let output = output {
+            compositionOutput.push(image: output)
         }
     }
-    
+
     func sync(_ execute: () -> Void) {
         lock.sync {
             execute()
@@ -125,17 +129,17 @@ class CompositionUI: NodeUI {
             mui.update()
         }
     }
-    
+
     func update(module: Module) {
         modules[module.id]?.update()
     }
-    
+
     func update(control: Control) {
         modules[control.moduleId]?.update(control: control)
     }
-    
-    var t:Double = 0
-    
+
+    var t: Double = 0
+
     func update(settings: CompositionSettings) {
         if !AudioSettings.equals(self.settings.audioSettings, settings.audioSettings) {
             DispatchQueue.main.async {
@@ -144,7 +148,7 @@ class CompositionUI: NodeUI {
                     self.audioStream = nil
                 }
                 if let audioSettings = settings.audioSettings,
-                   let device = aestesis_alib.AudioDevice.getDevice(name: audioSettings.deviceName)
+                    let device = aestesis_alib.AudioDevice.getDevice(name: audioSettings.deviceName)
                 {
                     do {
                         self.audioStream = try device.open(
@@ -155,20 +159,26 @@ class CompositionUI: NodeUI {
                                 let stereo = stream.read(stream.available)
                                 let mono = stereoToMono(stereo: stereo)
                                 self.audioAnalyzer.feed(mono, offset: 0, count: mono.count)
-                                self.compositionOutput?.push(pcm:stereo)
+                                self.compositionOutput?.push(pcm: stereo)
                             }
                         }
-                        Debug.info("audio input started for device \(device.name)")
+                        Debug.info("AudioInput started for device \(device.name)")
                         self.audioStream!.onClose.once {
-                            Debug.info("audio input closed for device \(device.name)")
+                            Debug.info("AudioInput closed for device \(device.name)")
                             self.audioAnalyzer.clear()
                         }
                         self.audioStream!.onError.once { error in
-                            
-                            // TODO: manage error and dispatch to flutter
+                            if error == AudioError.audioUnitSettingsChanged {
+                                Debug.info("AudioInput settings changed for device \(device.name)")
+                                self.ui {
+                                    self.update(settings: settings)
+                                }
+                            } else {
+                                Debug.info("AudioInput error for device \(device.name): \(error)")
+                            }
                         }
                     } catch {
-                        Debug.error("AudioInput error: \(error)")
+                        Debug.error("Can't open AudioInput for device \(device.name): \(error)")
                         self.audioAnalyzer.clear()
                     }
                 }
@@ -178,9 +188,9 @@ class CompositionUI: NodeUI {
         for m in modules.values {
             m.update(settings: settings)
         }
-        compositionOutput?.update(settings:settings)
+        compositionOutput?.update(settings: settings)
     }
-    
+
     func stereoToMono(stereo: [Float]) -> [Float] {
         var mono: [Float] = []
         var i = 0
@@ -190,29 +200,29 @@ class CompositionUI: NodeUI {
         }
         return mono
     }
-    
+
     func startRecording(path: String) {
         compositionOutput?.startRecording(file: path)
     }
-    
+
     func stopRecording() {
         compositionOutput?.stopRecording()
     }
-    
-    func preview(show:Bool) {
+
+    func preview(show: Bool) {
         compositionOutput?.preview(show: show)
     }
-    
-    func setAssetData(key:String,json:JSON) {
-        
+
+    func setAssetData(key: String, json: JSON) {
+
     }
-    
-    func getAssetData(key:String) -> JSON? {
+
+    func getAssetData(key: String) -> JSON? {
         return nil
     }
-    
-    func setAssetDatas(json:JSON) {
-        
+
+    func setAssetDatas(json: JSON) {
+
     }
     func getAssetDatas() -> JSON? {
         return nil
