@@ -53,13 +53,13 @@ extension AudioSettings {
     static func equals(_ a: AudioSettings?, _ b: AudioSettings?) -> Bool {
         if let a = a, let b = b {
             return a.deviceName == b.deviceName && a.leftChannel == b.leftChannel
-            && a.rightChannel == b.rightChannel
+                && a.rightChannel == b.rightChannel
         } else if a == nil && b == nil {
             return true
         }
         return false
     }
-    
+
 }
 /// ///////////////////////////////////////////////////////////////////////////////////////////////////////
 /// ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -147,7 +147,7 @@ extension Control: CustomStringConvertible {
         return Color(bgra: UInt32(count)).with(a: 1)
     }
     var blend: ControlBlendMode? {
-        return ControlBlendMode(rawValue:Int(value))
+        return ControlBlendMode(rawValue: Int(value))
     }
 }
 /// ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -211,7 +211,8 @@ extension AnalogSourceControl {
     static func controls(module: Module, source: Module) -> [Control] {
         return AnalogSourceControl.all.map { c in
             return Control(
-                moduleId: module.id, id: c.id(source: source), type: c.type, name: c.name, value: c.value,
+                moduleId: module.id, id: c.id(source: source), type: c.type, name: c.name,
+                value: c.value,
                 count: c.count)
         }
     }
@@ -240,7 +241,8 @@ extension SynControl {
 /// ///////////////////////////////////////////////////////////////////////////////////////////////////////
 extension ControlBlendMode {
     static let all: [ControlBlendMode] = [
-        .normal, .add, .subtract, .multiply, .difference, .exclusion, .luma, .lumaAdd, .lumaSubtract, .lumaMultiply, .screen, .overlay, .darken,
+        .normal, .add, .subtract, .multiply, .difference, .exclusion, .luma, .lumaAdd,
+        .lumaSubtract, .lumaMultiply, .screen, .overlay, .darken,
         .lighten, .colorDodge, .colorBurn, .softLight, .hardLight, .glow, .linearLight, .negation,
         .phoenix, .reflect,
     ]

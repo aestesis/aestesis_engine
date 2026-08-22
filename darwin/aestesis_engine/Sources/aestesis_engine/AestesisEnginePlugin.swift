@@ -47,14 +47,14 @@ public class AestesisEnginePlugin: NSObject, FlutterPlugin, AestesisEngineApi {
         _dummy = DummyOsView()
         _composition = CompositionUI(parent: _dummy!.viewport!)
         #if DEBUG
-        Task.init {
-            if AVCaptureDevice.authorizationStatus(for: .video) != .authorized {
-                await AVCaptureDevice.requestAccess(for: .video)
+            Task.init {
+                if AVCaptureDevice.authorizationStatus(for: .video) != .authorized {
+                    await AVCaptureDevice.requestAccess(for: .video)
+                }
+                if AVCaptureDevice.authorizationStatus(for: .audio) != .authorized {
+                    await AVCaptureDevice.requestAccess(for: .audio)
+                }
             }
-            if AVCaptureDevice.authorizationStatus(for: .audio) != .authorized {
-                await AVCaptureDevice.requestAccess(for: .audio)
-            }
-        }
         #endif
     }
 
@@ -238,7 +238,13 @@ public class AestesisEnginePlugin: NSObject, FlutterPlugin, AestesisEngineApi {
     }
 
     func audioDevices(completion: @escaping (Result<[AudioDevice], Swift.Error>) -> Void) {
-        completion(Result.success(AudioDevice.devices))
+        completion(
+            Result.success(
+                aestesis_alib.AudioDevice.devices.map { d in
+                    return AudioDevice(
+                        id: Int64(d.id), name: d.name, manufacturer: d.manufacturer,
+                        inputChannels: d.inputChannels, outputChannels: d.outputChannels)
+                }))
     }
 
     func pickFiles(

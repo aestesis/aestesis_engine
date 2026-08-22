@@ -138,8 +138,6 @@ class CompositionUI: NodeUI {
         modules[control.moduleId]?.update(control: control)
     }
 
-    var t: Double = 0
-
     func update(settings: CompositionSettings) {
         if !AudioSettings.equals(self.settings.audioSettings, settings.audioSettings) {
             DispatchQueue.main.async {
@@ -147,40 +145,8 @@ class CompositionUI: NodeUI {
                     audioStream.close()
                     self.audioStream = nil
                 }
-                if let audioSettings = settings.audioSettings,
-                    let device = aestesis_alib.AudioDevice.getDevice(name: audioSettings.deviceName)
-                {
-                    do {
-                        self.audioStream = try device.open(
-                            leftChannel: Int(audioSettings.leftChannel),
-                            rightChannel: Int(audioSettings.rightChannel), fps: settings.fps)
-                        self.audioStream!.onData.alive(self) { [weak self] in
-                            if let self = self, let stream = self.audioStream {
-                                let stereo = stream.read(stream.available)
-                                let mono = stereoToMono(stereo: stereo)
-                                self.audioAnalyzer.feed(mono, offset: 0, count: mono.count)
-                                self.compositionOutput?.push(pcm: stereo)
-                            }
-                        }
-                        Debug.info("AudioInput started for device \(device.name)")
-                        self.audioStream!.onClose.once {
-                            Debug.info("AudioInput closed for device \(device.name)")
-                            self.audioAnalyzer.clear()
-                        }
-                        self.audioStream!.onError.once { error in
-                            if error == AudioError.audioUnitSettingsChanged {
-                                Debug.info("AudioInput settings changed for device \(device.name)")
-                                self.ui {
-                                    self.update(settings: settings)
-                                }
-                            } else {
-                                Debug.info("AudioInput error for device \(device.name): \(error)")
-                            }
-                        }
-                    } catch {
-                        Debug.error("Can't open AudioInput for device \(device.name): \(error)")
-                        self.audioAnalyzer.clear()
-                    }
+                if let audioSettings = settings.audioSettings {
+                    self.openAudioDevice(audioSettings: audioSettings)
                 }
             }
         }
@@ -189,6 +155,43 @@ class CompositionUI: NodeUI {
             m.update(settings: settings)
         }
         compositionOutput?.update(settings: settings)
+    }
+
+    func openAudioDevice(audioSettings: AudioSettings) {
+        if let device = aestesis_alib.AudioDevice.getDevice(name: audioSettings.deviceName) {
+            do {
+                self.audioStream = try device.open(
+                    leftChannel: Int(audioSettings.leftChannel),
+                    rightChannel: Int(audioSettings.rightChannel), fps: settings.fps)
+                self.audioStream!.onData.alive(self) { [weak self] in
+                    if let self = self, let stream = self.audioStream {
+                        let stereo = stream.read(stream.available)
+                        let mono = stereoToMono(stereo: stereo)
+                        self.audioAnalyzer.feed(mono, offset: 0, count: mono.count)
+                        self.compositionOutput?.push(pcm: stereo)
+                    }
+                }
+                self.audioStream!.onClose.once {
+                    Debug.info("AudioInput closed for device \(device.name)")
+                    self.audioAnalyzer.clear()
+                    self.audioStream = nil
+                }
+                self.audioStream!.onError.once { error in
+                    if let e = error as? AudioError, e == AudioError.audioUnitSettingsChanged {
+                        Debug.info("AudioInput settings changed for device \(device.name)")
+                        DispatchQueue.main.async {
+                            self.openAudioDevice(audioSettings: audioSettings)
+                        }
+                    } else {
+                        Debug.info("AudioInput error for device \(device.name): \(error)")
+                    }
+                }
+                Debug.info("AudioInput started for device \(device.name)")
+            } catch {
+                Debug.error("Can't open AudioInput for device \(device.name): \(error)")
+                self.audioAnalyzer.clear()
+            }
+        }
     }
 
     func stereoToMono(stereo: [Float]) -> [Float] {
