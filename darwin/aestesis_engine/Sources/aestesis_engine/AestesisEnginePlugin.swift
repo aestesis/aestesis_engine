@@ -46,6 +46,16 @@ public class AestesisEnginePlugin: NSObject, FlutterPlugin, AestesisEngineApi {
         super.init()
         _dummy = DummyOsView()
         _composition = CompositionUI(parent: _dummy!.viewport!)
+        #if DEBUG
+        Task.init {
+            if AVCaptureDevice.authorizationStatus(for: .video) != .authorized {
+                await AVCaptureDevice.requestAccess(for: .video)
+            }
+            if AVCaptureDevice.authorizationStatus(for: .audio) != .authorized {
+                await AVCaptureDevice.requestAccess(for: .audio)
+            }
+        }
+        #endif
     }
 
     func newComposition() throws -> Composition {

@@ -61,8 +61,19 @@ class CompositionOutput: NodeUI {
         }
     }
     
+    var t:Double = 0
     func push(pcm: [Float]) {
         if let videoWriter = videoWriter, videoWriter.status == .writing, !pcm.isEmpty {
+            /*
+            let l = pcm.count / 2
+            var pcm2: [Float] = []
+            for i in 0..<l {
+                let v = Float(sin(t))
+                t += 0.01
+                pcm2.append(v)
+                pcm2.append(v)
+            }
+             */
             queue.async {
                 videoWriter.write(pcm: pcm)
             }

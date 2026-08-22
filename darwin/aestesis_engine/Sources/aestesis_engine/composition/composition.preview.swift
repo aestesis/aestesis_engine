@@ -19,13 +19,21 @@ class CompositionPreview: NodeUI {
             return window?.ratio ?? 16/9
         }
         set {
-            window?.ratio = newValue
+            if let w = window {
+                let changed = w.ratio != newValue
+                w.ratio = newValue
+                if changed {
+                    ui {
+                        w.setContentSize(NSSize(width: w.frame.width, height: w.frame.height/CGFloat(newValue)))
+                    }
+                }
+            }
         }
     }
     init(parent: NodeUI, ratio:Double) {
         super.init(parent: parent)
         window = OsWindow(
-            frame: CGRect(x: 0, y: 0, width: 1280, height: 720), title: "aestesis preview")
+            frame: CGRect(x: 0, y: 0, width: 1280, height: 1280/ratio), title: "aestesis preview")
         window!.onStartUI.once { viewport in
             viewport.rootView = PreviewView(viewport: viewport)
         }

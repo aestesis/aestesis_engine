@@ -134,6 +134,8 @@ class CompositionUI: NodeUI {
         modules[control.moduleId]?.update(control: control)
     }
     
+    var t:Double = 0
+    
     func update(settings: CompositionSettings) {
         if !AudioSettings.equals(self.settings.audioSettings, settings.audioSettings) {
             DispatchQueue.main.async {
@@ -160,6 +162,10 @@ class CompositionUI: NodeUI {
                         self.audioStream!.onClose.once {
                             Debug.info("audio input closed for device \(device.name)")
                             self.audioAnalyzer.clear()
+                        }
+                        self.audioStream!.onError.once { error in
+                            
+                            // TODO: manage error and dispatch to flutter
                         }
                     } catch {
                         Debug.error("AudioInput error: \(error)")
