@@ -14,26 +14,29 @@ class CompositionPreview: NodeUI {
     let onClose = Event<Void>()
     var window: OsWindow?
     private var closed = false
-    public var ratio:Double {
+    public var ratio: Double {
         get {
-            return window?.ratio ?? 16/9
+            return window?.ratio ?? 16 / 9
         }
         set {
             if let w = window {
                 let changed = w.ratio != newValue
                 w.ratio = newValue
                 if changed {
-                    ui {
-                        w.setContentSize(NSSize(width: w.frame.width, height: w.frame.height/CGFloat(newValue)))
+                    DispatchQueue.main.async {
+                        let osize = w.frame.size
+                        let size = NSSize(width: w.frame.width, height: w.frame.width / CGFloat(newValue));
+                        Debug.info("preview window resize to fit new aspect ratio: \(newValue) -> \(size) from \(osize)")
+                        w.setContentSize(size)
                     }
                 }
             }
         }
     }
-    init(parent: NodeUI, ratio:Double) {
+    init(parent: NodeUI, ratio: Double) {
         super.init(parent: parent)
         window = OsWindow(
-            frame: CGRect(x: 0, y: 0, width: 1280, height: 1280/ratio), title: "aestesis preview")
+            frame: CGRect(x: 0, y: 0, width: 1280, height: 1280 / ratio), title: "aestesis preview")
         window!.onStartUI.once { viewport in
             viewport.rootView = PreviewView(viewport: viewport)
         }
@@ -42,7 +45,7 @@ class CompositionPreview: NodeUI {
         window!.makeKeyAndOrderFront(nil)
         window!.isReleasedWhenClosed = false
         window!.onClose.once { [weak self] in
-            guard let self=self else { return }
+            guard let self = self else { return }
             closed = true
             onClose.dispatch(())
         }
@@ -58,7 +61,8 @@ class CompositionPreview: NodeUI {
         super.detach()
     }
     func push(image: SharedBitmap) {
-        guard let window=window, let preview = window.rootView as? PreviewView, preview.attached else { return }
+        guard let window = window, let preview = window.rootView as? PreviewView, preview.attached
+        else { return }
         preview.image = image
     }
 }
@@ -68,7 +72,7 @@ private class PreviewView: View {
     var image: SharedBitmap?
     override init(viewport: Viewport) {
         super.init(viewport: viewport)
-        var lastId:Double = 0
+        var lastId: Double = 0
         viewport.pulse.alive(self) {
             if let image = self.image {
                 self.needsRedraw = image.generandom != lastId
