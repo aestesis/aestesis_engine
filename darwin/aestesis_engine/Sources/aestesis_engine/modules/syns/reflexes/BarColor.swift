@@ -28,7 +28,7 @@ class BarColor : Reflex {
                 return x * 0.5 + 0.5
             }
             var data = [UInt32](repeating:0, count:128)
-            var x = time*0.1
+            var x = time * 0.3
             let dx = 2.0 * ß.π / 128
             for i in 0..<128 {
                 let c = Color(a:1,rgb:Color(r:range(sin(x)),g:range(sin(x*1.19811)),b:range(sin(x*0.91651641)))*power*0.4)
