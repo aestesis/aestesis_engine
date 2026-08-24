@@ -21,7 +21,6 @@ class SynGeometry: Syn {
             Shades(parent: self),
             Disco(parent: self)
         ]
-
     }
     override func detach() {
         for r in reflex {

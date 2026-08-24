@@ -121,7 +121,7 @@ class FxUI: ModuleUI {
         for si in SynInfo.all {
             guard assetOutputs[si.name] == nil else { continue }
             let b = Bitmap(
-                parent: self, path: "assets/Syns/\(si.name).png", bundle: Bundle.aestesis)
+                parent: self, path: "assets/Fxs/\(si.name).png", bundle: Bundle.aestesis)
             guard let cg = b.cgImage else { continue }
             sendPreview(assetId: si.name, cgImage: cg, ratio: b.size.ratio)
         }

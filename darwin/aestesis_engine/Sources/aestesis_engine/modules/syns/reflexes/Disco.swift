@@ -29,7 +29,7 @@ class Disco: Reflex {
         if let sprite = sprite {
             let ns = 20
             let center = rect.center
-            let r0 = min(rect.w, rect.h) * 0.4
+            let r0 = min(rect.w, rect.h)
             var a = time * 0.1
             var b = time * 0.115465164141
             let da = ß.π * 2 / Double(ns)
