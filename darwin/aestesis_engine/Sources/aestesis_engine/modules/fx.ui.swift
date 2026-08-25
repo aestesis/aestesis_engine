@@ -118,7 +118,7 @@ class FxUI: ModuleUI {
         }
     }
     func sendPreviews() {
-        for si in SynInfo.all {
+        for si in FxInfo.all {
             guard assetOutputs[si.name] == nil else { continue }
             let b = Bitmap(
                 parent: self, path: "assets/Fxs/\(si.name).png", bundle: Bundle.aestesis)

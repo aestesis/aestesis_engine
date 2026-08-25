@@ -21,6 +21,7 @@ import aestesis_alib
 struct SynInfo: Hashable {
     static let all: [SynInfo] = [
         SynInfo(name: "Beta one", create: { SynBetaOne(parent: $0) }),
+        SynInfo(name: "Beta two", create: { SynBetaTwo(parent: $0) }),
         SynInfo(name: "Coastal waves", create: { SynCoastalWaves(parent: $0) }),
         SynInfo(name: "Color", create: { SynColor(parent: $0) }),
         SynInfo(name: "Cygnus", create: { SynCygnus(parent: $0) }),

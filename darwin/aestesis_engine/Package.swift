@@ -15,7 +15,7 @@ let package = Package(
     dependencies: [
         //.package(url: "https://github.com/aestesis/aestesis_alib.git", branch: "main"),
         .package(path: "/Users/renanyoy/git/aestesis_alib"),
-        .package(name: "FlutterFramework", path: "../FlutterFramework"),
+        .package(name: "FlutterFramework", path: "/Users/renanyoy/git/aestesis_app/macos/Flutter/ephemeral/Packages/.packages/FlutterFramework"),
     ],
     targets: [
         .target(

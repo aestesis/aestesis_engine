@@ -1,0 +1,14 @@
+{
+  "pins" : [
+    {
+      "identity" : "libtess",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/aestesis/libtess.git",
+      "state" : {
+        "branch" : "master",
+        "revision" : "f91e2ce4f30f6ee6217caec90ab010a7332632ac"
+      }
+    }
+  ],
+  "version" : 2
+}
