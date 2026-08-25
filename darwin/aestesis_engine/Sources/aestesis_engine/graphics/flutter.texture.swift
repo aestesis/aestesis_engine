@@ -5,16 +5,16 @@
 //  Created by renan jegouzo on 28/02/2024.
 //
 
-import Foundation
 import FlutterMacOS
+import Foundation
 import aestesis_alib
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
-class AEFlutterTexture : NSObject, FlutterTexture {
+class AEFlutterTexture: NSObject, FlutterTexture {
     var pixelBuffer: Unmanaged<CVPixelBuffer>?
-    var id:Int64?
-    init(image:SharedBitmap) {
+    var id: Int64?
+    init(image: SharedBitmap) {
         pixelBuffer = Unmanaged.passUnretained(image.pixelBuffer!)
         super.init()
         register()
@@ -23,7 +23,7 @@ class AEFlutterTexture : NSObject, FlutterTexture {
         self.id = AestesisEnginePlugin.instance.textures?.register(self)
     }
     func unregister() {
-        if let id=id {
+        if let id = id {
             AestesisEnginePlugin.instance.textures?.unregisterTexture(id)
         }
         pixelBuffer?.release()
@@ -44,17 +44,22 @@ class AEFlutterTexture : NSObject, FlutterTexture {
             return nil
         }
     }
-    func onTextureUnregistered(texture:NSObject & FlutterTexture) {
+    func onTextureUnregistered(texture: NSObject & FlutterTexture) {
         Debug.info("AEFlutterTexture unregistered")
     }
-    func publish(moduleId:String,assetId:String) {
-        guard let id=id else { return }
-        AestesisEnginePlugin.message?.texture(asset: AssetTexture(moduleId: moduleId, assetId: assetId, textureId: id), completion: { _ in })
+    func publish(moduleId: String, assetId: String) {
+        guard let id = id else { return }
+        Task.detached { @MainActor in
+            try await AestesisEnginePlugin.message?.texture(
+                asset: AssetTexture(moduleId: moduleId, assetId: assetId, textureId: id))
+        }
     }
-    
+
     func updated() {
-        guard let id=id else { return }
-        AestesisEnginePlugin.instance.textures?.textureFrameAvailable(id)
+        guard let id = id else { return }
+        Task.detached { @MainActor in
+            await AestesisEnginePlugin.instance.textures?.textureFrameAvailable(id)
+        }
     }
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////

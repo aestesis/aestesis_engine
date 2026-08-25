@@ -17,8 +17,8 @@ class CompositionOutput: NodeUI {
     {
         didSet {
             let st = states
-            DispatchQueue.main.async {
-                AestesisEnginePlugin.message?.states(states: st) { _ in }
+            Task.detached { @MainActor in
+                try await AestesisEnginePlugin.message?.states(states: st)
             }
         }
     }
@@ -26,7 +26,7 @@ class CompositionOutput: NodeUI {
     var videoStreamer: VideoStreamer?
     var preview: CompositionPreview?
     var settings: CompositionSettings?
-    
+
     override func detach() {
         videoWriter?.stop()
         videoStreamer?.stop()
@@ -36,22 +36,23 @@ class CompositionOutput: NodeUI {
         preview = nil
         super.detach()
     }
-    
+
     func update(settings: CompositionSettings) {
         stopRecording()
         self.settings = settings
         preview?.ratio = settings.size.ratio
     }
-    
+
     func error(message: String) {
-        DispatchQueue.main.async {
-            AestesisEnginePlugin.message?.message(level: .error, message: message) { _ in }
+        Task.detached { @MainActor in
+            try await AestesisEnginePlugin.message?.message(level: .error, message: message)
         }
     }
-    
+
     func push(image: SharedBitmap) {
         if let videoWriter = videoWriter, videoWriter.status == .writing,
-           let cvPixelBuffer = image.pixelBuffer {
+            let cvPixelBuffer = image.pixelBuffer
+        {
             queue.async {
                 videoWriter.write(pixels: cvPixelBuffer)
             }
@@ -60,8 +61,8 @@ class CompositionOutput: NodeUI {
             preview.push(image: image)
         }
     }
-    
-    var t:Double = 0
+
+    var t: Double = 0
     func push(pcm: [Float]) {
         if let videoWriter = videoWriter, videoWriter.status == .writing, !pcm.isEmpty {
             /*
@@ -79,7 +80,7 @@ class CompositionOutput: NodeUI {
             }
         }
     }
-    
+
     func preview(show: Bool) {
         self.preview?.detach()
         self.preview = nil
@@ -101,7 +102,7 @@ class CompositionOutput: NodeUI {
             self.states.previewing = show
         }
     }
-    
+
     func startRecording(file: String) {
         guard let settings = settings else {
             Debug.error(AlibError("composition.output: no settings"))
@@ -109,7 +110,7 @@ class CompositionOutput: NodeUI {
         }
         let url = URL(filePath: file).checkFile(strategy: .rename)
         let options: [VideoWriter.Option] =
-        settings.audioSettings == nil ? [.video] : [.audio, .video]
+            settings.audioSettings == nil ? [.video] : [.audio, .video]
         queue.async {
             do {
                 self.videoWriter = try VideoWriter(
@@ -136,7 +137,7 @@ class CompositionOutput: NodeUI {
             }
         }
     }
-    
+
     func stopRecording() {
         queue.async {
             self.videoWriter?.stop()
@@ -144,7 +145,7 @@ class CompositionOutput: NodeUI {
             self.videoWriter = nil
         }
     }
-    
+
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////

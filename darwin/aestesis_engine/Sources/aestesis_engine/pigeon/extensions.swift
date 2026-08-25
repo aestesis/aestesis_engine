@@ -12,14 +12,11 @@ import aestesis_alib
 /// ///////////////////////////////////////////////////////////////////////////////////////////////////////
 extension CompositionStatistics {
     func send() {
-        DispatchQueue.main.async {
-            AestesisEnginePlugin.message?.statistics(statistics: self) { result in
-                switch result {
-                case .success(_):
-                    break
-                case .failure(let error):
-                    Debug.error("send statistics error \(error.localizedDescription)")
-                }
+        Task.detached { @MainActor in
+            do {
+                try await AestesisEnginePlugin.message?.statistics(statistics: self)
+            } catch {
+                Debug.error("send statistics error \(error.localizedDescription)")
             }
         }
     }
@@ -27,14 +24,11 @@ extension CompositionStatistics {
 /// ///////////////////////////////////////////////////////////////////////////////////////////////////////
 extension AudioLevel {
     func send() {
-        DispatchQueue.main.async {
-            AestesisEnginePlugin.message?.audio(level: self) { result in
-                switch result {
-                case .success(_):
-                    break
-                case .failure(let error):
-                    Debug.error("send audio levels error \(error.localizedDescription)")
-                }
+        Task.detached { @MainActor in
+            do {
+                try await AestesisEnginePlugin.message?.audio(level: self)
+            } catch {
+                Debug.error("send audio levels error \(error.localizedDescription)")
             }
         }
     }
@@ -65,32 +59,18 @@ extension AudioSettings {
 /// ///////////////////////////////////////////////////////////////////////////////////////////////////////
 extension Preview {
     func send() {
-        DispatchQueue.main.async {
-            AestesisEnginePlugin.message?.preview(preview: self) { result in
-                switch result {
-                case .success(_):
-                    break
-                case .failure(let error):
-                    Debug.error("send preview error \(error.localizedDescription)")
-                }
+        Task.detached { @MainActor in
+            do {
+                try await AestesisEnginePlugin.message?.preview(preview: self)
+            } catch {
+                Debug.error("send preview error \(error.localizedDescription)")
             }
         }
     }
 }
 /// ///////////////////////////////////////////////////////////////////////////////////////////////////////
 /// ///////////////////////////////////////////////////////////////////////////////////////////////////////
-extension Asset: CustomStringConvertible {
-    /*
-    static func == (a: Asset, b: Asset) -> Bool {
-        return a.id == b.id
-    }
-     */
-    var description: String {
-        return "Asset(id:\(id) name:\(name) uri:\(uri ?? ""))"
-    }
-}
-/// ///////////////////////////////////////////////////////////////////////////////////////////////////////
-/// ///////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 extension ControlType: CustomStringConvertible {
     var description: String {
         switch self {
@@ -107,8 +87,9 @@ extension ControlType: CustomStringConvertible {
         }
     }
 }
+    */
 
-extension Control: CustomStringConvertible {
+extension Control {
     /*
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
@@ -129,19 +110,14 @@ extension Control: CustomStringConvertible {
         count = control.count
     }
     func send() {
-        DispatchQueue.main.async {
-            AestesisEnginePlugin.message?.control(control: self) { result in
-                switch result {
-                case .success(_):
-                    break
-                case .failure(let error):
-                    Debug.error("send control error \(error.localizedDescription)")
-                }
+        Task.detached { @MainActor in
+            do {
+                try await AestesisEnginePlugin.message?.control(control: self)
+            } catch {
+                Debug.error("send control error \(error.localizedDescription)")
             }
+
         }
-    }
-    var description: String {
-        return "Control(module:\(moduleId) id:\(id) name:\(name) type:\(type) value:\(value))"
     }
     var color: Color {
         return Color(bgra: UInt32(count)).with(a: 1)
@@ -311,7 +287,7 @@ extension ModuleType {
     }
 }
 /// ///////////////////////////////////////////////////////////////////////////////////////////////////////
-extension Module: CustomStringConvertible {
+extension Module {
     subscript(id: String) -> Control? {
         mutating get {
             if let index = controls!.firstIndex(where: { $0!.id == id }) {
@@ -323,9 +299,6 @@ extension Module: CustomStringConvertible {
             let index = controls!.firstIndex(where: { $0!.id == id })
             controls![index!] = c
         }
-    }
-    var description: String {
-        return "Module(id:\(id) name:\(name)"
     }
 }
 /// ///////////////////////////////////////////////////////////////////////////////////////////////////////

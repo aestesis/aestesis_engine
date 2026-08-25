@@ -174,7 +174,7 @@ public class AestesisEnginePlugin: NSObject, FlutterPlugin, AestesisEngineApi {
         }
     }
 
-    func cameraDevices(completion: @escaping (Result<[CameraDevice], Swift.Error>) -> Void) {
+    func cameraDevices() async throws -> [CameraDevice] {
         let cameraType: ((AVCaptureDevice.DeviceType) -> CameraType) = { type in
             switch type {
             case .builtInWideAngleCamera:
@@ -208,7 +208,7 @@ public class AestesisEnginePlugin: NSObject, FlutterPlugin, AestesisEngineApi {
                 return CameraPosition.undefined
             }
         }
-        let seekCameras: (() -> Void) = {
+        let seekCameras: (() -> [CameraDevice]) = {
             let session = AVCaptureDevice.DiscoverySession(
                 deviceTypes: [
                     .builtInWideAngleCamera, .continuityCamera, .deskViewCamera, .external,
@@ -220,61 +220,55 @@ public class AestesisEnginePlugin: NSObject, FlutterPlugin, AestesisEngineApi {
                     manufacturer: $0.manufacturer,
                     position: cameraPostion($0), type: cameraType($0.deviceType))
             }
-            completion(Result.success(cameras))
+            return cameras
         }
         switch AVCaptureDevice.authorizationStatus(for: .video) {
         case .authorized:
-            seekCameras()
+            return seekCameras()
         default:
-            AVCaptureDevice.requestAccess(
-                for: .video,
-                completionHandler: { ok in
-                    if !ok {
-                        completion(Result.success([]))
-                    }
-                    seekCameras()
-                })
+            let ok = try await AVCaptureDevice.requestAccess(for: .video)
+            if !ok {
+                return []
+            }
+            return seekCameras()
+        }
+
+    }
+
+    func audioDevices() async throws -> [AudioDevice] {
+        return aestesis_alib.AudioDevice.devices.map { d in
+            return AudioDevice(
+                id: Int64(d.id), name: d.name, manufacturer: d.manufacturer,
+                inputChannels: d.inputChannels, outputChannels: d.outputChannels)
         }
     }
 
-    func audioDevices(completion: @escaping (Result<[AudioDevice], Swift.Error>) -> Void) {
-        completion(
-            Result.success(
-                aestesis_alib.AudioDevice.devices.map { d in
-                    return AudioDevice(
-                        id: Int64(d.id), name: d.name, manufacturer: d.manufacturer,
-                        inputChannels: d.inputChannels, outputChannels: d.outputChannels)
-                }))
-    }
-
-    func pickFiles(
-        title: String, directory: String?, multiple: Bool, extensions: [String],
-        completion: @escaping (Result<[String], Swift.Error>) -> Void
-    ) {
+    func pickFiles(title: String, directory: String?, multiple: Bool, extensions: [String])
+        async throws -> [String]
+    {
         #if os(iOS)
             let controller = UIDocumentPickerViewController()
-            completion(Result.success([]))
+            // TODO: ..
+            return []
         #else
-            DispatchQueue.main.async {
-                let dialog = NSOpenPanel()
-                dialog.title = title
-                if let directory = directory {
-                    dialog.directoryURL = Foundation.URL(string: directory)
-                }
-                dialog.resolvesAliases = false
-                dialog.showsResizeIndicator = true
-                dialog.showsHiddenFiles = false
-                dialog.canChooseDirectories = false
-                dialog.allowsMultipleSelection = multiple
-                dialog.allowedContentTypes = extensions.map {
-                    UTType(tag: $0, tagClass: .filenameExtension, conformingTo: nil)!
-                }
-                if dialog.runModal() == NSApplication.ModalResponse.OK {
-                    let results = dialog.urls
-                    completion(Result.success(results.map { $0.path }))
-                } else {
-                    completion(Result.success([]))
-                }
+            let dialog = NSOpenPanel()
+            dialog.title = title
+            if let directory = directory {
+                dialog.directoryURL = Foundation.URL(string: directory)
+            }
+            dialog.resolvesAliases = false
+            dialog.showsResizeIndicator = true
+            dialog.showsHiddenFiles = false
+            dialog.canChooseDirectories = false
+            dialog.allowsMultipleSelection = multiple
+            dialog.allowedContentTypes = extensions.map {
+                UTType(tag: $0, tagClass: .filenameExtension, conformingTo: nil)!
+            }
+            if dialog.runModal() == NSApplication.ModalResponse.OK {
+                let results = dialog.urls
+                return results.map { $0.path }
+            } else {
+                return []
             }
         #endif
     }
@@ -312,48 +306,3 @@ public class AestesisEnginePlugin: NSObject, FlutterPlugin, AestesisEngineApi {
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-/*
-
- 2026 generated
- // Import the correct Flutter module and UI framework for each platform
- #if os(iOS)
- import Flutter
- import UIKit
- #elseif os(macOS)
- import FlutterMacOS
- import Cocoa
- #endif
-
- public class AestesisEnginePlugin: NSObject, FlutterPlugin {
- public static func register(with registrar: FlutterPluginRegistrar) {
- // The registrar's `messenger` is a method on iOS and a property on macOS.
- // Use a compile-time condition to handle this difference.
- #if os(iOS)
- let messenger = registrar.messenger()
- #else
- let messenger = registrar.messenger
- #endif
- let channel = FlutterMethodChannel(name: "aestesis_engine", binaryMessenger: messenger)
- let instance = AestesisEnginePlugin()
- registrar.addMethodCallDelegate(instance, channel: channel)
- }
-
- public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
- switch call.method {
- case "getPlatformVersion":
- // Use compile-time conditions to return the correct OS version string.
- #if os(iOS)
- result("iOS " + UIDevice.current.systemVersion)
- #elseif os(macOS)
- result("macOS " + ProcessInfo.processInfo.operatingSystemVersionString)
- #else
- // A fallback for any other Apple platform that might be supported in the future.
- result(FlutterMethodNotImplemented)
- #endif
- default:
- result(FlutterMethodNotImplemented)
- }
- }
- }
- */
