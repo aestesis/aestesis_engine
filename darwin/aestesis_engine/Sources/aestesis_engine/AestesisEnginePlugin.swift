@@ -251,24 +251,26 @@ public class AestesisEnginePlugin: NSObject, FlutterPlugin, AestesisEngineApi {
             // TODO: ..
             return []
         #else
-            let dialog = NSOpenPanel()
-            dialog.title = title
-            if let directory = directory {
-                dialog.directoryURL = Foundation.URL(string: directory)
-            }
-            dialog.resolvesAliases = false
-            dialog.showsResizeIndicator = true
-            dialog.showsHiddenFiles = false
-            dialog.canChooseDirectories = false
-            dialog.allowsMultipleSelection = multiple
-            dialog.allowedContentTypes = extensions.map {
-                UTType(tag: $0, tagClass: .filenameExtension, conformingTo: nil)!
-            }
-            if dialog.runModal() == NSApplication.ModalResponse.OK {
-                let results = dialog.urls
-                return results.map { $0.path }
-            } else {
-                return []
+            return await MainActor.run {
+                let dialog = NSOpenPanel()
+                dialog.title = title
+                if let directory = directory {
+                    dialog.directoryURL = Foundation.URL(string: directory)
+                }
+                dialog.resolvesAliases = false
+                dialog.showsResizeIndicator = true
+                dialog.showsHiddenFiles = false
+                dialog.canChooseDirectories = false
+                dialog.allowsMultipleSelection = multiple
+                dialog.allowedContentTypes = extensions.map {
+                    UTType(tag: $0, tagClass: .filenameExtension, conformingTo: nil)!
+                }
+                if dialog.runModal() == NSApplication.ModalResponse.OK {
+                    let results = dialog.urls
+                    return results.map { $0.path }
+                } else {
+                    return []
+                }
             }
         #endif
     }

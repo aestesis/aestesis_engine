@@ -90,15 +90,6 @@ extension ControlType: CustomStringConvertible {
     */
 
 extension Control {
-    /*
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
-    }
-    
-    static func == (a: Control, b: Control) -> Bool {
-        return a.id == b.id
-    }
-     */
     mutating func setValue(from control: Control) {
         guard control.id == id else {
             Debug.error(

@@ -373,7 +373,7 @@ extension ModuleTypeExtension on ModuleType {
       case ModuleType.fx:
         return 'Fx';
       case ModuleType.lut:
-        return 'Lut';
+        return 'Lutein';
       case ModuleType.player:
         return 'Player';
       case ModuleType.shader:
