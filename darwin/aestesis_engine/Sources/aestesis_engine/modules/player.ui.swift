@@ -50,7 +50,6 @@ class PlayerUI: ModuleUI {
             flutterOutput = FlutterBitmap(parent: self, assetId: id, size: size)
         }
     }
-
     override func update() {
         if module!.assets?.count != assets.count {
             for a in module!.assets! where !assets.has(key: a!.id) {

@@ -13,11 +13,12 @@ import aestesis_alib
 class CameraUI: ModuleUI {
     var cameras = SynchronizedDictionnary<String, Camera>()
     var current: Int? = nil
-    var flutterOutput : FlutterBitmap?
+    var flutterOutput: FlutterBitmap?
     override init(parent: NodeUI, id: String) {
         super.init(parent: parent, id: id)
         output.value = SharedBitmap(parent: self, size: composition!.settings.size)
-        flutterOutput = FlutterBitmap(parent: self, assetId: id, size: (Size(320,180)*Device.screenScale).round)
+        flutterOutput = FlutterBitmap(
+            parent: self, assetId: id, size: (Size(320, 180) * Device.screenScale).round)
     }
     override func detach() {
         for c in cameras.values {
@@ -26,6 +27,12 @@ class CameraUI: ModuleUI {
         flutterOutput?.detach()
         flutterOutput = nil
         super.detach()
+    }
+    override func update(settings: CompositionSettings) {
+        let size = Size(512, 512).crop(settings.size.ratio).round
+        if let o = flutterOutput, o.size != size {
+            flutterOutput = FlutterBitmap(parent: self, assetId: id, size: size)
+        }
     }
     override func update() {
         guard module != nil else { return }
@@ -36,14 +43,19 @@ class CameraUI: ModuleUI {
                 cam.onNewFrame.alive(self) { [weak self] in
                     guard let self = self, self.attached, let module = module else { return }
                     if let preview = cam.preview, preview.texture != nil {
-                        if let c = self.current, let i = module.assets!.firstIndex(where: { $0!.id == a!.id }), c == i {
+                        if let c = self.current,
+                            let i = module.assets!.firstIndex(where: { $0!.id == a!.id }), c == i
+                        {
                             self.output.value = preview
                             bg { [weak self] in
-                                guard let self = self, self.attached, let output = flutterOutput else { return }
-                                let g = Graphics(image:output)
-                                g.draw(rect:output.bounds,image:preview,from:preview.bounds.crop(output.bounds.ratio))
+                                guard let self = self, self.attached, let output = flutterOutput
+                                else { return }
+                                let g = Graphics(image: output)
+                                g.draw(
+                                    rect: output.bounds, image: preview,
+                                    from: preview.bounds.crop(output.bounds.ratio))
                                 g.onDone { [weak self] _ in
-                                    guard let self=self, self.attached else { return }
+                                    guard let self = self, self.attached else { return }
                                     output.updated()
                                 }
                             }
@@ -61,10 +73,11 @@ class CameraUI: ModuleUI {
                 cameras[id] = nil
             }
         }
-        module![CameraControl.asset.id]!.count = Int64(module!.assets?.count ?? 0)        
+        module![CameraControl.asset.id]!.count = Int64(module!.assets?.count ?? 0)
     }
     override func process(
-        time: Double, dtime: Double, beat: Double, dbeat: Double, fps:Double, audio: AudioAnalyzer.Info
+        time: Double, dtime: Double, beat: Double, dbeat: Double, fps: Double,
+        audio: AudioAnalyzer.Info
     ) {
         let control = module![CameraControl.asset.id]!
         if Int(control.value) != current && control.count > 0 {
