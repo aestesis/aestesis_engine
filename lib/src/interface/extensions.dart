@@ -757,8 +757,8 @@ extension PreviewExtension on mess.Preview {
   PreviewInfo get info => PreviewInfo(
     moduleId: moduleId,
     assetId: assetId,
-    //  width: width,
-    //  height: height,
+    width: width,
+    height: height,
   );
 }
 
@@ -766,13 +766,13 @@ extension PreviewExtension on mess.Preview {
 class PreviewInfo {
   String moduleId;
   String? assetId;
-  //int width;
-  //int height;
+  int width;
+  int height;
   PreviewInfo({
     required this.moduleId,
     this.assetId,
-    //required this.width,
-    //required this.height,
+    required this.width,
+    required this.height,
   });
 }
 

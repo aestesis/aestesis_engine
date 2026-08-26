@@ -11,11 +11,11 @@ import Foundation
 import aestesis_alib
 
 #if os(iOS)
-import UIKit
-import Flutter
+    import UIKit
+    import Flutter
 #else
-import AppKit
-import FlutterMacOS
+    import AppKit
+    import FlutterMacOS
 #endif
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -29,12 +29,13 @@ class PlayerUI: ModuleUI {
     var lastPixelBuffer: CVPixelBuffer?
     var needPreview = SynchronizedArray<String>()
     var needsJump: Double?
-    var flutterOutput : FlutterBitmap?
+    var flutterOutput: FlutterBitmap?
     override init(parent: NodeUI, id: String) {
         super.init(parent: parent, id: id)
         player.defaultRate = 1
         player.isMuted = true
-        flutterOutput = FlutterBitmap(parent: self, assetId: id, size: (Size(320,180)*Device.screenScale).round)
+        flutterOutput = FlutterBitmap(
+            parent: self, assetId: id, size: (Size(320, 180) * Device.screenScale).round)
     }
     override func detach() {
         stop()
@@ -43,6 +44,13 @@ class PlayerUI: ModuleUI {
         flutterOutput = nil
         super.detach()
     }
+    override func update(settings: CompositionSettings) {
+        let size = Size(512, 512).crop(settings.size.ratio).round
+        if let o = flutterOutput, o.size != size {
+            flutterOutput = FlutterBitmap(parent: self, assetId: id, size: size)
+        }
+    }
+
     override func update() {
         if module!.assets?.count != assets.count {
             for a in module!.assets! where !assets.has(key: a!.id) {
@@ -68,13 +76,20 @@ class PlayerUI: ModuleUI {
             needsJump = control.value
         }
     }
-    override func process(time: Double, dtime: Double, beat: Double, dbeat: Double, fps:Double, audio: AudioAnalyzer.Info) {
-        if let control = module![PlayerControl.asset.id], control.count > 0 && control.value >= 0 && Int(control.value) < assets.count
+    override func process(
+        time: Double, dtime: Double, beat: Double, dbeat: Double, fps: Double,
+        audio: AudioAnalyzer.Info
+    ) {
+        if let control = module![PlayerControl.asset.id],
+            control.count > 0 && control.value >= 0 && Int(control.value) < assets.count
         {
             if let asset = module!.assets?[Int(control.value)], currentAsset?.id != asset.id {
-                if let currentAsset = currentAsset, let pixelBuffer = lastPixelBuffer, currentAsset.id == lastPixelBufferAsset {
+                if let currentAsset = currentAsset, let pixelBuffer = lastPixelBuffer,
+                    currentAsset.id == lastPixelBufferAsset
+                {
                     io {
-                        currentAsset.sendPreview(moduleId: self.id, pixelBuffer: pixelBuffer, ratio: self.ratio)
+                        currentAsset.sendPreview(
+                            moduleId: self.id, pixelBuffer: pixelBuffer, ratio: self.ratio)
                     }
                 }
                 play(asset: assets[asset.id]!)
@@ -88,31 +103,37 @@ class PlayerUI: ModuleUI {
             if let jump = needsJump {
                 player.rate = 0
                 player.seek(
-                    to: CMTime(seconds: jump * asset.item.duration.seconds, preferredTimescale: 600))
+                    to: CMTime(seconds: jump * asset.item.duration.seconds, preferredTimescale: 600)
+                )
                 needsJump = nil
             } else if player.rate == 0 {
                 player.rate = 1
             }
             let itime = player.currentTime()
             if videoOutput.hasNewPixelBuffer(forItemTime: itime) {
-                if let pixelBuffer = videoOutput.copyPixelBuffer(forItemTime: itime, itemTimeForDisplay: nil) {
+                if let pixelBuffer = videoOutput.copyPixelBuffer(
+                    forItemTime: itime, itemTimeForDisplay: nil)
+                {
                     bg { [weak self] in
                         guard let self = self, self.attached else { return }
-                        let bitmap = SharedBitmap(parent:self,pixelBuffer: pixelBuffer)
+                        let bitmap = SharedBitmap(parent: self, pixelBuffer: pixelBuffer)
                         self.output.value = bitmap
                         self.updateAssetOutput(assetId: asset.id, bitmap: bitmap)
                         self.lastPixelBuffer = pixelBuffer
                         self.lastPixelBufferAsset = asset.id
                         guard let output = flutterOutput else { return }
-                        let g = Graphics(image:output)
-                        g.draw(rect:output.bounds,image:bitmap,from:bitmap.bounds.crop(output.bounds.ratio))
+                        let g = Graphics(image: output)
+                        g.draw(
+                            rect: output.bounds, image: bitmap,
+                            from: bitmap.bounds.crop(output.bounds.ratio))
                         g.onDone { [weak self] _ in
-                            guard let self=self, self.attached else { return }
+                            guard let self = self, self.attached else { return }
                             output.updated()
                         }
                     }
                 }
-                module![PlayerControl.position.id]!.value = itime.seconds / asset.item.duration.seconds
+                module![PlayerControl.position.id]!.value =
+                    itime.seconds / asset.item.duration.seconds
                 self.module![PlayerControl.position.id]!.send()
             }
         }
@@ -133,7 +154,9 @@ class PlayerUI: ModuleUI {
         currentAsset = asset
         lastPixelBufferAsset = nil
         player.play()
-        playerItemDidPlayToEndObserver = NotificationCenter.default.addObserver(forName: .AVPlayerItemDidPlayToEndTime, object: asset.item, queue: .main) {
+        playerItemDidPlayToEndObserver = NotificationCenter.default.addObserver(
+            forName: .AVPlayerItemDidPlayToEndTime, object: asset.item, queue: .main
+        ) {
             [weak self] _ in
             self?.player.seek(to: CMTime.zero)
             self?.player.play()
@@ -150,7 +173,7 @@ class PlayerUI: ModuleUI {
 class PlayerAsset {
     let videoOutput = AVPlayerItemVideoOutput(pixelBufferAttributes: [
         String(kCVPixelBufferPixelFormatTypeKey): kCVPixelFormatType_32BGRA,
-        String(kCVPixelBufferMetalCompatibilityKey): true
+        String(kCVPixelBufferMetalCompatibilityKey): true,
     ])
     let asset: Asset
     let url: Foundation.URL
@@ -167,20 +190,22 @@ class PlayerAsset {
     var id: String {
         return asset.id
     }
-    
-    func processPreview(player: PlayerUI)  {
+
+    func processPreview(player: PlayerUI) {
         AVAsset(url: url).generateThumbnail { [weak self] cgImage in
-            guard let self=self, let cgImage=cgImage else { return }
+            guard let self = self, let cgImage = cgImage else { return }
             player.io { [weak self] in
-                guard let self=self else { return }
-                self.sendPreview(moduleId: player.id, cgImage: cgImage, ratio: player.composition?.ratio ?? 16/9)
+                guard let self = self else { return }
+                self.sendPreview(
+                    moduleId: player.id, cgImage: cgImage,
+                    ratio: player.composition?.ratio ?? 16 / 9)
                 let b = Bitmap(parent: player, cg: cgImage)
                 player.updateAssetOutput(assetId: self.id, bitmap: b)
                 b.detach()
             }
         }
     }
-    
+
     func sendPreview(moduleId: String, pixelBuffer: CVPixelBuffer, ratio: Double) {
         let ciContext = CIContext()
         let ciImage = CIImage(cvImageBuffer: pixelBuffer)
@@ -189,17 +214,20 @@ class PlayerAsset {
             self.sendPreview(moduleId: moduleId, cgImage: fullImage, ratio: ratio)
         }
     }
-    
+
     func sendPreview(moduleId: String, cgImage: CGImage, ratio: Double) {
         let height = Int(90 * Device.screenScale)
         let width = Int(Double(height) * ratio)
         var sizedImage: CGImage = cgImage
         if cgImage.height != height || cgImage.width != width {
-            guard let sImage = cgImage.croppedResize(size: CGSize(width: width, height: height)) else { return }
+            guard let sImage = cgImage.croppedResize(size: CGSize(width: width, height: height))
+            else { return }
             sizedImage = sImage
         }
         let data = sizedImage.pngData()
-        let preview = Preview(moduleId: moduleId, assetId: id, width: Int64(sizedImage.width),height: Int64(sizedImage.height), data: FlutterStandardTypedData(bytes: data))
+        let preview = Preview(
+            moduleId: moduleId, assetId: id, width: Int64(sizedImage.width),
+            height: Int64(sizedImage.height), data: FlutterStandardTypedData(bytes: data))
         preview.send()
     }
 }
