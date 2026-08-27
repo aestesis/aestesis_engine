@@ -24,6 +24,7 @@ struct FxInfo: Hashable {
     static let all: [FxInfo] = [
         FxInfo(name: "Color cycle", create: { FxColorCycle(parent: $0) }),
         FxInfo(name: "Color EQ", create: { FxColorEq(parent: $0) }),
+        FxInfo(name: "Color LUT", create: { FxColorLut(parent: $0) }),
         FxInfo(name: "Color pulse", create: { FxColorPulse(parent: $0) }),
         FxInfo(name: "Color RGB", create: { FxColorRGB(parent: $0) }),
         FxInfo(name: "Dynamic drop", create: { FxDynamicDrop(parent: $0) }),

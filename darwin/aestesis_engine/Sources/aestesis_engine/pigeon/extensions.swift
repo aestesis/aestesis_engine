@@ -47,13 +47,13 @@ extension AudioSettings {
     static func equals(_ a: AudioSettings?, _ b: AudioSettings?) -> Bool {
         if let a = a, let b = b {
             return a.deviceName == b.deviceName && a.leftChannel == b.leftChannel
-                && a.rightChannel == b.rightChannel
+            && a.rightChannel == b.rightChannel
         } else if a == nil && b == nil {
             return true
         }
         return false
     }
-
+    
 }
 /// ///////////////////////////////////////////////////////////////////////////////////////////////////////
 /// ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -71,25 +71,25 @@ extension Preview {
 /// ///////////////////////////////////////////////////////////////////////////////////////////////////////
 /// ///////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
-extension ControlType: CustomStringConvertible {
-    var description: String {
-        switch self {
-        case .boolean:
-            return "boolean"
-        case .color:
-            return "color"
-        case .float:
-            return "float"
-        case .integer:
-            return "integer"
-        case .unit:
-            return "unit"
-        }
-    }
-}
-    */
+ extension ControlType: CustomStringConvertible {
+ var description: String {
+ switch self {
+ case .boolean:
+ return "boolean"
+ case .color:
+ return "color"
+ case .float:
+ return "float"
+ case .integer:
+ return "integer"
+ case .unit:
+ return "unit"
+ }
+ }
+ }
+ */
 
-extension Control {
+extension Control : @unchecked Sendable {
     mutating func setValue(from control: Control) {
         guard control.id == id else {
             Debug.error(
@@ -107,7 +107,6 @@ extension Control {
             } catch {
                 Debug.error("send control error \(error.localizedDescription)")
             }
-
         }
     }
     var color: Color {

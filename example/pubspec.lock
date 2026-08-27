@@ -54,7 +54,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "615580fd54d352eee6fde97e57585f8a02b71db6"
+      resolved-ref: ff576e1f7833fa03907bdeeac79a701ec16032d1
       url: "https://github.com/aestesis/bb.dart.git"
     source: git
     version: "1.0.0"

@@ -141,8 +141,10 @@ public class AestesisEnginePlugin: NSObject, FlutterPlugin, AestesisEngineApi {
 
     func updateControl(control: Control) throws {
         _composition!.sync {
-            _composition?.composition[control.moduleId]?[control.id]?.setValue(from: control)
-            _composition?.update(control: control)
+            if let module = _composition?.composition[control.moduleId], let control = module[control.id] {
+                control.setValue(from: control)
+                _composition?.update(control: control)
+            }
         }
     }
 
@@ -189,7 +191,7 @@ public class AestesisEnginePlugin: NSObject, FlutterPlugin, AestesisEngineApi {
                 return CameraType.undefined
             }
         }
-        let cameraPostion: ((AVCaptureDevice) -> CameraPosition) = { device in
+        let cameraPosition: ((AVCaptureDevice) -> CameraPosition) = { device in
             switch device.position {
             case .front:
                 return CameraPosition.front
@@ -218,7 +220,7 @@ public class AestesisEnginePlugin: NSObject, FlutterPlugin, AestesisEngineApi {
                 CameraDevice(
                     id: $0.uniqueID, name: $0.localizedName, model: $0.modelID,
                     manufacturer: $0.manufacturer,
-                    position: cameraPostion($0), type: cameraType($0.deviceType))
+                    position: cameraPosition($0), type: cameraType($0.deviceType))
             }
             return cameras
         }
