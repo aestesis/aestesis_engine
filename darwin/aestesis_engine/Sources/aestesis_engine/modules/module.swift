@@ -7,23 +7,25 @@
 
 import CoreImage
 import Foundation
-import simd
 import aestesis_alib
+import simd
 
 #if os(iOS)
-import UIKit
-import Flutter
+    import UIKit
+    import Flutter
 #else
-import AppKit
-import FlutterMacOS
+    import AppKit
+    import FlutterMacOS
 #endif
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 public class ModuleUI: aestesis_alib.NodeUI {
     var output: SynchronizedValue<SharedBitmap> = SynchronizedValue<SharedBitmap>()
-    var assetOutputs: SynchronizedDictionnary<String, FlutterBitmap> = SynchronizedDictionnary<String, FlutterBitmap>()
-    private let _textureCache:TextureCache
+    var assetOutputs: SynchronizedDictionnary<String, FlutterBitmap> = SynchronizedDictionnary<
+        String, FlutterBitmap
+    >()
+    private let _textureCache: TextureCache
     /*
     override public var textureCache:TextureCache? {
         // overriding texture cache to prevent texture leaks
@@ -60,16 +62,19 @@ public class ModuleUI: aestesis_alib.NodeUI {
         textureCache?.flush()
         super.detach()
     }
-    
+
     func update(settings: CompositionSettings) {
     }
     func update() {
     }
     func update(control: Control) {
     }
-    func process(time: Double, dtime: Double, beat: Double, dbeat: Double, fps:Double, audio: AudioAnalyzer.Info){
+    func process(
+        time: Double, dtime: Double, beat: Double, dbeat: Double, fps: Double,
+        audio: AudioAnalyzer.Info
+    ) {
     }
-    
+
     static func create(parent: NodeUI, module: Module) -> ModuleUI {
         switch module.type {
         case .analog:
@@ -88,23 +93,28 @@ public class ModuleUI: aestesis_alib.NodeUI {
             return SynUI(parent: parent, id: module.id)
         }
     }
-    
-    func updateAssetOutput(assetId: String, bitmap: Bitmap, blend:BlendMode = .opaque, color:Color = .white) {
+
+    func updateAssetOutput(
+        assetId: String, bitmap: Bitmap, blend: BlendMode = .opaque, color: Color = .white
+    ) {
         bg { [weak self] in
             guard let self = self, self.attached else { return }
             let height = (90 * Device.screenScale).rounded()
             let ratio = self.composition?.ratio ?? 16 / 9
-            let size =  Size(height * ratio, height)
-            var ab:FlutterBitmap?
-            if let b = self.assetOutputs[assetId], b.size==size {
+            let size = Size(height * ratio, height)
+            var ab: FlutterBitmap?
+            if let b = self.assetOutputs[assetId], b.size == size {
                 ab = b
             } else {
-                ab = FlutterBitmap(parent: self, assetId: assetId, size: Size(height * ratio, height))
+                ab = FlutterBitmap(
+                    parent: self, assetId: assetId, size: Size(height * ratio, height))
                 self.assetOutputs[assetId] = ab
             }
             guard let ab = ab else { fatalError("should not happen") }
             let g = Graphics(image: ab)
-            g.draw(rect: ab.bounds, image: bitmap, from: bitmap.bounds.crop(ratio), blend: blend, color: color)
+            g.draw(
+                rect: ab.bounds, image: bitmap, from: bitmap.bounds.crop(ratio), blend: blend,
+                color: color)
             g.onDone { [weak self] ok in
                 guard let self = self, self.attached else { return }
                 switch ok {
@@ -116,11 +126,12 @@ public class ModuleUI: aestesis_alib.NodeUI {
             }
         }
     }
-    
-    func addAssetOutput(assetId:String) {
+
+    func addAssetOutput(assetId: String) {
         let height = (90 * Device.screenScale).rounded()
         let ratio = self.composition?.ratio ?? 16 / 9
-        assetOutputs[assetId] = FlutterBitmap(parent: self, assetId: assetId, size: Size(height * ratio, height))
+        assetOutputs[assetId] = FlutterBitmap(
+            parent: self, assetId: assetId, size: Size(height * ratio, height))
     }
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////

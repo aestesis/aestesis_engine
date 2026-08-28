@@ -84,7 +84,7 @@ class AnalogUI: ModuleUI {
             for i in 0..<module!.controls!.count {
                 let control = module!.controls![i]
                 if let c = mcontrols.first(where: { $0.id == control!.id }) {
-                    module!.controls![i]?.setValue(from: c)
+                    module!.controls![i] = c
                 }
             }
         }

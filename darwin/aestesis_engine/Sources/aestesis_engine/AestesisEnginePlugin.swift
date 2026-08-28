@@ -92,6 +92,12 @@ public class AestesisEnginePlugin: NSObject, FlutterPlugin, AestesisEngineApi {
         return _composition!.composition
     }
 
+    func updateControl(control: Control) throws {
+        _composition!.sync {
+            _composition?.update(control: control)
+        }
+    }
+
     func addModule(module: Module) throws -> Composition {
         _composition!.sync {
             _composition!.composition.modules.append(module)
@@ -137,15 +143,6 @@ public class AestesisEnginePlugin: NSObject, FlutterPlugin, AestesisEngineApi {
             _composition!.update(module: _composition!.composition.modules[index]!)
         }
         return _composition!.composition
-    }
-
-    func updateControl(control: Control) throws {
-        _composition!.sync {
-            if let module = _composition?.composition[control.moduleId], let control = module[control.id] {
-                control.setValue(from: control)
-                _composition?.update(control: control)
-            }
-        }
     }
 
     func settings(settings: CompositionSettings?) throws -> CompositionSettings {

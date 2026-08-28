@@ -135,7 +135,14 @@ class CompositionUI: NodeUI {
     }
 
     func update(control: Control) {
-        modules[control.moduleId]?.update(control: control)
+        guard let moduleUi = modules[control.moduleId], let c = moduleUi.module?[control.id],
+            c.type == control.type, c.name == control.name
+        else {
+            Debug.info("mistmatch Composition.update(control: \(control)")
+            return
+        }
+        moduleUi.module?[control.id] = control
+        moduleUi.update(control: control)
     }
 
     func update(settings: CompositionSettings) {
@@ -217,15 +224,11 @@ class CompositionUI: NodeUI {
     }
 
     func setAssetData(key: String, json: JSON) {
-
     }
-
     func getAssetData(key: String) -> JSON? {
         return nil
     }
-
     func setAssetDatas(json: JSON) {
-
     }
     func getAssetDatas() -> JSON? {
         return nil

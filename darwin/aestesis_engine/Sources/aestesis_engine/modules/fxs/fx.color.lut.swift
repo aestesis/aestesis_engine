@@ -11,12 +11,16 @@ import aestesis_alib
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 class FxColorLut: Fx {
-    let size = 8
+    lazy var sprite: Bitmap = Bitmap(
+        parent: self, path: "assets/Sprites/sprite-add.png", bundle: Bundle.aestesis)
+    let size = 4
     var lut: Texture3D?
     var cval: Double = 0
+    var particles: [Particle] = []
     override init(parent: NodeUI) {
         super.init(parent: parent)
-        let s = Double(size-1)
+        /*
+        let s = Double(size - 1)
         var data: [UInt32] = []
         for x in 0..<size {
             for y in 0..<size {
@@ -26,11 +30,18 @@ class FxColorLut: Fx {
                 }
             }
         }
-        lut = Texture3D(parent: self, size: size, pixels: data, renderTarget: true)
+         */
+        lut = Texture3D(parent: self, size: size, renderTarget: true)
+        //sprite = Bitmap(
+        //    parent: self, path: "assets/Sprites/sprite-add.png", bundle: Bundle.aestesis)
+        particles.append(Particle(color: .aeMagenta))
+        particles.append(Particle(color: .aeOrange))
+        particles.append(Particle(color: .aeViolet))     
     }
     override func detach() {
         lut?.detach()
         lut = nil
+        sprite.detach()
         super.detach()
     }
     override func render(
@@ -56,17 +67,61 @@ class FxColorLut: Fx {
         guard let vp = viewport, let lut = lut else {
             return
         }
-        let center = Point(lut.size.x, lut.size.y) * 0.5
-        let colors : [Color] = [.aeGreen, .aeOrange]
-        let rayon = center.x * 0.5
-        var ic = 0
+        let pinfo = particles.map { $0.compute(time: time) }
+        let r = lut.size.z
+        let size = Size(lut.size.x, lut.size.y)
         for z in 0..<Int(lut.size.z) {
-            let c = colors[ic]
-            let g = Graphics(texture: lut, depthPlane: z, clear: c, viewport: vp)
-            g.fill(
-                rect: Rect(center: center, size: Size(rayon, rayon)), color: .aeMagenta)
-            ic = (ic + 1) % colors.count
+            let zz = Double(z)
+            let g = Graphics(texture: lut, depthPlane: z, clear: .black, viewport: vp)
+            var i = 0
+            for p in pinfo {
+                let s = r * p.size 
+                if s > 0 {
+                    g.draw(
+                        rect: Rect(center: p.xy * size, size: Size(s, s)), image: sprite,
+                        blend: .add, color: particles[i].color)
+                }
+                i += 1
+            }
         }
+    }
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+struct Particle {
+    internal init(color: Color) {
+        self.position = Parameter3(complexity: 3)
+        self.size = Parameter(complexity: 3)
+        self.color = color
+    }
+
+    let position: Parameter3
+    let size: Parameter
+    let color: Color
+
+    func compute(time: Double) -> Info {
+        return Info(
+            position: (position.sin(time) + 0.5), size: size.sin(time) * 0.5 + 0.5 + 0.5, color: color)
+    }
+
+    struct Info {
+        internal init(position: Vec3, size: Double, color: Color) {
+            self.position = position
+            self.size = size
+            self.color = color
+        }
+
+        let position: Vec3
+        let size: Double
+        let color: Color
+
+        var xy: Point {
+            return Point(position.x, position.y)
+        }
+        var z: Double {
+            return position.z
+        }
+
     }
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////

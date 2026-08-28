@@ -47,13 +47,13 @@ extension AudioSettings {
     static func equals(_ a: AudioSettings?, _ b: AudioSettings?) -> Bool {
         if let a = a, let b = b {
             return a.deviceName == b.deviceName && a.leftChannel == b.leftChannel
-            && a.rightChannel == b.rightChannel
+                && a.rightChannel == b.rightChannel
         } else if a == nil && b == nil {
             return true
         }
         return false
     }
-    
+
 }
 /// ///////////////////////////////////////////////////////////////////////////////////////////////////////
 /// ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -89,17 +89,7 @@ extension Preview {
  }
  */
 
-extension Control : @unchecked Sendable {
-    mutating func setValue(from control: Control) {
-        guard control.id == id else {
-            Debug.error(
-                "Control(id:\(id) name:\(name).valueFrom(Control(id:\(control.id) \(control.name)) id mistmatch"
-            )
-            return
-        }
-        value = control.value
-        count = control.count
-    }
+extension Control: @unchecked Sendable {
     func send() {
         Task.detached { @MainActor in
             do {
@@ -280,14 +270,15 @@ extension ModuleType {
 extension Module {
     subscript(id: String) -> Control? {
         mutating get {
-            if let index = controls!.firstIndex(where: { $0!.id == id }) {
-                return controls![index]
+            if let index = controls?.firstIndex(where: { $0!.id == id }) {
+                return controls?[index]
             }
             return nil
         }
         mutating set(c) {
-            let index = controls!.firstIndex(where: { $0!.id == id })
-            controls![index!] = c
+            if let index = controls?.firstIndex(where: { $0!.id == id }) {
+                controls?[index] = c
+            }
         }
     }
 }
@@ -296,15 +287,15 @@ extension Module {
 extension Composition {
     subscript(id: String) -> Module? {
         mutating get {
-            let index = modules.firstIndex(where: { $0!.id == id })
-            if let index = index {
+            if let index = modules.firstIndex(where: { $0!.id == id }) {
                 return modules[index]
             }
             return nil
         }
         mutating set(c) {
-            let index = modules.firstIndex(where: { $0!.id == id })
-            modules[index!] = c
+            if let index = modules.firstIndex(where: { $0!.id == id }) {
+                modules[index] = c
+            }
         }
     }
 }
