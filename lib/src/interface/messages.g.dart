@@ -196,7 +196,7 @@ enum ModuleType {
   analog,
   camera,
   fx,
-  lut,
+  lutein,
   player,
   shader,
   syn,

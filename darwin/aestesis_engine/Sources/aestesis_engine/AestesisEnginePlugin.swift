@@ -58,12 +58,15 @@ public class AestesisEnginePlugin: NSObject, FlutterPlugin, AestesisEngineApi {
         #endif
     }
 
-    func newComposition() throws -> Composition {
+    func newComposition() async throws -> Composition {
+        return await withCheckedContinuation({ continuation in
+            RunLoop.composition.perform {
+                self._composition!.composition.modules.removeAll()
+                self._composition!.update()
+                continuation.resume(returning: self._composition!.composition)
+            }
+        })
         /*
-        return withCheckedContinuation({ continuation in 
-
-         })
-         */
         var composition: Composition?
         _composition?.sync {
             _composition!.composition.modules.removeAll()
@@ -71,6 +74,7 @@ public class AestesisEnginePlugin: NSObject, FlutterPlugin, AestesisEngineApi {
             composition = _composition?.composition
         }
         return composition!
+        */
     }
 
     func composition() throws -> Composition {

@@ -372,7 +372,7 @@ extension ModuleTypeExtension on ModuleType {
         return 'Camera';
       case ModuleType.fx:
         return 'Fx';
-      case ModuleType.lut:
+      case ModuleType.lutein:
         return 'Lutein';
       case ModuleType.player:
         return 'Player';
@@ -391,7 +391,7 @@ extension ModuleTypeExtension on ModuleType {
         return false;
       case ModuleType.fx:
         return false;
-      case ModuleType.lut:
+      case ModuleType.lutein:
         return true;
       case ModuleType.player:
         return false;
@@ -443,7 +443,7 @@ extension ModuleTypeExtension on ModuleType {
             ),
           ),
         ];
-      case ModuleType.lut:
+      case ModuleType.lutein:
         return [
           ...LutControl.values.map(
             (c) => Control(
@@ -500,7 +500,7 @@ extension ModuleTypeExtension on ModuleType {
 
   List<Asset> assets(String moduleId) {
     switch (this) {
-      case ModuleType.lut:
+      case ModuleType.lutein:
         return [Asset(id: 'lut.normal', name: 'Normal')];
       default:
         return [];

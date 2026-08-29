@@ -83,7 +83,7 @@ public class ModuleUI: aestesis_alib.NodeUI {
             return CameraUI(parent: parent, id: module.id)
         case .fx:
             return FxUI(parent: parent, id: module.id)
-        case .lut:
+        case .lutein:
             return LutUI(parent: parent, id: module.id)
         case .player:
             return PlayerUI(parent: parent, id: module.id)

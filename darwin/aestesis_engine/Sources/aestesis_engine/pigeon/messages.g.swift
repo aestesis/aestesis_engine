@@ -277,7 +277,7 @@ enum ModuleType: Int, CaseIterable {
   case analog = 0
   case camera = 1
   case fx = 2
-  case lut = 3
+  case lutein = 3
   case player = 4
   case shader = 5
   case syn = 6
@@ -1271,7 +1271,7 @@ class MessagesPigeonCodec: FlutterStandardMessageCodec, @unchecked Sendable {
 ///
 /// Generated protocol from Pigeon that represents a handler of messages from Flutter.
 protocol AestesisEngineApi {
-  func newComposition() throws -> Composition
+  func newComposition() async throws -> Composition
   func composition() throws -> Composition
   func updateComposition(composition: Composition) throws -> Composition
   func settings(settings: CompositionSettings?) throws -> CompositionSettings
@@ -1303,11 +1303,13 @@ class AestesisEngineApiSetup {
     let newCompositionChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.aestesis_engine.AestesisEngineApi.newComposition\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
       newCompositionChannel.setMessageHandler { _, reply in
-        do {
-          let result = try api.newComposition()
-          reply(wrapResult(result))
-        } catch {
-          reply(wrapError(error))
+        Task { @MainActor in
+          do {
+            let result = try await api.newComposition()
+            reply(wrapResult(result))
+          } catch {
+            reply(wrapError(error))
+          }
         }
       }
     } else {

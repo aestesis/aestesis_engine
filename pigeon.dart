@@ -29,13 +29,16 @@ Map	                  Dictionary
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
-@ConfigurePigeon(PigeonOptions(
-  dartOut: 'lib/src/interface/messages.g.dart',
-  dartOptions: DartOptions(),
-  swiftOut: 'darwin/aestesis_engine/Sources/aestesis_engine/pigeon/messages.g.swift',
-  swiftOptions: SwiftOptions(),
-  dartPackageName: 'aestesis_engine',
-))
+@ConfigurePigeon(
+  PigeonOptions(
+    dartOut: 'lib/src/interface/messages.g.dart',
+    dartOptions: DartOptions(),
+    swiftOut:
+        'darwin/aestesis_engine/Sources/aestesis_engine/pigeon/messages.g.swift',
+    swiftOptions: SwiftOptions(),
+    dartPackageName: 'aestesis_engine',
+  ),
+)
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 class Preview {
@@ -58,10 +61,7 @@ class Preview {
 class AudioLevel {
   final double peak;
   final Equalizer eq;
-  AudioLevel({
-    required this.peak,
-    required this.eq,
-  });
+  AudioLevel({required this.peak, required this.eq});
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -69,11 +69,7 @@ class Equalizer {
   final double low;
   final double mid;
   final double high;
-  Equalizer({
-    required this.low,
-    required this.mid,
-    required this.high,
-  });
+  Equalizer({required this.low, required this.mid, required this.high});
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -120,13 +116,14 @@ class Control {
   final String name;
   double value;
   int count; // count of integer or color
-  Control(
-      {required this.id,
-      required this.moduleId,
-      required this.name,
-      required this.type,
-      this.count = 1,
-      this.value = 0.0});
+  Control({
+    required this.id,
+    required this.moduleId,
+    required this.name,
+    required this.type,
+    this.count = 1,
+    this.value = 0.0,
+  });
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -155,7 +152,7 @@ enum ControlBlendMode {
   linearBurn,
   glow,
   phoenix,
-  reflect
+  reflect,
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -178,12 +175,13 @@ class Module {
   String name;
   List<Control?>? controls;
   List<Asset?>? assets;
-  Module(
-      {required this.id,
-      required this.type,
-      required this.name,
-      this.controls,
-      this.assets});
+  Module({
+    required this.id,
+    required this.type,
+    required this.name,
+    this.controls,
+    this.assets,
+  });
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -201,13 +199,14 @@ class CameraDevice {
   final String manufacturer;
   final CameraPosition position;
   final CameraType type;
-  CameraDevice(
-      {required this.id,
-      required this.name,
-      required this.model,
-      required this.manufacturer,
-      required this.position,
-      required this.type});
+  CameraDevice({
+    required this.id,
+    required this.name,
+    required this.model,
+    required this.manufacturer,
+    required this.position,
+    required this.type,
+  });
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -233,10 +232,11 @@ class AudioSettings {
   String deviceName;
   int leftChannel;
   int rightChannel;
-  AudioSettings(
-      {required this.deviceName,
-      required this.leftChannel,
-      required this.rightChannel});
+  AudioSettings({
+    required this.deviceName,
+    required this.leftChannel,
+    required this.rightChannel,
+  });
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -245,11 +245,12 @@ class CompositionSettings {
   double height;
   double fps;
   AudioSettings? audioSettings;
-  CompositionSettings(
-      {required this.width,
-      required this.height,
-      required this.fps,
-      this.audioSettings});
+  CompositionSettings({
+    required this.width,
+    required this.height,
+    required this.fps,
+    this.audioSettings,
+  });
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -258,11 +259,12 @@ class CompositionStatistics {
   double cpu;
   double gpu;
   double ram;
-  CompositionStatistics(
-      {required this.fps,
-      required this.cpu,
-      required this.gpu,
-      required this.ram});
+  CompositionStatistics({
+    required this.fps,
+    required this.cpu,
+    required this.gpu,
+    required this.ram,
+  });
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -303,7 +305,11 @@ abstract class AestesisEngineApi {
   List<AudioDevice> audioDevices();
   @async
   List<String> pickFiles(
-      String title, String? directory, bool multiple, List<String> extensions);
+    String title,
+    String? directory,
+    bool multiple,
+    List<String> extensions,
+  );
 
   void setAssetData(String key, String json);
   String? getAssetData(String key);
