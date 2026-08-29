@@ -1272,15 +1272,15 @@ class MessagesPigeonCodec: FlutterStandardMessageCodec, @unchecked Sendable {
 /// Generated protocol from Pigeon that represents a handler of messages from Flutter.
 protocol AestesisEngineApi {
   func newComposition() async throws -> Composition
-  func composition() throws -> Composition
-  func updateComposition(composition: Composition) throws -> Composition
-  func settings(settings: CompositionSettings?) throws -> CompositionSettings
-  func updateModule(module: Module) throws -> Composition
-  func addModule(module: Module) throws -> Composition
-  func insertModule(module: Module, index: Int64) throws -> Composition
-  func removeModule(moduleId: String) throws -> Composition
-  func addAssets(moduleId: String, assets: [Asset?]) throws -> Composition
-  func removeAssets(moduleId: String, assetIds: [String?]) throws -> Composition
+  func composition() async throws -> Composition
+  func updateComposition(composition: Composition) async throws -> Composition
+  func settings(settings: CompositionSettings?) async throws -> CompositionSettings
+  func updateModule(module: Module) async throws -> Composition
+  func addModule(module: Module) async throws -> Composition
+  func insertModule(module: Module, index: Int64) async throws -> Composition
+  func removeModule(moduleId: String) async throws -> Composition
+  func addAssets(moduleId: String, assets: [Asset?]) async throws -> Composition
+  func removeAssets(moduleId: String, assetIds: [String?]) async throws -> Composition
   func updateControl(control: Control) throws
   func outputView(show: Bool) throws
   func startRecording(path: String) throws
@@ -1318,11 +1318,13 @@ class AestesisEngineApiSetup {
     let compositionChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.aestesis_engine.AestesisEngineApi.composition\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
       compositionChannel.setMessageHandler { _, reply in
-        do {
-          let result = try api.composition()
-          reply(wrapResult(result))
-        } catch {
-          reply(wrapError(error))
+        Task { @MainActor in
+          do {
+            let result = try await api.composition()
+            reply(wrapResult(result))
+          } catch {
+            reply(wrapError(error))
+          }
         }
       }
     } else {
@@ -1333,11 +1335,13 @@ class AestesisEngineApiSetup {
       updateCompositionChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
         let compositionArg = args[0] as! Composition
-        do {
-          let result = try api.updateComposition(composition: compositionArg)
-          reply(wrapResult(result))
-        } catch {
-          reply(wrapError(error))
+        Task { @MainActor in
+          do {
+            let result = try await api.updateComposition(composition: compositionArg)
+            reply(wrapResult(result))
+          } catch {
+            reply(wrapError(error))
+          }
         }
       }
     } else {
@@ -1348,11 +1352,13 @@ class AestesisEngineApiSetup {
       settingsChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
         let settingsArg: CompositionSettings? = nilOrValue(args[0])
-        do {
-          let result = try api.settings(settings: settingsArg)
-          reply(wrapResult(result))
-        } catch {
-          reply(wrapError(error))
+        Task { @MainActor in
+          do {
+            let result = try await api.settings(settings: settingsArg)
+            reply(wrapResult(result))
+          } catch {
+            reply(wrapError(error))
+          }
         }
       }
     } else {
@@ -1363,11 +1369,13 @@ class AestesisEngineApiSetup {
       updateModuleChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
         let moduleArg = args[0] as! Module
-        do {
-          let result = try api.updateModule(module: moduleArg)
-          reply(wrapResult(result))
-        } catch {
-          reply(wrapError(error))
+        Task { @MainActor in
+          do {
+            let result = try await api.updateModule(module: moduleArg)
+            reply(wrapResult(result))
+          } catch {
+            reply(wrapError(error))
+          }
         }
       }
     } else {
@@ -1378,11 +1386,13 @@ class AestesisEngineApiSetup {
       addModuleChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
         let moduleArg = args[0] as! Module
-        do {
-          let result = try api.addModule(module: moduleArg)
-          reply(wrapResult(result))
-        } catch {
-          reply(wrapError(error))
+        Task { @MainActor in
+          do {
+            let result = try await api.addModule(module: moduleArg)
+            reply(wrapResult(result))
+          } catch {
+            reply(wrapError(error))
+          }
         }
       }
     } else {
@@ -1394,11 +1404,13 @@ class AestesisEngineApiSetup {
         let args = message as! [Any?]
         let moduleArg = args[0] as! Module
         let indexArg = args[1] as! Int64
-        do {
-          let result = try api.insertModule(module: moduleArg, index: indexArg)
-          reply(wrapResult(result))
-        } catch {
-          reply(wrapError(error))
+        Task { @MainActor in
+          do {
+            let result = try await api.insertModule(module: moduleArg, index: indexArg)
+            reply(wrapResult(result))
+          } catch {
+            reply(wrapError(error))
+          }
         }
       }
     } else {
@@ -1409,11 +1421,13 @@ class AestesisEngineApiSetup {
       removeModuleChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
         let moduleIdArg = args[0] as! String
-        do {
-          let result = try api.removeModule(moduleId: moduleIdArg)
-          reply(wrapResult(result))
-        } catch {
-          reply(wrapError(error))
+        Task { @MainActor in
+          do {
+            let result = try await api.removeModule(moduleId: moduleIdArg)
+            reply(wrapResult(result))
+          } catch {
+            reply(wrapError(error))
+          }
         }
       }
     } else {
@@ -1425,11 +1439,13 @@ class AestesisEngineApiSetup {
         let args = message as! [Any?]
         let moduleIdArg = args[0] as! String
         let assetsArg = args[1] as! [Asset?]
-        do {
-          let result = try api.addAssets(moduleId: moduleIdArg, assets: assetsArg)
-          reply(wrapResult(result))
-        } catch {
-          reply(wrapError(error))
+        Task { @MainActor in
+          do {
+            let result = try await api.addAssets(moduleId: moduleIdArg, assets: assetsArg)
+            reply(wrapResult(result))
+          } catch {
+            reply(wrapError(error))
+          }
         }
       }
     } else {
@@ -1441,11 +1457,13 @@ class AestesisEngineApiSetup {
         let args = message as! [Any?]
         let moduleIdArg = args[0] as! String
         let assetIdsArg = args[1] as! [String?]
-        do {
-          let result = try api.removeAssets(moduleId: moduleIdArg, assetIds: assetIdsArg)
-          reply(wrapResult(result))
-        } catch {
-          reply(wrapError(error))
+        Task { @MainActor in
+          do {
+            let result = try await api.removeAssets(moduleId: moduleIdArg, assetIds: assetIdsArg)
+            reply(wrapResult(result))
+          } catch {
+            reply(wrapError(error))
+          }
         }
       }
     } else {

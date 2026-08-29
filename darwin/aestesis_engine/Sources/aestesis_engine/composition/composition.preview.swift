@@ -25,8 +25,11 @@ class CompositionPreview: NodeUI {
                 if changed {
                     DispatchQueue.main.async {
                         let osize = w.frame.size
-                        let size = NSSize(width: w.frame.width, height: w.frame.width / CGFloat(newValue));
-                        Debug.info("preview window resize to fit new aspect ratio: \(newValue) -> \(size) from \(osize)")
+                        let size = NSSize(
+                            width: w.frame.width, height: w.frame.width / CGFloat(newValue))
+                        Debug.info(
+                            "preview window resize to fit new aspect ratio: \(newValue) -> \(size) from \(osize)"
+                        )
                         w.setContentSize(size)
                     }
                 }
@@ -35,19 +38,25 @@ class CompositionPreview: NodeUI {
     }
     init(parent: NodeUI, ratio: Double) {
         super.init(parent: parent)
-        window = OsWindow(
-            frame: CGRect(x: 0, y: 0, width: 1280, height: 1280 / ratio), title: "aestesis preview")
-        window!.onStartUI.once { viewport in
-            viewport.rootView = PreviewView(viewport: viewport)
-        }
-        window!.ratio = ratio
-        window!.center()
-        window!.makeKeyAndOrderFront(nil)
-        window!.isReleasedWhenClosed = false
-        window!.onClose.once { [weak self] in
-            guard let self = self else { return }
-            closed = true
-            onClose.dispatch(())
+        DispatchQueue.main.async {
+            let window = OsWindow(
+                frame: CGRect(x: 0, y: 0, width: 1280, height: 1280 / ratio),
+                title: "aestesis preview")
+            window.onStartUI.once { viewport in
+                viewport.rootView = PreviewView(viewport: viewport)
+            }
+            window.ratio = ratio
+            //window.center()
+            window.makeKeyAndOrderFront(nil)
+            window.isReleasedWhenClosed = false
+            window.onClose.once { [weak self] in
+                guard let self = self else { return }
+                RunLoop.composition.perform {
+                    self.closed = true
+                    self.onClose.dispatch(())
+                }
+            }
+            self.window = window
         }
     }
     override func detach() {

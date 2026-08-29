@@ -285,14 +285,23 @@ class CompositionStates {
 abstract class AestesisEngineApi {
   @async
   Composition newComposition();
+  @async
   Composition composition();
+  @async
   Composition updateComposition(Composition composition);
+  @async
   CompositionSettings settings(CompositionSettings? settings);
+  @async
   Composition updateModule(Module module);
+  @async
   Composition addModule(Module module);
+  @async
   Composition insertModule(Module module, int index);
+  @async
   Composition removeModule(String moduleId);
+  @async
   Composition addAssets(String moduleId, List<Asset?> assets);
+  @async
   Composition removeAssets(String moduleId, List<String?> assetIds);
   void updateControl(Control control);
   void outputView(bool show);

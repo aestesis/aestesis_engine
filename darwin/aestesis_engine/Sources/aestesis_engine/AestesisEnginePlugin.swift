@@ -59,46 +59,41 @@ public class AestesisEnginePlugin: NSObject, FlutterPlugin, AestesisEngineApi {
     }
 
     func newComposition() async throws -> Composition {
-        return await withCheckedContinuation({ continuation in
+        return await withCheckedContinuation { continuation in
             RunLoop.composition.perform {
                 self._composition!.composition.modules.removeAll()
                 self._composition!.update()
                 continuation.resume(returning: self._composition!.composition)
             }
-        })
-        /*
-        var composition: Composition?
-        _composition?.sync {
-            _composition!.composition.modules.removeAll()
-            _composition!.update()
-            composition = _composition?.composition
         }
-        return composition!
-        */
     }
 
-    func composition() throws -> Composition {
-        var composition: Composition?
-        _composition?.sync {
-            composition = _composition?.composition
+    func composition() async throws -> Composition {
+        return await withCheckedContinuation { continuation in
+            RunLoop.composition.perform {
+                continuation.resume(returning: self._composition!.composition)
+            }
         }
-        return composition!
     }
 
-    func updateComposition(composition compo: Composition) throws -> Composition {
-        _composition?.sync {
-            Thread.sleep(0.01)  // security: wait current frame background renderers
-            _composition!.composition = compo
-            _composition!.update()
+    func updateComposition(composition compo: Composition) async throws -> Composition {
+        return await withCheckedContinuation { continuation in
+            RunLoop.composition.perform {
+                //Thread.sleep(0.01)  // security: wait current frame background renderers
+                self._composition!.composition = compo
+                self._composition!.update()
+                continuation.resume(returning: self._composition!.composition)
+            }
         }
-        return _composition!.composition
     }
 
-    func updateModule(module: Module) throws -> Composition {
-        _composition!.sync {
-            _composition!.update(module: module)
+    func updateModule(module: Module) async throws -> Composition {
+        return await withCheckedContinuation { continuation in
+            RunLoop.composition.perform {
+                self._composition!.update(module: module)
+                continuation.resume(returning: self._composition!.composition)
+            }
         }
-        return _composition!.composition
     }
 
     func updateControl(control: Control) throws {
@@ -106,66 +101,75 @@ public class AestesisEnginePlugin: NSObject, FlutterPlugin, AestesisEngineApi {
             return
         }
         RunLoop.composition.perform {
-            composition.sync {
-                composition.update(control: control)
+            composition.update(control: control)
+        }
+    }
+
+    func addModule(module: Module) async throws -> Composition {
+        return await withCheckedContinuation { continuation in
+            RunLoop.composition.perform {
+                self._composition!.composition.modules.append(module)
+                self._composition!.update()
+                continuation.resume(returning: self._composition!.composition)
             }
         }
     }
 
-    func addModule(module: Module) throws -> Composition {
-        _composition!.sync {
-            _composition!.composition.modules.append(module)
-            _composition!.update()
-        }
-        return _composition!.composition
-    }
-
-    func insertModule(module: Module, index: Int64) throws -> Composition {
-        _composition!.sync {
-            _composition!.composition.modules.insert(module, at: Int(index))
-            _composition!.update()
-        }
-        return _composition!.composition
-    }
-
-    func removeModule(moduleId: String) throws -> Composition {
-        _composition!.sync {
-            _composition!.composition.modules.remove(
-                at: _composition!.composition.modules.firstIndex(where: { $0?.id == moduleId })!)
-            _composition!.update()
-        }
-        return _composition!.composition
-    }
-
-    func addAssets(moduleId: String, assets: [Asset?]) throws -> Composition {
-        _composition!.sync {
-            let index = _composition!.composition.modules.firstIndex(where: { $0?.id == moduleId })!
-            _composition!.composition.modules[index]!.assets!.append(contentsOf: assets)
-            _composition!.update(module: _composition!.composition.modules[index]!)
-        }
-        return _composition!.composition
-    }
-
-    func removeAssets(moduleId: String, assetIds: [String?]) throws -> Composition {
-        _composition!.sync {
-            let index = self._composition!.composition.modules.firstIndex(where: {
-                $0?.id == moduleId
-            })!
-            _composition!.composition.modules[index]!.assets!.removeAll(where: {
-                assetIds.contains(element: $0?.id)
-            })
-            _composition!.update(module: _composition!.composition.modules[index]!)
-        }
-        return _composition!.composition
-    }
-
-    func settings(settings: CompositionSettings?) throws -> CompositionSettings {
-        if let settings = settings {
-            _composition!.sync {
-                _composition!.update(settings: settings)
+    func insertModule(module: Module, index: Int64) async throws -> Composition {
+        return await withCheckedContinuation { continuation in
+            RunLoop.composition.perform {
+                self._composition!.composition.modules.insert(module, at: Int(index))
+                self._composition!.update()
+                continuation.resume(returning: self._composition!.composition)
             }
         }
-        return _composition!.settings
+    }
+
+    func removeModule(moduleId: String) async throws -> Composition {
+        return await withCheckedContinuation { continuation in
+            RunLoop.composition.perform {
+                self._composition!.composition.modules.remove(
+                    at: self._composition!.composition.modules.firstIndex(where: {
+                        $0?.id == moduleId
+                    })!
+                )
+                self._composition!.update()
+                continuation.resume(returning: self._composition!.composition)
+            }
+        }
+    }
+
+    func addAssets(moduleId: String, assets: [Asset?]) async throws -> Composition {
+        return await withCheckedContinuation { continuation in
+            RunLoop.composition.perform {
+                self._composition!.composition[moduleId]?.assets?.append(contentsOf: assets)
+                self._composition!.update(module: self._composition!.composition[moduleId]!)
+                continuation.resume(returning: self._composition!.composition)
+            }
+        }
+    }
+
+    func removeAssets(moduleId: String, assetIds: [String?]) async throws -> Composition {
+        return await withCheckedContinuation { continuation in
+            RunLoop.composition.perform {
+                self._composition!.composition[moduleId]?.assets?.removeAll(where: {
+                    assetIds.contains(element: $0?.id)
+                })
+                self._composition!.update(module: self._composition!.composition[moduleId]!)
+                continuation.resume(returning: self._composition!.composition)
+            }
+        }
+    }
+
+    func settings(settings: CompositionSettings?) async throws -> CompositionSettings {
+        return await withCheckedContinuation { continuation in
+            RunLoop.composition.perform {
+                if let settings = settings {
+                    self._composition!.update(settings: settings)
+                }
+                continuation.resume(returning: self._composition!.settings)
+            }
+        }
     }
 
     func outputView(show: Bool) throws {
@@ -297,40 +301,41 @@ public class AestesisEnginePlugin: NSObject, FlutterPlugin, AestesisEngineApi {
     }
 
     func setAssetData(key: String, json: String) throws {
+        // TODO: does nothing, try to understand for what purpose I made it
         let j = JSON(parseJSON: json)
-        guard let compo = _composition else {
+        guard let composition = _composition else {
             return
         }
         RunLoop.composition.perform {
-            compo.async {
-                compo.setAssetData(key: key, json: j)
+            composition.async {
+                composition.setAssetData(key: key, json: j)
             }
         }
     }
     func getAssetData(key: String) throws -> String? {
-        guard let compo = _composition else { return nil }
+        guard let composition = _composition else { return nil }
         var json: JSON?
-        compo.sync {
-            json = compo.getAssetData(key: key)
+        composition.sync {
+            json = composition.getAssetData(key: key)
         }
         return json?.rawString()
     }
     func setAssetDatas(json: String) throws {
         let j = JSON(parseJSON: json)
-        guard let compo = _composition else {
+        guard let composition = _composition else {
             return
         }
         RunLoop.composition.perform {
-            compo.async {
-                compo.setAssetDatas(json: j)
+            composition.async {
+                composition.setAssetDatas(json: j)
             }
         }
     }
     func getAssetDatas() throws -> String? {
-        guard let compo = _composition else { return nil }
+        guard let composition = _composition else { return nil }
         var json: JSON?
-        compo.sync {
-            json = compo.getAssetDatas()
+        composition.sync {
+            json = composition.getAssetDatas()
         }
         return json?.rawString()
     }
