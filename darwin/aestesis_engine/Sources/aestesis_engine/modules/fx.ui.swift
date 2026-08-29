@@ -93,14 +93,14 @@ class FxUI: ModuleUI {
         time: Double, dtime: Double, beat: Double, dbeat: Double, fps: Double,
         audio: AudioAnalyzer.Info
     ) {
-        guard let casset = module![FxControl.asset.id] else { return }
-        guard let clevel = module![FxControl.level.id] else { return }
+        guard let casset = module?[FxControl.asset.id]?.value else { return }
+        guard let clevel = module?[FxControl.level.id]?.value else { return }
         guard let input = source?.output.value else { return }
-        let si = FxInfo.all[Int(casset.value)]
+        let si = FxInfo.all[Int(casset)]
         if !fxs.has(key: si) {
             fxs[si] = si.create(self)
         }
-        level = level * 0.5 + clevel.value * 0.5
+        level = level * 0.5 + clevel * 0.5
         if si != lastFxInfo {
             if let si = lastFxInfo, let image = assetOutputs[si.name], let cg = image.cgImage {
                 bg { [weak self] in

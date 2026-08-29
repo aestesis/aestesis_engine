@@ -47,7 +47,7 @@ public class AestesisEnginePlugin: NSObject, FlutterPlugin, AestesisEngineApi {
         _dummy = DummyOsView()
         _composition = CompositionUI(parent: _dummy!.viewport!)
         #if DEBUG
-            Task.init {
+            Task {
                 if AVCaptureDevice.authorizationStatus(for: .video) != .authorized {
                     await AVCaptureDevice.requestAccess(for: .video)
                 }
@@ -61,6 +61,7 @@ public class AestesisEnginePlugin: NSObject, FlutterPlugin, AestesisEngineApi {
     func newComposition() throws -> Composition {
         var composition: Composition?
         _composition?.sync {
+        //RunLoop.composition.perform {
             _composition!.composition.modules.removeAll()
             _composition!.update()
             composition = _composition?.composition
@@ -78,7 +79,7 @@ public class AestesisEnginePlugin: NSObject, FlutterPlugin, AestesisEngineApi {
 
     func updateComposition(composition compo: Composition) throws -> Composition {
         _composition?.sync {
-            Thread.sleep(0.01)  // security: wait current frame background renderers, find better..
+            Thread.sleep(0.01)  // security: wait current frame background renderers
             _composition!.composition = compo
             _composition!.update()
         }
@@ -150,7 +151,6 @@ public class AestesisEnginePlugin: NSObject, FlutterPlugin, AestesisEngineApi {
             _composition!.sync {
                 _composition!.update(settings: settings)
             }
-            _dummy!.fps = settings.fps
         }
         return _composition!.settings
     }

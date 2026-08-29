@@ -13,30 +13,21 @@ import aestesis_alib
 class FxColorLut: Fx {
     lazy var sprite: Bitmap = Bitmap(
         parent: self, path: "assets/Sprites/sprite-add.png", bundle: Bundle.aestesis)
-    let size = 4
+    let size = 16
     var lut: Texture3D?
     var cval: Double = 0
     var particles: [Particle] = []
+    var volume: [Double] = [Double](repeating: 0, count: 3)
+    var eq: [Double] = []
     override init(parent: NodeUI) {
         super.init(parent: parent)
-        /*
-        let s = Double(size - 1)
-        var data: [UInt32] = []
-        for x in 0..<size {
-            for y in 0..<size {
-                for z in 0..<size {
-                    let c = Color(r: Double(z) / s, g: Double(y) / s, b: Double(x) / s)
-                    data.append(c.bgra)
-                }
-            }
-        }
-         */
         lut = Texture3D(parent: self, size: size, renderTarget: true)
-        //sprite = Bitmap(
-        //    parent: self, path: "assets/Sprites/sprite-add.png", bundle: Bundle.aestesis)
-        particles.append(Particle(color: .aeMagenta))
-        particles.append(Particle(color: .aeOrange))
-        particles.append(Particle(color: .aeViolet))     
+        let n = 8
+        for i in 0..<8 {
+            let v = Double(i) / Double(n)
+            particles.append(Particle(color: Color(h: v, s: 0.5, l: 0.5)))
+            eq.append(0.0)
+        }
     }
     override func detach() {
         lut?.detach()
@@ -52,22 +43,41 @@ class FxColorLut: Fx {
         guard let vp = viewport else {
             return
         }
-        renderLut(time: time, audio: audio)
+        updateEq(audio:audio)
+        renderLut(dtime: dtime)
         let g = Graphics(image: output, viewport: vp)
-        //let c = Color(a: 1, l: (1 - level) + e * 1.5 * level)
+        if level < 1 {
+            g.draw(rect: output.bounds, image: input, from: input.bounds.crop(output.bounds.ratio))
+        }
         g.draw(
             rect: output.bounds, image: input, from: input.bounds.crop(output.bounds.ratio),
-            lut: lut)
+            lut: lut, blend: .alpha, color: Color(a: level, rgb: Color.white.rgb))
         g.onDone { [weak self] _ in
             guard let self = self, self.attached else { return }
             fn()
         }
     }
-    func renderLut(time: Double, audio: AudioAnalyzer.Info) {
+    func updateEq(audio:AudioAnalyzer.Info) {
+        var d = 4
+        var j = 0
+        for i in 0..<eq.count {
+            var v = 0.0
+            for _ in 0..<d {
+                v += Double(audio.fft.amplitude[j])
+                j += 1
+            }
+            d *= 2
+            eq[i] = eq[i] * 0.2 + v * 0.8
+        }
+    }
+    func renderLut(dtime: Double) {
         guard let vp = viewport, let lut = lut else {
             return
         }
-        let pinfo = particles.map { $0.compute(time: time) }
+        var pinfo: [Particle.Info] = []
+        for i in 0..<particles.count {
+            pinfo.append(particles[i].compute(dtime: dtime, level: eq[i]))
+        }
         let r = lut.size.z
         let size = Size(lut.size.x, lut.size.y)
         for z in 0..<Int(lut.size.z) {
@@ -75,7 +85,7 @@ class FxColorLut: Fx {
             let g = Graphics(texture: lut, depthPlane: z, clear: .black, viewport: vp)
             var i = 0
             for p in pinfo {
-                let s = r * p.size 
+                let s = r * p.size
                 if s > 0 {
                     g.draw(
                         rect: Rect(center: p.xy * size, size: Size(s, s)), image: sprite,
@@ -91,17 +101,17 @@ class FxColorLut: Fx {
 struct Particle {
     internal init(color: Color) {
         self.position = Parameter3(complexity: 3)
-        self.size = Parameter(complexity: 3)
         self.color = color
     }
 
     let position: Parameter3
-    let size: Parameter
     let color: Color
+    var time: Double = 0.0
 
-    func compute(time: Double) -> Info {
-        return Info(
-            position: (position.sin(time) + 0.5), size: size.sin(time) * 0.5 + 0.5 + 0.5, color: color)
+    mutating func compute(dtime: Double, level: Double) -> Info {
+        let l = level * 5
+        time += dtime * (0.01 + l)
+        return Info(position: position.sin(time) * 0.6 + 0.5, size: 0.5, color: color)
     }
 
     struct Info {

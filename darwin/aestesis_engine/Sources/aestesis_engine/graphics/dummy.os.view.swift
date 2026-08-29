@@ -53,6 +53,7 @@ public class DummyOsView: SystemView {
     func start() {
         let _ = Thread(name: "Composition") {
             let runLoop = RunLoop.current
+            compositionRunLoop = runLoop
             self.setTimer()
             runLoop.run()
         }
@@ -94,4 +95,14 @@ public class DummyOsView: SystemView {
     }
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
+}
+
+var compositionRunLoop:RunLoop?
+
+extension RunLoop {
+    var composition:RunLoop {
+        get {
+            return compositionRunLoop ?? RunLoop.current
+        }
+    }
 }
