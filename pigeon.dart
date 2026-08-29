@@ -281,6 +281,7 @@ class CompositionStates {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 @HostApi()
 abstract class AestesisEngineApi {
+  @async
   Composition newComposition();
   Composition composition();
   Composition updateComposition(Composition composition);

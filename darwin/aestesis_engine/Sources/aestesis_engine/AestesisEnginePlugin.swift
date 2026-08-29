@@ -59,9 +59,13 @@ public class AestesisEnginePlugin: NSObject, FlutterPlugin, AestesisEngineApi {
     }
 
     func newComposition() throws -> Composition {
+        /*
+        return withCheckedContinuation({ continuation in 
+
+         })
+         */
         var composition: Composition?
         _composition?.sync {
-        //RunLoop.composition.perform {
             _composition!.composition.modules.removeAll()
             _composition!.update()
             composition = _composition?.composition
@@ -94,8 +98,13 @@ public class AestesisEnginePlugin: NSObject, FlutterPlugin, AestesisEngineApi {
     }
 
     func updateControl(control: Control) throws {
-        _composition!.sync {
-            _composition?.update(control: control)
+        guard let composition = _composition else {
+            return
+        }
+        RunLoop.composition.perform {
+            composition.sync {
+                composition.update(control: control)
+            }
         }
     }
 
@@ -156,20 +165,29 @@ public class AestesisEnginePlugin: NSObject, FlutterPlugin, AestesisEngineApi {
     }
 
     func outputView(show: Bool) throws {
-        _composition?.preview(show: show)
+        guard let composition = _composition else { return }
+        RunLoop.composition.perform {
+            composition.preview(show: show)
+        }
     }
 
     func startRecording(path: String) {
-        let compo = _composition!
-        compo.async {
-            compo.startRecording(path: path)
+        guard let composition = _composition else { return }
+        RunLoop.composition.perform {
+            composition.async {
+                composition.startRecording(path: path)
+            }
         }
     }
 
     func stopRecording() {
-        let compo = _composition!
-        compo.async {
-            compo.stopRecording()
+        guard let composition = _composition else {
+            return
+        }
+        RunLoop.composition.perform {
+            composition.async {
+                composition.stopRecording()
+            }
         }
     }
 
@@ -276,13 +294,17 @@ public class AestesisEnginePlugin: NSObject, FlutterPlugin, AestesisEngineApi {
 
     func setAssetData(key: String, json: String) throws {
         let j = JSON(parseJSON: json)
-        let compo = _composition!
-        compo.async {
-            compo.setAssetData(key: key, json: j)
+        guard let compo = _composition else {
+            return
+        }
+        RunLoop.composition.perform {
+            compo.async {
+                compo.setAssetData(key: key, json: j)
+            }
         }
     }
     func getAssetData(key: String) throws -> String? {
-        let compo = _composition!
+        guard let compo = _composition else { return nil }
         var json: JSON?
         compo.sync {
             json = compo.getAssetData(key: key)
@@ -291,13 +313,17 @@ public class AestesisEnginePlugin: NSObject, FlutterPlugin, AestesisEngineApi {
     }
     func setAssetDatas(json: String) throws {
         let j = JSON(parseJSON: json)
-        let compo = _composition!
-        compo.async {
-            compo.setAssetDatas(json: j)
+        guard let compo = _composition else {
+            return
+        }
+        RunLoop.composition.perform {
+            compo.async {
+                compo.setAssetDatas(json: j)
+            }
         }
     }
     func getAssetDatas() throws -> String? {
-        let compo = _composition!
+        guard let compo = _composition else { return nil }
         var json: JSON?
         compo.sync {
             json = compo.getAssetDatas()
