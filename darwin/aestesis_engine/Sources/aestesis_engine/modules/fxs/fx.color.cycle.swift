@@ -1,5 +1,5 @@
 //
-//  fx.color.clash.swift
+//  fx.color.cycle.swift
 //  FlutterAlib
 //
 //  Created by renan jegouzo on 18/05/2024.

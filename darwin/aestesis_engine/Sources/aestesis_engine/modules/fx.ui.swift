@@ -21,19 +21,26 @@ import aestesis_alib
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 struct FxInfo: Hashable {
+    internal init(name: String, create: @escaping (NodeUI) -> Fx) {
+        self.name = name
+        self.create = create
+    }
+
     static let all: [FxInfo] = [
         FxInfo(name: "Color cycle", create: { FxColorCycle(parent: $0) }),
         FxInfo(name: "Color EQ", create: { FxColorEq(parent: $0) }),
-        FxInfo(name: "Color LUT", create: { FxColorLut(parent: $0) }),
+        FxInfo(name: "Color plasma", create: { FxColorPlasma(parent: $0) }),
         FxInfo(name: "Color pulse", create: { FxColorPulse(parent: $0) }),
         FxInfo(name: "Color RGB", create: { FxColorRGB(parent: $0) }),
+        FxInfo(name: "Color zebra", create: { FxColorZebra(parent: $0) }),
         FxInfo(name: "Dynamic drop", create: { FxDynamicDrop(parent: $0) }),
         FxInfo(name: "Dynamic pulse", create: { FxDynamicPulse(parent: $0) }),
         FxInfo(name: "Dynamic punch", create: { FxDynamicPunch(parent: $0) }),
         FxInfo(name: "Dynamic square", create: { FxDynamicSquare(parent: $0) }),
         FxInfo(name: "Dynamic twirl", create: { FxDynamicTwirl(parent: $0) }),
         FxInfo(name: "Dynamic VHS", create: { FxDynamicVHS(parent: $0) }),
-        FxInfo(name: "Test", create: { FxTest(parent: $0) }),
+        FxInfo(name: "Mask boxes", create: { FxMaskBoxes(parent: $0) }),
+        //FxInfo(name: "Test", type: .dynamic, create: { FxTest(parent: $0) }),
     ]
     let name: String
     let create: (_ parent: NodeUI) -> Fx

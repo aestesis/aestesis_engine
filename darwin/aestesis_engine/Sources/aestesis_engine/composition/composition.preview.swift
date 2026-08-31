@@ -39,8 +39,12 @@ class CompositionPreview: NodeUI {
     init(parent: NodeUI, ratio: Double) {
         super.init(parent: parent)
         DispatchQueue.main.async {
+            var rect = Rect(left: 0, top: 0, right: 1280, bottom: 1280 / ratio)
+            if let jrect = Application.db.json("preview.rect") {
+                rect = Rect(json: jrect)
+            }
             let window = OsWindow(
-                frame: CGRect(x: 0, y: 0, width: 1280, height: 1280 / ratio),
+                frame: rect.system,
                 title: "aestesis preview")
             window.onStartUI.once { viewport in
                 viewport.rootView = PreviewView(viewport: viewport)
@@ -55,6 +59,12 @@ class CompositionPreview: NodeUI {
                     self.closed = true
                     self.onClose.dispatch(())
                 }
+            }
+            window.onResize.always { rect in
+                Application.db.json("preview.rect", value: rect.json)
+            }
+            window.onMove.always { rect in
+                Application.db.json("preview.rect", value: rect.json)
             }
             self.window = window
         }

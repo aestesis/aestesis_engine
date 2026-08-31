@@ -1,5 +1,5 @@
 //
-//  fx.color.pulse.swift
+//  fx.color.plasma.swift
 //  FlutterAlib
 //
 //  Created by renan jegouzo on 14/05/2024.
@@ -10,12 +10,11 @@ import aestesis_alib
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
-class FxColorLut: Fx {
+class FxColorPlasma: Fx {
     lazy var sprite: Bitmap = Bitmap(
         parent: self, path: "assets/Sprites/sprite-add.png", bundle: Bundle.aestesis)
     let size = 16
     var lut: Texture3D?
-    var cval: Double = 0
     var particles: [Particle] = []
     var volume: [Double] = [Double](repeating: 0, count: 3)
     var eq: [Double] = []
