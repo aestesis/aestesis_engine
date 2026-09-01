@@ -1290,6 +1290,19 @@ fragment half4 paletizeFuncFragment(TextureVertice v [[stage_in]], texture2d<hal
     return c * v.color;
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
+fragment half4 rgbPaletizeFuncFragment(TextureVertice v [[stage_in]], texture2d<half> t [[texture(0)]], texture2d<half> pal [[texture(1)]], sampler s [[sampler(0)]])
+{
+    constexpr sampler ss(coord::normalized,s_address::clamp_to_edge,t_address::clamp_to_edge,filter::linear);
+    half4 cs = t.sample(s,v.uv).rgba;
+    float2 pr = float2(cs.r,0);
+    float2 pg = float2(cs.g,0.5);
+    float2 pb = float2(cs.b,1);
+    half3 cr = pal.sample(ss,pr).rgb;
+    half3 cg = pal.sample(ss,pg).rgb;
+    half3 cb = pal.sample(ss,pb).rgb;
+    return half4(cr+cg+cb,cs.a) * v.color;
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 struct popoopooo
 {

@@ -101,6 +101,31 @@ class EffectGraphics: Graphics {
         render.draw(trianglestrip: 4)
     }
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
+    func paletizeRgb(
+        rect: Rect, source: Bitmap, from: Rect? = nil, palette: Bitmap,
+        blend: BlendMode = BlendMode.opaque, color: Color = Color.white
+    ) {
+        program("program.paletize.rgb", blend: blend)
+        uniforms(matrix)
+        let vert = textureVertices(4)
+        let strip = rect.strip
+        var rs = Rect(x: 0, y: 0, w: 1, h: 1)
+        var wrap = false
+        if let r = from {
+            rs = r / source.size
+            wrap = rs.w > 1 || rs.h > 1  // TODO: better test
+        }
+        let uv = rs.strip
+        for i in 0...3 {
+            vert[i] = TextureVertice(
+                position: strip[i].infloat3, uv: uv[i].infloat2, color: color.infloat4)
+        }
+        sampler(wrap ? "sampler.wrap" : "sampler.clamp")
+        render.use(texture: source)
+        render.use(texture: palette, atIndex: 1)
+        render.draw(trianglestrip: 4)
+    }
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////
     func popoopooParam(_ p: Popoopooo) {
         let b = buffer(MemoryLayout<Popoopooo>.stride)
         let ptr = b.ptr.assumingMemoryBound(to: Popoopooo.self)  //UnsafeMutablePointer<Popoopooo>(b.ptr)
@@ -385,6 +410,9 @@ class EffectGraphics: Graphics {
         Program.populateDefaultBlendModes(
             store: store, key: "program.paletize", library: library, vertex: "textureFuncVertex",
             fragment: "paletizeFuncFragment", vertexFormat: [.float3, .float4, .float2])
+        Program.populateDefaultBlendModes(
+            store: store, key: "program.paletize.rgb", library: library, vertex: "textureFuncVertex",
+            fragment: "rgbPaletizeFuncFragment", vertexFormat: [.float3, .float4, .float2])
         Program.populateDefaultBlendModes(
             store: store, key: "program.popoopooo", library: library, vertex: "textureFuncVertex",
             fragment: "popoopoooFuncFragment", vertexFormat: [.float3, .float4, .float2])

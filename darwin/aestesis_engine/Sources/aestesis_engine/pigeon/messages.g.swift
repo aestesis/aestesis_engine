@@ -1287,7 +1287,8 @@ protocol AestesisEngineApi {
   func stopRecording() throws
   func cameraDevices() async throws -> [CameraDevice]
   func audioDevices() async throws -> [AudioDevice]
-  func pickFiles(title: String, directory: String?, multiple: Bool, extensions: [String]) async throws -> [String]
+  func openPanel(title: String, directory: String?, multiple: Bool, extensions: [String]) async throws -> [String]
+  func savePanel(title: String, directory: String?, filename: String, extension: String) async throws -> String?
   func setAssetData(key: String, json: String) throws
   func getAssetData(key: String) throws -> String?
   func setAssetDatas(json: String) throws
@@ -1557,9 +1558,9 @@ class AestesisEngineApiSetup {
     } else {
       audioDevicesChannel.setMessageHandler(nil)
     }
-    let pickFilesChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.aestesis_engine.AestesisEngineApi.pickFiles\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    let openPanelChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.aestesis_engine.AestesisEngineApi.openPanel\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
-      pickFilesChannel.setMessageHandler { message, reply in
+      openPanelChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
         let titleArg = args[0] as! String
         let directoryArg: String? = nilOrValue(args[1])
@@ -1567,7 +1568,7 @@ class AestesisEngineApiSetup {
         let extensionsArg = args[3] as! [String]
         Task { @MainActor in
           do {
-            let result = try await api.pickFiles(title: titleArg, directory: directoryArg, multiple: multipleArg, extensions: extensionsArg)
+            let result = try await api.openPanel(title: titleArg, directory: directoryArg, multiple: multipleArg, extensions: extensionsArg)
             reply(wrapResult(result))
           } catch {
             reply(wrapError(error))
@@ -1575,7 +1576,27 @@ class AestesisEngineApiSetup {
         }
       }
     } else {
-      pickFilesChannel.setMessageHandler(nil)
+      openPanelChannel.setMessageHandler(nil)
+    }
+    let savePanelChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.aestesis_engine.AestesisEngineApi.savePanel\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      savePanelChannel.setMessageHandler { message, reply in
+        let args = message as! [Any?]
+        let titleArg = args[0] as! String
+        let directoryArg: String? = nilOrValue(args[1])
+        let filenameArg = args[2] as! String
+        let extensionArg = args[3] as! String
+        Task { @MainActor in
+          do {
+            let result = try await api.savePanel(title: titleArg, directory: directoryArg, filename: filenameArg, extension: extensionArg)
+            reply(wrapResult(result))
+          } catch {
+            reply(wrapError(error))
+          }
+        }
+      }
+    } else {
+      savePanelChannel.setMessageHandler(nil)
     }
     let setAssetDataChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.aestesis_engine.AestesisEngineApi.setAssetData\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {

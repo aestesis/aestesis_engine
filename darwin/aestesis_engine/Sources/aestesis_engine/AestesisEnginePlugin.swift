@@ -268,11 +268,11 @@ public class AestesisEnginePlugin: NSObject, FlutterPlugin, AestesisEngineApi {
         }
     }
 
-    func pickFiles(title: String, directory: String?, multiple: Bool, extensions: [String])
+    func openPanel(title: String, directory: String?, multiple: Bool, extensions: [String])
         async throws -> [String]
     {
         #if os(iOS)
-            let controller = UIDocumentPickerViewController()
+            //let controller = UIDocumentPickerViewController()
             // TODO: ..
             return []
         #else
@@ -288,13 +288,42 @@ public class AestesisEnginePlugin: NSObject, FlutterPlugin, AestesisEngineApi {
                 dialog.canChooseDirectories = false
                 dialog.allowsMultipleSelection = multiple
                 dialog.allowedContentTypes = extensions.map {
-                    UTType(tag: $0, tagClass: .filenameExtension, conformingTo: nil)!
+                    UTType($0)!
                 }
                 if dialog.runModal() == NSApplication.ModalResponse.OK {
                     let results = dialog.urls
                     return results.map { $0.path }
                 } else {
                     return []
+                }
+            }
+        #endif
+    }
+    func savePanel(title: String, directory: String?, filename: String, extension: String)
+        async throws -> String?
+    {
+        #if os(iOS)
+            //let controller = UIDocumentPickerViewController()
+            // TODO: ..
+            return nil
+        #else
+            return await MainActor.run {
+                let dialog = NSSavePanel()
+                let type = UTType(filename)!
+                dialog.title = title
+                if let directory = directory {
+                    dialog.directoryURL = Foundation.URL(string: directory)
+                }
+                dialog.nameFieldStringValue = filename
+                dialog.currentContentType = type
+                dialog.canCreateDirectories = true
+                dialog.showsResizeIndicator = true
+                dialog.showsHiddenFiles = false
+                dialog.allowedContentTypes = [type]
+                if dialog.runModal() == NSApplication.ModalResponse.OK {
+                    return dialog.url?.path
+                } else {
+                    return nil
                 }
             }
         #endif

@@ -313,12 +313,19 @@ abstract class AestesisEngineApi {
   @async
   List<AudioDevice> audioDevices();
   @async
-  List<String> pickFiles(
-    String title,
+  List<String> openPanel({
+    required String title,
     String? directory,
-    bool multiple,
-    List<String> extensions,
-  );
+    bool multiple = false,
+    required List<String> extensions,
+  });
+  @async
+  String? savePanel({
+    required String title,
+    String? directory,
+    required String filename,
+    required String extension,
+  });
 
   void setAssetData(String key, String json);
   String? getAssetData(String key);
