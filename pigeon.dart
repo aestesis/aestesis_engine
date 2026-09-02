@@ -317,14 +317,14 @@ abstract class AestesisEngineApi {
     required String title,
     String? directory,
     bool multiple = false,
-    required List<String> extensions,
+    required List<String> ext,
   });
   @async
   String? savePanel({
     required String title,
     String? directory,
     required String filename,
-    required String extension,
+    required String ext,
   });
 
   void setAssetData(String key, String json);

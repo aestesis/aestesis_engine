@@ -169,18 +169,20 @@ class EffectGraphics: Graphics {
         render.use(fragmentBuffer: b, atIndex: 0)
     }
     struct ZoomParameters {
-        var zoom : Float
+        var zoom: Float
         var rotation: Float
-        init(zoom: Double, rotation:Double) {
+        init(zoom: Double, rotation: Double) {
             self.zoom = Float(zoom)
             self.rotation = Float(rotation)
         }
     }
-    func draw(rect: Rect, image: Bitmap, zoom:Double, rotation: Double = 0, blend: BlendMode = BlendMode.opaque, color: Color = Color.white
+    func draw(
+        rect: Rect, image: Bitmap, zoom: Double, rotation: Double = 0,
+        blend: BlendMode = BlendMode.opaque, color: Color = Color.white
     ) {
         program("program.zoom", blend: blend)
         uniforms(matrix)
-        zoomParameters(ZoomParameters(zoom:zoom,rotation:rotation))
+        zoomParameters(ZoomParameters(zoom: zoom, rotation: rotation))
         let vert = textureVertices(4)
         let strip = rect.strip
         let uv = Rect(x: 0, y: 0, w: 1, h: 1).strip
@@ -205,11 +207,16 @@ class EffectGraphics: Graphics {
         var green_offset: SIMD2<Float>
         var blue_offset: SIMD2<Float>
     }
-    func draw(rect: Rect, image: Bitmap, from: Rect? = nil, redOffset: Point, greenOffset: Point, blueOffset:Point , blend: BlendMode = BlendMode.opaque, color: Color = Color.white
+    func draw(
+        rect: Rect, image: Bitmap, from: Rect? = nil, redOffset: Point, greenOffset: Point,
+        blueOffset: Point, blend: BlendMode = BlendMode.opaque, color: Color = Color.white
     ) {
         program("program.fx.color.rgb", blend: blend)
         uniforms(matrix)
-        let params = FxColorRGBParameters(red_offset: (redOffset/image.size).infloat2, green_offset: (greenOffset/image.size).infloat2, blue_offset: (blueOffset/image.size).infloat2)
+        let params = FxColorRGBParameters(
+            red_offset: (redOffset / image.size).infloat2,
+            green_offset: (greenOffset / image.size).infloat2,
+            blue_offset: (blueOffset / image.size).infloat2)
         fxColorRGBParameters(params)
         let vert = textureVertices(4)
         let strip = rect.strip
@@ -219,7 +226,8 @@ class EffectGraphics: Graphics {
         }
         let uv = rs.strip
         for i in 0...3 {
-            vert[i] = TextureVertice(position: strip[i].infloat3, uv: uv[i].infloat2, color: color.infloat4)
+            vert[i] = TextureVertice(
+                position: strip[i].infloat3, uv: uv[i].infloat2, color: color.infloat4)
         }
         sampler("sampler.mirror")
         render.use(texture: image)
@@ -227,7 +235,9 @@ class EffectGraphics: Graphics {
     }
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
-    func draw(rect: Rect, image: Bitmap, from: Rect? = nil, hsvDecal:Bitmap, blend: BlendMode = BlendMode.opaque, color: Color = Color.white
+    func draw(
+        rect: Rect, image: Bitmap, from: Rect? = nil, hsvDecal: Bitmap,
+        blend: BlendMode = BlendMode.opaque, color: Color = Color.white
     ) {
         program("program.fx.color.hsv", blend: blend)
         uniforms(matrix)
@@ -241,11 +251,12 @@ class EffectGraphics: Graphics {
         }
         let uv = rs.strip
         for i in 0...3 {
-            vert[i] = TextureVertice(position: strip[i].infloat3, uv: uv[i].infloat2, color: color.infloat4)
+            vert[i] = TextureVertice(
+                position: strip[i].infloat3, uv: uv[i].infloat2, color: color.infloat4)
         }
         sampler(wrap ? "sampler.wrap" : "sampler.clamp")
         render.use(texture: image)
-        render.use(texture: hsvDecal, atIndex:1)
+        render.use(texture: hsvDecal, atIndex: 1)
         render.draw(trianglestrip: 4)
     }
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -259,7 +270,9 @@ class EffectGraphics: Graphics {
     struct FxDynamicPolarParameters {
         var ratio: Float
     }
-    func draw(rect: Rect, image: Bitmap, from: Rect? = nil, polar:Bitmap, blend: BlendMode = BlendMode.opaque, color: Color = Color.white
+    func draw(
+        rect: Rect, image: Bitmap, from: Rect? = nil, polar: Bitmap,
+        blend: BlendMode = BlendMode.opaque, color: Color = Color.white
     ) {
         program("program.fx.dynamic.polar", blend: blend)
         uniforms(matrix)
@@ -272,16 +285,19 @@ class EffectGraphics: Graphics {
         }
         let uv = rs.strip
         for i in 0...3 {
-            vert[i] = TextureVertice(position: strip[i].infloat3, uv: uv[i].infloat2, color: color.infloat4)
+            vert[i] = TextureVertice(
+                position: strip[i].infloat3, uv: uv[i].infloat2, color: color.infloat4)
         }
         sampler("sampler.mirror")
         render.use(texture: image)
-        render.use(texture: polar, atIndex:1)
+        render.use(texture: polar, atIndex: 1)
         render.draw(trianglestrip: 4)
     }
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
-    func draw(rect: Rect, image: Bitmap, from: Rect? = nil, vhs:Bitmap, blend: BlendMode = BlendMode.opaque, color: Color = Color.white
+    func draw(
+        rect: Rect, image: Bitmap, from: Rect? = nil, vhs: Bitmap,
+        blend: BlendMode = BlendMode.opaque, color: Color = Color.white
     ) {
         program("program.fx.dynamic.vhs.desync", blend: blend)
         uniforms(matrix)
@@ -293,16 +309,19 @@ class EffectGraphics: Graphics {
         }
         let uv = rs.strip
         for i in 0...3 {
-            vert[i] = TextureVertice(position: strip[i].infloat3, uv: uv[i].infloat2, color: color.infloat4)
+            vert[i] = TextureVertice(
+                position: strip[i].infloat3, uv: uv[i].infloat2, color: color.infloat4)
         }
         sampler("sampler.mirror")
         render.use(texture: image)
-        render.use(texture: vhs, atIndex:1)
+        render.use(texture: vhs, atIndex: 1)
         render.draw(trianglestrip: 4)
     }
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
-    func draw(rect: Rect, image: Bitmap, from: Rect? = nil, field:Bitmap, blend: BlendMode = BlendMode.opaque, color: Color = Color.white
+    func draw(
+        rect: Rect, image: Bitmap, from: Rect? = nil, field: Bitmap,
+        blend: BlendMode = BlendMode.opaque, color: Color = Color.white
     ) {
         program("program.fx.dynamic.float2", blend: blend)
         uniforms(matrix)
@@ -314,11 +333,12 @@ class EffectGraphics: Graphics {
         }
         let uv = rs.strip
         for i in 0...3 {
-            vert[i] = TextureVertice(position: strip[i].infloat3, uv: uv[i].infloat2, color: color.infloat4)
+            vert[i] = TextureVertice(
+                position: strip[i].infloat3, uv: uv[i].infloat2, color: color.infloat4)
         }
         sampler("sampler.mirror")
         render.use(texture: image)
-        render.use(texture: field, atIndex:1)
+        render.use(texture: field, atIndex: 1)
         render.draw(trianglestrip: 4)
     }
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -332,7 +352,9 @@ class EffectGraphics: Graphics {
     struct FxDynamicPolar2Parameters {
         var amplitude: SIMD2<Float>
     }
-    func draw(rect: Rect, polar:Bitmap, from: Rect? = nil, amplitude: Point = .unity, blend: BlendMode = BlendMode.opaque, color: Color = Color.white
+    func draw(
+        rect: Rect, polar: Bitmap, from: Rect? = nil, amplitude: Point = .unity,
+        blend: BlendMode = BlendMode.opaque, color: Color = Color.white
     ) {
         program("program.fx.dynamic.polar.float2", blend: blend)
         uniforms(matrix)
@@ -342,14 +364,17 @@ class EffectGraphics: Graphics {
         let rs = from ?? Rect(x: 0, y: 0, w: 1, h: 1)
         let uv = rs.strip
         for i in 0...3 {
-            vert[i] = TextureVertice(position: strip[i].infloat3, uv: uv[i].infloat2, color: color.infloat4)
+            vert[i] = TextureVertice(
+                position: strip[i].infloat3, uv: uv[i].infloat2, color: color.infloat4)
         }
         render.use(texture: polar)
         render.draw(trianglestrip: 4)
     }
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
-    func draw(rect: Rect, cartesian:Bitmap, from: Rect? = nil, blend: BlendMode = BlendMode.opaque, color: Color = Color.white
+    func draw(
+        rect: Rect, cartesian: Bitmap, from: Rect? = nil, blend: BlendMode = BlendMode.opaque,
+        color: Color = Color.white
     ) {
         program("program.fx.dynamic.cartesian.float2", blend: blend)
         uniforms(matrix)
@@ -358,7 +383,8 @@ class EffectGraphics: Graphics {
         let rs = from ?? Rect(x: 0, y: 0, w: 1, h: 1)
         let uv = rs.strip
         for i in 0...3 {
-            vert[i] = TextureVertice(position: strip[i].infloat3, uv: uv[i].infloat2, color: color.infloat4)
+            vert[i] = TextureVertice(
+                position: strip[i].infloat3, uv: uv[i].infloat2, color: color.infloat4)
         }
         render.use(texture: cartesian)
         render.draw(trianglestrip: 4)
@@ -366,27 +392,36 @@ class EffectGraphics: Graphics {
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
     static func initShareds(store: NodeUI) {
-        let library = store.viewport!.gpu.library         
+        let gpu = store.viewport!.gpu
+        let library = ProgramLibrary(
+            parent: store, device: gpu.device, bundle: Bundle.aestesis, filename: "default")
         Program.populateDefaultBlendModes(
-            store: store, key: "program.fx.dynamic.cartesian.float2", library: library, vertex: "textureFuncVertex_float",
+            store: store, key: "program.fx.dynamic.cartesian.float2", library: library,
+            vertex: "textureFuncVertex_float",
             fragment: "fxDynamicCartesianFloat2", vertexFormat: [.float3, .float4, .float2])
         Program.populateDefaultBlendModes(
-            store: store, key: "program.fx.dynamic.polar.float2", library: library, vertex: "textureFuncVertex_float",
+            store: store, key: "program.fx.dynamic.polar.float2", library: library,
+            vertex: "textureFuncVertex_float",
             fragment: "fxDynamicPolarFloat2", vertexFormat: [.float3, .float4, .float2])
         Program.populateDefaultBlendModes(
-            store: store, key: "program.fx.dynamic.float2", library: library, vertex: "textureFuncVertex",
+            store: store, key: "program.fx.dynamic.float2", library: library,
+            vertex: "textureFuncVertex",
             fragment: "fxDynamicFloat2", vertexFormat: [.float3, .float4, .float2])
         Program.populateDefaultBlendModes(
-            store: store, key: "program.fx.dynamic.vhs.desync", library: library, vertex: "textureFuncVertex",
+            store: store, key: "program.fx.dynamic.vhs.desync", library: library,
+            vertex: "textureFuncVertex",
             fragment: "fxDynamicVhsDesync", vertexFormat: [.float3, .float4, .float2])
         Program.populateDefaultBlendModes(
-            store: store, key: "program.fx.dynamic.polar", library: library, vertex: "textureFuncVertex",
+            store: store, key: "program.fx.dynamic.polar", library: library,
+            vertex: "textureFuncVertex",
             fragment: "fxDynamicPolar", vertexFormat: [.float3, .float4, .float2])
         Program.populateDefaultBlendModes(
-            store: store, key: "program.fx.color.hsv", library: library, vertex: "textureFuncVertex",
+            store: store, key: "program.fx.color.hsv", library: library,
+            vertex: "textureFuncVertex",
             fragment: "fxColorHSV", vertexFormat: [.float3, .float4, .float2])
         Program.populateDefaultBlendModes(
-            store: store, key: "program.fx.color.rgb", library: library, vertex: "textureFuncVertex",
+            store: store, key: "program.fx.color.rgb", library: library,
+            vertex: "textureFuncVertex",
             fragment: "fxColorRGB", vertexFormat: [.float3, .float4, .float2])
         Program.populateDefaultBlendModes(
             store: store, key: "program.zoom", library: library, vertex: "textureFuncVertex",
@@ -398,12 +433,14 @@ class EffectGraphics: Graphics {
             store: store, key: "program.polar", library: library, vertex: "textureFuncVertex",
             fragment: "polarFuncFragment", vertexFormat: [.float3, .float4, .float2])
         Program.populateDefaultBlendModes(
-            store: store, key: "program.polar.height", library: library, vertex: "textureFuncVertex",
+            store: store, key: "program.polar.height", library: library,
+            vertex: "textureFuncVertex",
             fragment: "polarFuncFragmentHeight", vertexFormat: [.float3, .float4, .float2],
-            pixelFormat: .height)   // TODO: warning, blend.add doesn't work, opaque works, maybe other blend doesn't work
+            pixelFormat: .height)  // TODO: warning, blend.add doesn't work, opaque works, maybe other blend doesn't work
         store["program.polar.height.add"] = Program(
             library: library, vertex: "textureFuncVertex", fragment: "polarFuncFragmentHeightAdd",
-            blend: BlendMode.opaque, vertexFormat: [.float3, .float4, .float2], pixelFormat: .height)
+            blend: BlendMode.opaque, vertexFormat: [.float3, .float4, .float2], pixelFormat: .height
+        )
         Program.populateDefaultBlendModes(
             store: store, key: "program.cross", library: library, vertex: "textureFuncVertex",
             fragment: "crossFuncFragment", vertexFormat: [.float3, .float4, .float2])
@@ -411,7 +448,8 @@ class EffectGraphics: Graphics {
             store: store, key: "program.paletize", library: library, vertex: "textureFuncVertex",
             fragment: "paletizeFuncFragment", vertexFormat: [.float3, .float4, .float2])
         Program.populateDefaultBlendModes(
-            store: store, key: "program.paletize.rgb", library: library, vertex: "textureFuncVertex",
+            store: store, key: "program.paletize.rgb", library: library,
+            vertex: "textureFuncVertex",
             fragment: "rgbPaletizeFuncFragment", vertexFormat: [.float3, .float4, .float2])
         Program.populateDefaultBlendModes(
             store: store, key: "program.popoopooo", library: library, vertex: "textureFuncVertex",
@@ -420,10 +458,12 @@ class EffectGraphics: Graphics {
             library: library, vertex: "textureFuncVertex", fragment: "popoopoooScreenFuncFragment",
             blend: BlendMode.opaque, vertexFormat: [.float3, .float4, .float2])
         store["program.popoopooo.difference"] = Program(
-            library: library, vertex: "textureFuncVertex", fragment: "popoopoooDifferenceFuncFragment",
+            library: library, vertex: "textureFuncVertex",
+            fragment: "popoopoooDifferenceFuncFragment",
             blend: BlendMode.opaque, vertexFormat: [.float3, .float4, .float2])
         store["program.popoopooo.glow"] = Program(
-            library: library, vertex: "textureFuncVertex", fragment: "popoopoooDifferenceFuncFragment",
+            library: library, vertex: "textureFuncVertex",
+            fragment: "popoopoooDifferenceFuncFragment",
             blend: BlendMode.opaque, vertexFormat: [.float3, .float4, .float2])
     }
     //////////////////////////////////////////////////////////////////////////////////////////////////////////

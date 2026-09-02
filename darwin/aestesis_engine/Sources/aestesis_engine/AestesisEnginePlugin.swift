@@ -268,7 +268,7 @@ public class AestesisEnginePlugin: NSObject, FlutterPlugin, AestesisEngineApi {
         }
     }
 
-    func openPanel(title: String, directory: String?, multiple: Bool, extensions: [String])
+    func openPanel(title: String, directory: String?, multiple: Bool, ext: [String])
         async throws -> [String]
     {
         #if os(iOS)
@@ -287,8 +287,8 @@ public class AestesisEnginePlugin: NSObject, FlutterPlugin, AestesisEngineApi {
                 dialog.showsHiddenFiles = false
                 dialog.canChooseDirectories = false
                 dialog.allowsMultipleSelection = multiple
-                dialog.allowedContentTypes = extensions.map {
-                    UTType($0)!
+                dialog.allowedContentTypes = ext.map {
+                    UTType(tag: $0, tagClass: .filenameExtension, conformingTo: nil)!
                 }
                 if dialog.runModal() == NSApplication.ModalResponse.OK {
                     let results = dialog.urls
@@ -299,7 +299,7 @@ public class AestesisEnginePlugin: NSObject, FlutterPlugin, AestesisEngineApi {
             }
         #endif
     }
-    func savePanel(title: String, directory: String?, filename: String, extension: String)
+    func savePanel(title: String, directory: String?, filename: String, ext: String)
         async throws -> String?
     {
         #if os(iOS)
@@ -309,7 +309,7 @@ public class AestesisEnginePlugin: NSObject, FlutterPlugin, AestesisEngineApi {
         #else
             return await MainActor.run {
                 let dialog = NSSavePanel()
-                let type = UTType(filename)!
+                let type = UTType(tag: ext, tagClass: .filenameExtension, conformingTo: nil)!
                 dialog.title = title
                 if let directory = directory {
                     dialog.directoryURL = Foundation.URL(string: directory)

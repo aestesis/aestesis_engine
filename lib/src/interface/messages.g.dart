@@ -1574,14 +1574,14 @@ class AestesisEngineApi {
     return (pigeonVar_replyValue! as List<Object?>).cast<AudioDevice>();
   }
 
-  Future<List<String>> openPanel({required String title, String? directory, bool multiple = false, required List<String> extensions, }) async {
+  Future<List<String>> openPanel({required String title, String? directory, bool multiple = false, required List<String> ext, }) async {
     final pigeonVar_channelName = 'dev.flutter.pigeon.aestesis_engine.AestesisEngineApi.openPanel$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
-    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[title, directory, multiple, extensions]);
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[title, directory, multiple, ext]);
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
@@ -1593,14 +1593,14 @@ class AestesisEngineApi {
     return (pigeonVar_replyValue! as List<Object?>).cast<String>();
   }
 
-  Future<String?> savePanel({required String title, String? directory, required String filename, required String extension, }) async {
+  Future<String?> savePanel({required String title, String? directory, required String filename, required String ext, }) async {
     final pigeonVar_channelName = 'dev.flutter.pigeon.aestesis_engine.AestesisEngineApi.savePanel$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
-    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[title, directory, filename, extension]);
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[title, directory, filename, ext]);
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(

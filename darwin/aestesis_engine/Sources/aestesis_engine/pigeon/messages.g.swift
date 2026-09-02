@@ -1287,8 +1287,8 @@ protocol AestesisEngineApi {
   func stopRecording() throws
   func cameraDevices() async throws -> [CameraDevice]
   func audioDevices() async throws -> [AudioDevice]
-  func openPanel(title: String, directory: String?, multiple: Bool, extensions: [String]) async throws -> [String]
-  func savePanel(title: String, directory: String?, filename: String, extension: String) async throws -> String?
+  func openPanel(title: String, directory: String?, multiple: Bool, ext: [String]) async throws -> [String]
+  func savePanel(title: String, directory: String?, filename: String, ext: String) async throws -> String?
   func setAssetData(key: String, json: String) throws
   func getAssetData(key: String) throws -> String?
   func setAssetDatas(json: String) throws
@@ -1565,10 +1565,10 @@ class AestesisEngineApiSetup {
         let titleArg = args[0] as! String
         let directoryArg: String? = nilOrValue(args[1])
         let multipleArg = args[2] as! Bool
-        let extensionsArg = args[3] as! [String]
+        let extArg = args[3] as! [String]
         Task { @MainActor in
           do {
-            let result = try await api.openPanel(title: titleArg, directory: directoryArg, multiple: multipleArg, extensions: extensionsArg)
+            let result = try await api.openPanel(title: titleArg, directory: directoryArg, multiple: multipleArg, ext: extArg)
             reply(wrapResult(result))
           } catch {
             reply(wrapError(error))
@@ -1585,10 +1585,10 @@ class AestesisEngineApiSetup {
         let titleArg = args[0] as! String
         let directoryArg: String? = nilOrValue(args[1])
         let filenameArg = args[2] as! String
-        let extensionArg = args[3] as! String
+        let extArg = args[3] as! String
         Task { @MainActor in
           do {
-            let result = try await api.savePanel(title: titleArg, directory: directoryArg, filename: filenameArg, extension: extensionArg)
+            let result = try await api.savePanel(title: titleArg, directory: directoryArg, filename: filenameArg, ext: extArg)
             reply(wrapResult(result))
           } catch {
             reply(wrapError(error))
