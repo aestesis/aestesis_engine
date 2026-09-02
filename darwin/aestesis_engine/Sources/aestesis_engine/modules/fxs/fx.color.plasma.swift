@@ -42,21 +42,25 @@ class FxColorPlasma: Fx {
         guard let vp = viewport else {
             return
         }
-        updateEq(audio:audio)
+        updateEq(audio: audio)
         renderLut(dtime: dtime)
         let g = Graphics(image: output, viewport: vp)
         if level < 1 {
             g.draw(rect: output.bounds, image: input, from: input.bounds.crop(output.bounds.ratio))
+            g.draw(
+                rect: output.bounds, image: input, from: input.bounds.crop(output.bounds.ratio),
+                lut: lut, blend: .alpha, color: Color(a: level, l: 1))
+        } else {
+            g.draw(
+                rect: output.bounds, image: input, from: input.bounds.crop(output.bounds.ratio),
+                lut: lut)
         }
-        g.draw(
-            rect: output.bounds, image: input, from: input.bounds.crop(output.bounds.ratio),
-            lut: lut, blend: .alpha, color: Color(a: level, rgb: Color.white.rgb))
         g.onDone { [weak self] _ in
             guard let self = self, self.attached else { return }
             fn()
         }
     }
-    func updateEq(audio:AudioAnalyzer.Info) {
+    func updateEq(audio: AudioAnalyzer.Info) {
         var d = 4
         var j = 0
         for i in 0..<eq.count {
