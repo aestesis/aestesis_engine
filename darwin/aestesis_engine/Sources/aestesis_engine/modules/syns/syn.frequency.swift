@@ -26,10 +26,11 @@ class SynFrequency: Syn {
         t -= dtime * Double(audio.peak)
         let g = Graphics(image: output, clear: .black, viewport: vp)
         let ffta = Array(audio.fft.amplitude[0...255])
-        var vertices = [Vertice]()
-        var center = output.bounds.center
-        var r = output.bounds.size.length * 40
+        let center = output.bounds.center
         let c = Color.white
+        let r = output.bounds.size.length * 40
+        let d = 0.2
+        var vertices = [Vertice]()
         var i = 0
         for a in ffta {
             let vi = Double(i) / Double(ffta.count)
@@ -52,7 +53,7 @@ class SynFrequency: Syn {
             vertices.append(contentsOf: vert(angle: rz))
             vertices.append(contentsOf: vert(angle: Double.pi - rz))
             vertices.append(contentsOf: vert(angle: Double.pi + rz))
-            vertices.append(contentsOf: vert(angle: -rz ))
+            vertices.append(contentsOf: vert(angle: -rz))
             i += 1
         }
         g.draw(triangle: vertices, blend: .alpha)
