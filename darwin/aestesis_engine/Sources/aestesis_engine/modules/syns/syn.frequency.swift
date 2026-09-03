@@ -11,6 +11,7 @@ import aestesis_alib
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 class SynFrequency: Syn {
+    var t = ß.rnd * 10000
     override init(parent: NodeUI) {
         super.init(parent: parent)
     }
@@ -18,26 +19,43 @@ class SynFrequency: Syn {
         super.detach()
     }
     override func render(
-        time: Double, dtime: Double, fps:Double, audio: AudioAnalyzer.Info, output: Bitmap,
+        time: Double, dtime: Double, fps: Double, audio: AudioAnalyzer.Info, output: Bitmap,
         _ fn: @escaping () -> Void
     ) {
-        let g = Graphics(image: output, clear: Color(a: 1, l: 0.1))
+        guard let vp = viewport else { return }
+        t -= dtime * Double(audio.peak)
+        let g = Graphics(image: output, clear: .black, viewport: vp)
         let ffta = Array(audio.fft.amplitude[0...255])
-        let dx:Double = Double(output.size.width) / Double(ffta.count)
-        var x:Double = 0
-        let y = output.bounds.center.y
-        
+        var vertices = [Vertice]()
+        var center = output.bounds.center
+        var r = output.bounds.size.length * 40
+        let c = Color.white
         var i = 0
         for a in ffta {
-            let cf = Double(i)/Double(ffta.count)
-            let c = Color.aeOrange.lerp(to: .aeGreen, coef: cf)
-            let vy = y * Double(a*10)
-            let vx = Double(a*100)
-            g.fill(rect:Rect(x-vx,y-vy,10+vx*2,vy*2),blend: .add, color:(c * 0.7).with(a:1))
-            x += dx
+            let vi = Double(i) / Double(ffta.count)
+            let vr = Double(ffta[i]) * r
+            let vr0 = vr * 0.1
+            let rz = vi * Double.pi * 0.5
+            let cc = c.with(a: 0.01)
+            func vert(angle: Double) -> [Vertice] {
+                return [
+                    Vertice(
+                        position: Vec3(center + Point(angle: angle - d, radius: vr0)),
+                        color: cc),
+                    Vertice(
+                        position: Vec3(center + Point(angle: angle, radius: vr)), color: c),
+                    Vertice(
+                        position: Vec3(center + Point(angle: angle + d, radius: vr0)),
+                        color: cc),
+                ]
+            }
+            vertices.append(contentsOf: vert(angle: rz))
+            vertices.append(contentsOf: vert(angle: Double.pi - rz))
+            vertices.append(contentsOf: vert(angle: Double.pi + rz))
+            vertices.append(contentsOf: vert(angle: -rz ))
             i += 1
         }
-
+        g.draw(triangle: vertices, blend: .alpha)
         g.onDone { [weak self] _ in
             guard let self = self, self.attached else { return }
             fn()
