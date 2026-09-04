@@ -212,40 +212,44 @@ func apow(_ value: Double, _ power: Double) -> Double {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 class LutManager: NodeUI {
-    let size: Int
     var texture: Texture3D?
-    var hue: Double = 0
-    var saturation: Double = 0
-    var brightness: Double = 0
     var processing: Bool = false
+    var hsv: Vec3 = .zero
     override func detach() {
         texture?.detach()
         texture = nil
         super.detach()
     }
     init(parent: NodeUI, size: Int) {
-        self.size = size
         super.init(parent: parent)
+        texture = Texture3D(parent: self, size: size)
     }
     func update(hue: Double, saturation: Double, brightness: Double) {
+        let hsv = Vec3(hue, saturation, brightness)
         guard !processing else { return }
-        guard self.hue != hue || self.saturation != saturation || self.brightness != brightness
-        else { return }
+        guard self.hsv != hsv else { return }
+        guard self.attached, let texture = texture else { return }
         processing = true
-        DispatchQueue.global(qos: .background).async { [weak self] in
-            guard let self = self, self.attached else { return }
-            let lut = LUT(
-                size: size, decal: HSBA(hue: hue, saturation: saturation, brightness: brightness))
-            bg { [weak self] in
-                guard let self = self, self.attached else { return }
-                texture = lut.createTexture3D(parent: self)
-                self.hue = hue
-                self.saturation = saturation
-                self.brightness = brightness
-                processing = false
-            }
+        do {
+            try texture.fill(
+                hsv: hsv,
+                fn: { result in
+                    self.processing = false
+                    switch result {
+                    case .discarded:
+                        Debug.info("Texture3D.fill() discarded")
+                    case .error(let message):
+                        Debug.info("Texture3D.fill() error \(message)")
+                    case .success:
+                        self.hsv = hsv
+                    }
+                })
+        } catch {
+            Debug.info(error.localizedDescription)
+            processing = false
         }
     }
+
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
