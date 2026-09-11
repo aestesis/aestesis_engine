@@ -393,8 +393,7 @@ class EffectGraphics: Graphics {
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
     static func initShareds(store: NodeUI) {
         let gpu = store.viewport!.gpu
-        let library = ProgramLibrary(
-            parent: store, device: gpu.device, bundle: Bundle.aestesis, filename: "default")
+        let library = store.viewport!.library(bundle: Bundle.aestesis, name: "default")
         Program.populateDefaultBlendModes(
             store: store, key: "program.fx.dynamic.cartesian.float2", library: library,
             vertex: "textureFuncVertex_float",

@@ -1,6 +1,7 @@
 import Foundation
 import aestesis_alib
 
+typealias Vec2 = aestesis_alib.Vec2
 typealias Vec3 = aestesis_alib.Vec3
 typealias Point = aestesis_alib.Point
 typealias Thread = aestesis_alib.Thread
