@@ -446,6 +446,43 @@ kernel void kernelFluidDiffuse(
     current.xy = (current.xy + p.a * (top.xy + left.xy + right.xy + bottom.xy)) / p.c;
     output.write(current, gpos);
 }
+kernel void kernelFluidBoundary(
+    texture2d<float, access::read_write> texture [[texture(0)]],
+    uint2 gpos [[thread_position_in_grid]]
+)
+{
+    uint w = texture.get_width();
+    uint h = texture.get_height();
+    if (gpos.x >= w || gpos.y >= h) {
+        return;
+    }
+    if (gpos.x > 0 || gpos.x < w-1 || gpos.y > 0 || gpos.y < h-1) {
+        return;
+    }
+    float4 current = texture.read(gpos);
+    if (gpos.x == 0) {
+        if(gpos.y == 0) {
+            current.xy = -texture.read(gpos+uint2(1,1)).xy;
+        } else if (gpos.y == h-1) {
+            current.xy = -texture.read(gpos+uint2(1,-1)).xy;
+        } else {
+            current.xy = texture.read(gpos+uint2(1,0)).xy*float2(-1,1);
+        }
+    } else if (gpos.x == w-1) {
+        if(gpos.y == 0) {
+            current.xy = -texture.read(gpos+uint2(-1,1)).xy;
+        } else if (gpos.y == h-1) {
+            current.xy = -texture.read(gpos+uint2(-1,-1)).xy;
+        } else {
+            current.xy = texture.read(gpos+uint2(-1,0)).xy*float2(-1,1);
+        }
+    } else if (gpos.y == 0) {
+        current.xy = texture.read(gpos+uint2(0,1)).xy*float2(1,-1);
+    } else {    // gpos.y == h-1
+        current.xy = texture.read(gpos+uint2(0,-1)).xy*float2(1,-1);
+    }
+    texture.write(current, gpos);
+}
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 

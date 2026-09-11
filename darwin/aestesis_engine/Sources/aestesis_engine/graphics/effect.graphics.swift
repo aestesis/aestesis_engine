@@ -463,7 +463,7 @@ class EffectGraphics: Graphics {
         store["program.popoopooo.glow"] = Program(
             library: library, vertex: "textureFuncVertex",
             fragment: "popoopoooDifferenceFuncFragment",
-            blend: BlendMode.opaque, vertexFormat: [.float3, .float4, .float2])
+            blend: BlendMode.opaque, vertexFormat: [.float3, .float4, .float2])        
     }
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
