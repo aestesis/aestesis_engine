@@ -26,6 +26,7 @@ struct SynInfo: Hashable {
         SynInfo(name: "Color", create: { SynColor(parent: $0) }),
         SynInfo(name: "Cygnus", create: { SynCygnus(parent: $0) }),
         SynInfo(name: "Equinox", create: { SynEquinox(parent: $0) }),
+        SynInfo(name: "Fluid", create: { SynFluid(parent: $0) }),
         SynInfo(name: "Frequency", create: { SynFrequency(parent: $0) }),
         SynInfo(name: "Geometry", create: { SynGeometry(parent: $0) }),
         SynInfo(name: "Hanna", create: { SynHanna(parent: $0) }),

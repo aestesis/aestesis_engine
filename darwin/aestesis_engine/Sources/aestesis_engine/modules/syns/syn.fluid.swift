@@ -34,7 +34,8 @@ class SynFluid: Syn {
         }
         guard let sim = sim else { return }
         // TODO add movements
-
+        sim.advance(dtime: dtime)
+        
     }
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////

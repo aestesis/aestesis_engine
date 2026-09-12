@@ -9,17 +9,20 @@ import simd
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 public class FluidSimulation: NodeUI {
     var diffusion: Double = 0.01
-    let size: SizeI
-    let diffuseKernel: ComputeKernel
-    let boundaryKernel: ComputeKernel
-    var textures: [Texture2D] = []
-    var source: Texture2D {
+    private let size: SizeI
+    private let diffuseKernel: ComputeKernel
+    private let boundaryKernel: ComputeKernel
+    private var textures: [Texture2D] = []
+    private var source: Texture2D {
         return textures[0]
     }
-    var destination: Texture2D {
+    private var destination: Texture2D {
         return textures[1]
     }
-    func swap() {
+    public var output: Texture2D {
+        return destination
+    }
+    private func swap() {
         textures.swapAt(0, 1)
     }
     init(parent: NodeUI, size: SizeI) throws {
@@ -28,18 +31,33 @@ public class FluidSimulation: NodeUI {
         diffuseKernel = try ComputePass.register(kernel: "kernelFluidDiffuse", library: library)
         boundaryKernel = try ComputePass.register(kernel: "kernelFluidBoundary", library: library)
         super.init(parent: parent)
-    }
-
-    func step(dtime: Double) {
-        var fence: MTLFence?
-        for _ in 1...6 {
-            fence = diffuse(dtime: dtime, wait: fence)
-            fence = boundary(wait: fence)
-            swap()
+        for _ in 1...2 {
+            textures.append(Texture2D(parent: self, size: size.double, format: .float4))
         }
     }
 
-    func diffuse(dtime: Double, wait: MTLFence? = nil, fn: ((ComputePass.Result) -> Void)? = nil)
+    func advance(dtime: Double) -> MTLFence? {
+        var fence: MTLFence?
+        for _ in 1...6 {
+            fence = diffuse(dtime: dtime, wait: fence) { result in
+                switch result {
+                case .discarded:
+                    Debug.info("discarded")
+                case .error(let message):
+                    Debug.info("error \(message)")
+                case .success:
+                    break
+                }
+            }
+            fence = boundary(wait: fence)
+            swap()
+        }
+        return fence
+    }
+
+    private func diffuse(
+        dtime: Double, wait: MTLFence? = nil, fn: ((ComputePass.Result) -> Void)? = nil
+    )
         -> MTLFence?
     {
         guard let viewport = viewport else { return nil }
@@ -61,7 +79,9 @@ public class FluidSimulation: NodeUI {
         return fence
     }
 
-    func boundary(wait: MTLFence? = nil, fn: ((ComputePass.Result) -> Void)? = nil) -> MTLFence? {
+    private func boundary(wait: MTLFence? = nil, fn: ((ComputePass.Result) -> Void)? = nil)
+        -> MTLFence?
+    {
         guard let viewport = viewport else { return nil }
         let compute = ComputePass(parent: viewport)
         compute.use(kernel: boundaryKernel)
