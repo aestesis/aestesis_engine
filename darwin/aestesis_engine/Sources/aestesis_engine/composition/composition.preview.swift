@@ -45,7 +45,7 @@ class CompositionPreview: NodeUI {
             }
             let window = OsWindow(
                 frame: rect.system,
-                title: "aestesis preview")
+                title: "aestesis preview", threads: false)
             window.onStartUI.once { viewport in
                 viewport.rootView = PreviewView(viewport: viewport)
             }
