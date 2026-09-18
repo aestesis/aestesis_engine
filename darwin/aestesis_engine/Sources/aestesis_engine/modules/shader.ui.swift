@@ -14,7 +14,7 @@ import aestesis_alib
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
-class ShaderUI: ModuleUI {
+class ShaderUI: ModuleUI, @unchecked Sendable {
     var renderer:SKRenderer?
     var shader:SKShader?
     override init(parent: NodeUI, id: String) {
@@ -67,7 +67,7 @@ void main() {
     override func process(time: Double, dtime: Double, beat: Double, dbeat: Double, fps:Double, audio: AudioAnalyzer.Info) {
         guard let output = output.value else { return }
         guard let renderer=renderer  else { return }
-        guard let sprite:SKSpriteNode = renderer.scene?.children.first as? SKSpriteNode else { return }
+        //guard let sprite:SKSpriteNode = renderer.scene?.children.first as? SKSpriteNode else { return }
         guard let cb = viewport?.gpu.queue.makeCommandBuffer() else { return }
         guard let shader = shader else { return }
         renderer.update(atTime: TimeInterval(time))

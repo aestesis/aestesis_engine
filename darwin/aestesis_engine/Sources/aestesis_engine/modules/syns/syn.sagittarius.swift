@@ -13,7 +13,7 @@ import aestesis_alib
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
-class SynSagittarius: SynRenderer {
+class SynSagittarius: SynRenderer, @unchecked Sendable {
     var collection:ObjectCollection?
     var data:[Data] = []
     let gradient = ColorGradient([0.0:Color(hex:"#260BAF"),0.25:Color(hex:"#C3068E"),0.75:Color(hex:"#D9FF00"),1.0:Color(hex:"#01FCA8")])

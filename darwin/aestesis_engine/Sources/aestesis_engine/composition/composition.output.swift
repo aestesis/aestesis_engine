@@ -10,7 +10,7 @@ import aestesis_alib
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
-class CompositionOutput: NodeUI {
+class CompositionOutput: NodeUI, @unchecked Sendable {
     let queue: DispatchQueue = DispatchQueue(label: "CompositionOutput", qos: .utility)
     var states: CompositionStates = CompositionStates(
         recording: false, streaming: false, previewing: false)

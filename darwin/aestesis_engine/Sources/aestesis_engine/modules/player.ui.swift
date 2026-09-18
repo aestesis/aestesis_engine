@@ -20,7 +20,7 @@ import aestesis_alib
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
-class PlayerUI: ModuleUI {
+class PlayerUI: ModuleUI, @unchecked Sendable {
     var assets = SynchronizedDictionnary<String, PlayerAsset>()
     let player = AVPlayer()
     var playerItemDidPlayToEndObserver: NSObjectProtocol?
@@ -191,7 +191,7 @@ class PlayerAsset {
     }
 
     func processPreview(player: PlayerUI) {
-        AVAsset(url: url).generateThumbnail { [weak self] cgImage in
+        AVURLAsset(url: url).generateThumbnail { [weak self] cgImage in
             guard let self = self, let cgImage = cgImage else { return }
             player.io { [weak self] in
                 guard let self = self else { return }

@@ -10,7 +10,7 @@ import aestesis_alib
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
-class SynMental: Syn {
+class SynMental: Syn, @unchecked Sendable {
     var mental: WavesMental?
     var shadow: WavesShadow?
     override init(parent: NodeUI) {
@@ -26,24 +26,32 @@ class SynMental: Syn {
         super.detach()
     }
     override func render(
-        time: Double, dtime: Double, fps:Double, audio: AudioAnalyzer.Info, output: Bitmap,
+        time: Double, dtime: Double, fps: Double, audio: AudioAnalyzer.Info, output: Bitmap,
         _ fn: @escaping () -> Void
     ) {
         guard let mental = mental, let omental = mental.output, let shadow = shadow,
-              let oshadow = shadow.output
+            let oshadow = shadow.output
         else { return }
-        mental.render(time, fps:fps, audio: audio) {}
-        shadow.render(time, fps:fps, audio: audio) {
-            let g = Graphics(image: output)
+        mental.render(time, fps: fps, audio: audio) {}
+        shadow.render(time, fps: fps, audio: audio) {
+            guard let viewport = self.viewport else { return }
+            let g = Graphics(image: output, viewport: viewport)
             g.draw(
                 rect: output.bounds, image: oshadow, from: oshadow.bounds.crop(output.bounds.ratio),
                 color: Color(a: 1, l: 0.6))
             g.draw(
                 rect: output.bounds, image: omental, from: omental.bounds.crop(output.bounds.ratio),
                 blend: .add, color: Color(a: 1, l: 0.5))
-            g.onDone { [weak self] ok in
-                guard let self = self, self.attached else { return }
-                fn()
+            g.onDone { ok in
+                guard self.attached else { return }
+                switch ok {
+                case .discarded:
+                    break
+                case .error(let message):
+                    Debug.info(message)
+                case .success:
+                    fn()
+                }
             }
         }
     }

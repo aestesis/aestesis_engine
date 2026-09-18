@@ -10,7 +10,7 @@ import aestesis_alib
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
-class SynBetaTwo: Syn {
+class SynBetaTwo: Syn, @unchecked Sendable {
     var ffta: [Double] = [Double](repeating: 0, count: 256)
     override init(parent: NodeUI) {
         super.init(parent: parent)
@@ -27,7 +27,7 @@ class SynBetaTwo: Syn {
         for i in 0..<ffta.count {
             let ni = i / 18 + 1
             var v = 0.0
-            for j in 0..<ni {
+            for _ in 0..<ni {
                 v += Double(audio.fft.amplitude[si])
                 si += 1
             }

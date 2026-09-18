@@ -12,7 +12,7 @@ import simd
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
-class SynSoundscape: SynRenderer {
+class SynSoundscape: SynRenderer, @unchecked Sendable {
     var material: MaterialHeightMap?
     var light: PointLight?
     var onode: Node3D?
@@ -227,7 +227,7 @@ class SynSoundscape: SynRenderer {
         gt.draw(rect: texture.bounds, image: height, gradient: gradient)
         gt.draw(rect: texture.bounds, image: mask, blend: .setAlpha)
     }
-    class Plan: MeshOld {
+    class Plan: MeshOld, @unchecked Sendable {
         init(parent: NodeUI, factor: Int = 128) {
             super.init(parent: parent)
             self.zz {

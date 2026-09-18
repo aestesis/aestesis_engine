@@ -10,7 +10,7 @@ import aestesis_alib
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
-class CompositionPreview: NodeUI {
+class CompositionPreview: NodeUI, @unchecked Sendable {
     let onClose = Event<Void>()
     var window: OsWindow?
     private var closed = false
@@ -38,7 +38,8 @@ class CompositionPreview: NodeUI {
     }
     init(parent: NodeUI, ratio: Double) {
         super.init(parent: parent)
-        DispatchQueue.main.async {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
             var rect = Rect(left: 0, top: 0, right: 1280, bottom: 1280 / ratio)
             if let jrect = Application.db.json("preview.rect") {
                 rect = Rect(json: jrect)
@@ -60,10 +61,10 @@ class CompositionPreview: NodeUI {
                     self.onClose.dispatch(())
                 }
             }
-            window.onResize.always { rect in
+            window.onResize.alive(self) { rect in
                 Application.db.json("preview.rect", value: rect.json)
             }
-            window.onMove.always { rect in
+            window.onMove.alive(self) { rect in
                 Application.db.json("preview.rect", value: rect.json)
             }
             self.window = window
@@ -87,7 +88,7 @@ class CompositionPreview: NodeUI {
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
-private class PreviewView: View {
+private class PreviewView: View, @unchecked Sendable {
     var image: SharedBitmap?
     override init(viewport: Viewport) {
         super.init(viewport: viewport)

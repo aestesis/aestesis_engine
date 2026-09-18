@@ -11,7 +11,7 @@ import aestesis_alib
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
-class SynJelly: SynRenderer {
+class SynJelly: SynRenderer, @unchecked Sendable {
     var light: PointLight?
     
     var speed = 0.0
@@ -150,7 +150,7 @@ class SynJelly: SynRenderer {
         }
     }
     
-    class MeshUber : MeshOld {
+    class MeshUber : MeshOld, @unchecked Sendable {
         public init(parent:NodeUI,length:Double,radius:Double) {
             super.init(parent:parent)
             self.zz {

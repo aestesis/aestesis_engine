@@ -10,7 +10,7 @@ import aestesis_alib
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
-class SynMoonWater: SynRenderer {
+class SynMoonWater: SynRenderer, @unchecked Sendable {
     var world: Node3D?
     var camera: Camera3D?
     var material: MaterialHeightMap?
@@ -94,7 +94,7 @@ class SynMoonWater: SynRenderer {
             fn()
         }
     }
-    class Plan: MeshOld {
+    class Plan: MeshOld, @unchecked Sendable {
         init(parent: NodeUI, factor: Int = 64) {
             super.init(parent: parent)
             zz {

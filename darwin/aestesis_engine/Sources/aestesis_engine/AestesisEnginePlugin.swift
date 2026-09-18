@@ -22,7 +22,7 @@ extension Bundle {
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
-public class AestesisEnginePlugin: NSObject, FlutterPlugin, AestesisEngineApi {
+public class AestesisEnginePlugin: NSObject, FlutterPlugin, AestesisEngineApi, @unchecked Sendable {
     static var instance: AestesisEnginePlugin = AestesisEnginePlugin()
     static var message: MessageAestesisEngineApi?
     public static func register(with registrar: FlutterPluginRegistrar) {
@@ -251,7 +251,7 @@ public class AestesisEnginePlugin: NSObject, FlutterPlugin, AestesisEngineApi {
         case .authorized:
             return seekCameras()
         default:
-            let ok = try await AVCaptureDevice.requestAccess(for: .video)
+            let ok = await AVCaptureDevice.requestAccess(for: .video)
             if !ok {
                 return []
             }
@@ -283,7 +283,7 @@ public class AestesisEnginePlugin: NSObject, FlutterPlugin, AestesisEngineApi {
                     dialog.directoryURL = Foundation.URL(string: directory)
                 }
                 dialog.resolvesAliases = false
-                dialog.showsResizeIndicator = true
+                //dialog.showsResizeIndicator = true
                 dialog.showsHiddenFiles = false
                 dialog.canChooseDirectories = false
                 dialog.allowsMultipleSelection = multiple
@@ -317,7 +317,7 @@ public class AestesisEnginePlugin: NSObject, FlutterPlugin, AestesisEngineApi {
                 dialog.nameFieldStringValue = filename
                 dialog.currentContentType = type
                 dialog.canCreateDirectories = true
-                dialog.showsResizeIndicator = true
+                //dialog.showsResizeIndicator = true
                 dialog.showsHiddenFiles = false
                 dialog.allowedContentTypes = [type]
                 if dialog.runModal() == NSApplication.ModalResponse.OK {

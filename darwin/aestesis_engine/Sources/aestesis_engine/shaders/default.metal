@@ -426,6 +426,9 @@ struct FluidDiffuseParams {
     float a;
     float c;
 };
+struct FluidProjectParams {
+    float isize;    // => 1 / size
+};
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 kernel void kernelFluidDiffuse(
     texture2d<float, access::write> output [[texture(0)]],
@@ -446,6 +449,7 @@ kernel void kernelFluidDiffuse(
     current.xy = (current.xy + p.a * (top.xy + left.xy + right.xy + bottom.xy)) / p.c;
     output.write(current, gpos);
 }
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
 kernel void kernelFluidBoundary(
     texture2d<float, access::read_write> texture [[texture(0)]],
     uint2 gpos [[thread_position_in_grid]]
@@ -462,7 +466,9 @@ kernel void kernelFluidBoundary(
     float4 current = texture.read(gpos);
     if (gpos.x == 0) {
         if(gpos.y == 0) {
-            current.xy = -texture.read(gpos+uint2(1,1)).xy;
+            float4 v = texture.read(gpos+uint2(1,1));
+            current.xy = -v.xy;
+            current.zw = v.zw;
         } else if (gpos.y == h-1) {
             current.xy = -texture.read(gpos+uint2(1,-1)).xy;
         } else {
@@ -481,6 +487,61 @@ kernel void kernelFluidBoundary(
     } else {    // gpos.y == h-1
         current.xy = texture.read(gpos+uint2(0,-1)).xy*float2(1,-1);
     }
+    texture.write(current, gpos);
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+kernel void kernelFluidProjectDivergence(
+    texture2d<float, access::read_write> texture [[texture(0)]],
+    uint2 gpos [[thread_position_in_grid]],
+    constant FluidProjectParams &p[[buffer(0)]]) 
+{
+    uint w = texture.get_width();
+    uint h = texture.get_height();
+    if (gpos.x >= w-1 || gpos.y >= h-1 || gpos.x == 0 || gpos.y == 0) {
+        return;
+    }
+    float4 current = texture.read(gpos);
+    float4 left = texture.read(gpos-uint2(-1,0));
+    float4 right = texture.read(gpos-uint2(1,0));
+    float4 top = texture.read(gpos-uint2(0,-1));
+    float4 bottom = texture.read(gpos-uint2(0,1));
+    current.zw = float2(0,  -0.5 * (right.x - left.x + top.y - bottom.y) * p.isize);
+    texture.write(current, gpos);
+}
+kernel void kernelFluidProjectPoisson(
+    texture2d<float, access::read_write> texture [[texture(0)]],
+    uint2 gpos [[thread_position_in_grid]],
+    constant FluidProjectParams &p[[buffer(0)]]) 
+{
+    uint w = texture.get_width();
+    uint h = texture.get_height();
+    if (gpos.x >= w-1 || gpos.y >= h-1 || gpos.x == 0 || gpos.y == 0) {
+        return;
+    }
+    float4 current = texture.read(gpos);
+    float4 left = texture.read(gpos-uint2(-1,0));
+    float4 right = texture.read(gpos-uint2(1,0));
+    float4 top = texture.read(gpos-uint2(0,-1));
+    float4 bottom = texture.read(gpos-uint2(0,1));
+    current.z = (current.w + left.z + right.z + bottom.z + top.z) * 0.25;
+    texture.write(current, gpos);
+}
+kernel void kernelFluidProjectPression(
+    texture2d<float, access::read_write> texture [[texture(0)]],
+    uint2 gpos [[thread_position_in_grid]],
+    constant FluidProjectParams &p[[buffer(0)]]) 
+{
+    uint w = texture.get_width();
+    uint h = texture.get_height();
+    if (gpos.x >= w-1 || gpos.y >= h-1 || gpos.x == 0 || gpos.y == 0) {
+        return;
+    }
+    float4 current = texture.read(gpos);
+    float4 left = texture.read(gpos-uint2(-1,0));
+    float4 right = texture.read(gpos-uint2(1,0));
+    float4 top = texture.read(gpos-uint2(0,-1));
+    float4 bottom = texture.read(gpos-uint2(0,1));
+    current.xy -= 0.5 * float2(right.z-left.z,top.z-bottom.z) * p.isize;
     texture.write(current, gpos);
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////

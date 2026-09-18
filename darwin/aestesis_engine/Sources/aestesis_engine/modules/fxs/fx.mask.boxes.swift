@@ -10,9 +10,9 @@ import aestesis_alib
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
-class FxMaskBoxes: Fx {
+class FxMaskBoxes: Fx, @unchecked Sendable {
     static let count = 40
-    var boxes:[MaskBox] = []
+    var boxes: [MaskBox] = []
     var eq: [Double] = [Double](repeating: 0.0, count: count)
 
     override init(parent: NodeUI) {
@@ -34,11 +34,11 @@ class FxMaskBoxes: Fx {
         }
         updateEq(audio: audio)
         let g = Graphics(image: output, clear: .black, viewport: vp)
-        if level<1 {
+        if level < 1 {
             g.draw(
                 rect: output.bounds, image: input,
                 from: input.bounds.crop(output.bounds.ratio),
-                color: Color(l:(1-level))
+                color: Color(l: (1 - level))
             )
         }
         for i in 0..<boxes.count {
@@ -47,7 +47,7 @@ class FxMaskBoxes: Fx {
             g.draw(
                 rect: b.bound(from: output.bounds), image: input,
                 from: b.bound(from: input.bounds.crop(output.bounds.ratio)),
-                blend: .add, color: Color(l:0.5*level)
+                blend: .add, color: Color(l: 0.5 * level)
             )
         }
         g.onDone { [weak self] _ in
@@ -80,7 +80,8 @@ struct MaskBox {
         return pposition.sin(time) * Point(0.5, 0.5) + Point(0.5, 0.5)
     }
     func bound(from: Rect) -> Rect {
-        return Rect(center: from.origin + position * from.size, size: (from.size * size).crop(ratio))
+        return Rect(
+            center: from.origin + position * from.size, size: (from.size * size).crop(ratio))
     }
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////

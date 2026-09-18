@@ -9,7 +9,7 @@
 import Foundation
 import aestesis_alib
 
-class WavesShadow : WavesEffect {
+class WavesShadow : WavesEffect, @unchecked Sendable {
     var _output:Bitmap?
     var bw:Bitmap?
     override var output: Bitmap? {

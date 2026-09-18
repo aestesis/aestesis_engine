@@ -4,7 +4,7 @@ import simd
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
-class SynFluid: Syn {
+class SynFluid: Syn, @unchecked Sendable {
     var sim: FluidSimulation?
     var size: SizeI = .zero
     override init(parent: NodeUI) {
@@ -19,7 +19,7 @@ class SynFluid: Syn {
         time: Double, dtime: Double, fps: Double, audio: AudioAnalyzer.Info, output: Bitmap,
         _ fn: @escaping () -> Void
     ) {
-        guard let viewport = viewport else { return }
+        //guard let viewport = viewport else { return }
         let size = ((output.size * 0.25 / 8).round * 8).int
         if self.size != size {
             sim?.detach()
@@ -34,7 +34,7 @@ class SynFluid: Syn {
         }
         guard let sim = sim else { return }
         // TODO add movements
-        sim.advance(dtime: dtime)
+        let fence = sim.advance(dtime: dtime)
         
     }
 }

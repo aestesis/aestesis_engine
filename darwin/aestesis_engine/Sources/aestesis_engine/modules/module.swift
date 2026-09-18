@@ -20,7 +20,7 @@ import simd
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
-public class ModuleUI: aestesis_alib.NodeUI {
+public class ModuleUI: aestesis_alib.NodeUI, @unchecked Sendable {
     var output: SynchronizedValue<SharedBitmap> = SynchronizedValue<SharedBitmap>()
     var assetOutputs: SynchronizedDictionnary<String, FlutterBitmap> = SynchronizedDictionnary<
         String, FlutterBitmap

@@ -10,7 +10,7 @@ import aestesis_alib
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
-class SynFrequency: Syn {
+class SynFrequency: Syn, @unchecked Sendable {
     var t = ß.rnd * 10000
     override init(parent: NodeUI) {
         super.init(parent: parent)
@@ -34,7 +34,7 @@ class SynFrequency: Syn {
         var i = 0
         for a in ffta {
             let vi = Double(i) / Double(ffta.count)
-            let vr = Double(ffta[i]) * r
+            let vr = Double(a) * r
             let vr0 = vr * 0.1
             let rz = vi * Double.pi * 0.5
             let cc = c.with(a: 0.01)

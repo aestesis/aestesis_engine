@@ -10,7 +10,7 @@ import aestesis_alib
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
-class FxColorPlasma: Fx {
+class FxColorPlasma: Fx, @unchecked Sendable {
     lazy var sprite: Bitmap = Bitmap(
         parent: self, path: "assets/Sprites/sprite-add.png", bundle: Bundle.aestesis)
     let size = 16
@@ -84,7 +84,7 @@ class FxColorPlasma: Fx {
         let r = lut.size.z
         let size = Size(lut.size.x, lut.size.y)
         for z in 0..<Int(lut.size.z) {
-            let zz = Double(z)
+            //let zz = Double(z)
             let g = Graphics(texture: lut, depthPlane: z, clear: .black, viewport: vp)
             var i = 0
             for p in pinfo {

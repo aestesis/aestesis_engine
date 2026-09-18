@@ -10,7 +10,7 @@ import aestesis_alib
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
-class FxColorZebra: Fx {
+class FxColorZebra: Fx, @unchecked Sendable {
     lazy var palette: Bitmap = Bitmap(
         parent: self, size: Size(256, 3))
     var eq: [EQH] = [EQH](repeating: EQH(), count: 256)
@@ -34,13 +34,11 @@ class FxColorZebra: Fx {
             eq.removeFirst()
             eq.append(eq.last! * 0.5 + EQH(audio.eq) * 0.6)
         }
-        let t = time * 0.01
         let tr = 0.0  // t.remainder(dividingBy: 1)
         let tg = 0.333  // (t+0.333).remainder(dividingBy: 1)
         let tb = 0.666  //(t+0.666).remainder(dividingBy: 1)
-        let red = Color(h: tr, s: 1, b: 1)
         for x in 0..<256 {
-            var v = (Double(x) / 255.0) * 0.5 + 0.5
+            let v = (Double(x) / 255.0) * 0.5 + 0.5
             pixels[x] =
                 (Color(h: tr, s: 1, b: v) * eq[x].low).saturated.with(a: 1).bgra
             pixels[x + 256] =

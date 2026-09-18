@@ -9,7 +9,7 @@
 import Foundation
 import aestesis_alib
 
-class Disco: Reflex {
+class Disco: Reflex, @unchecked Sendable {
     var sprites = [[PointSprite]]()
     var sprite: Bitmap? = nil
     override init(parent: NodeUI) {

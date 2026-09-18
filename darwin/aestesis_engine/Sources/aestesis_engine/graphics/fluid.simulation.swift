@@ -7,7 +7,7 @@ import simd
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
-public class FluidSimulation: NodeUI {
+public class FluidSimulation: NodeUI, @unchecked Sendable {
     var diffusion: Double = 0.01
     private let size: SizeI
     private let diffuseKernel: ComputeKernel
@@ -49,7 +49,16 @@ public class FluidSimulation: NodeUI {
                     break
                 }
             }
-            fence = boundary(wait: fence)
+            fence = boundary(wait: fence) { result in
+                switch result {
+                case .discarded:
+                    Debug.info("discarded")
+                case .error(let message):
+                    Debug.info("error \(message)")
+                case .success:
+                    break
+                }
+            }
             swap()
         }
         return fence

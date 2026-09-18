@@ -9,7 +9,7 @@
 import Foundation
 import aestesis_alib
 
-class BarColor : Reflex {
+class BarColor : Reflex, @unchecked Sendable {
     var palette : Bitmap?
     override init(parent: NodeUI) {
         super.init(parent:parent)

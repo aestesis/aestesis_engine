@@ -10,7 +10,7 @@ import aestesis_alib
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
-class SynEquinox: Syn {
+class SynEquinox: Syn, @unchecked Sendable {
     var kiss: WavesKiss?
     var memo: WavesMemorium?
     override init(parent: NodeUI) {
@@ -26,12 +26,12 @@ class SynEquinox: Syn {
         super.detach()
     }
     override func render(
-        time: Double, dtime: Double, fps:Double, audio: AudioAnalyzer.Info, output: Bitmap,
+        time: Double, dtime: Double, fps: Double, audio: AudioAnalyzer.Info, output: Bitmap,
         _ fn: @escaping () -> Void
     ) {
         guard let kiss = kiss, let memo = memo else { return }
-        kiss.render(time, fps:fps, audio: audio) {}
-        memo.render(time, fps:fps, audio: audio) {
+        kiss.render(time, fps: fps, audio: audio) {}
+        memo.render(time, fps: fps, audio: audio) {
             guard let okiss = kiss.output, let omemo = memo.output else { return }
             let g = Graphics(image: output)
             g.draw(
@@ -40,9 +40,16 @@ class SynEquinox: Syn {
             g.draw(
                 rect: output.bounds, image: omemo, from: omemo.bounds.crop(output.bounds.ratio),
                 blend: .difference, color: Color(a: 1, l: 0.6))
-            g.onDone { [weak self] ok in
-                guard let self = self, self.attached else { return }
-                fn()
+            g.onDone { ok in
+                guard self.attached else { return }
+                switch ok {
+                case .discarded:
+                    break
+                case .error(let message):
+                    Debug.info(message)
+                case .success:
+                    fn()
+                }
             }
         }
     }
