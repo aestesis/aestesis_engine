@@ -44,7 +44,7 @@ class SynCoastalWaves: Syn, @unchecked Sendable {
         time: Double, dtime: Double, fps: Double, audio: AudioAnalyzer.Info, output: Bitmap,
         _ fn: @escaping () -> Void
     ) {
-        let g = Graphics(image: output, clear: .black)
+        let g = Graphics(image: output)
 
         process(audio: audio)
 
@@ -261,18 +261,20 @@ class SynCoastalWaves: Syn, @unchecked Sendable {
         var di = [UInt32]()
         var n = 0
         for b in db {
-            let i = Int(Double(b) * (5 * (511 - Double(n)) / 512 + 2))
-            di.append(UInt32((255 << 24) | (i << 16) | (i << 8) | i))
+            let i = 0.0002 * Double(b) * (511 - Double(n) / 512)
+            di.append(Color(a: 1, l: i).saturated.bgra)
             n += 1
         }
         line.set(pixels: di)
         let h = size.height * 0.5
         g.draw(
-            rect: Rect(x: 0, y: 0, w: size.w, h: h), image: line, color: Color.aeBlue,
-            rotation: Rotation.anticlockwise.angle)
+            rect: Rect(x: 0, y: 0, w: size.w, h: h), image: line, imageRotation: .anticlockwise,
+            blend: .opaque, color: Color.aeBlue
+        )
         g.draw(
-            rect: Rect(x: 0, y: h, w: size.w, h: h), image: line, color: Color.aeAqua,
-            rotation: Rotation.clockwise.angle)
+            rect: Rect(x: 0, y: h, w: size.w, h: h), image: line, imageRotation: .clockwise,
+            blend: .opaque, color: Color.aeAqua
+        )
     }
     func bass(_ p: Double) -> Double {
         let pd = (Double(eq.count - 1) - 0.001) * p
