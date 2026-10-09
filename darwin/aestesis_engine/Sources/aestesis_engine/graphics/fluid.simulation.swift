@@ -12,15 +12,18 @@ public class FluidSimulation: NodeUI, @unchecked Sendable {
     private let size: SizeI
     private let diffuseKernel: ComputeKernel
     private let boundaryKernel: ComputeKernel
-    private var textures: [Texture2D] = []
-    private var source: Texture2D {
+    private let projectDivergenceKernel: ComputeKernel
+    private let projectPoissonKernel: ComputeKernel
+    private let projectPressureKernel: ComputeKernel
+    private var textures: [Bitmap] = []
+    private var source: Bitmap {
         return textures[0]
     }
-    private var destination: Texture2D {
+    private var destination: Bitmap {
         return textures[1]
     }
-    public var output: Texture2D {
-        return destination
+    public var texture: Bitmap {
+        return source
     }
     private func swap() {
         textures.swapAt(0, 1)
@@ -30,16 +33,74 @@ public class FluidSimulation: NodeUI, @unchecked Sendable {
         self.size = size
         diffuseKernel = try ComputePass.register(kernel: "kernelFluidDiffuse", library: library)
         boundaryKernel = try ComputePass.register(kernel: "kernelFluidBoundary", library: library)
+        projectDivergenceKernel = try ComputePass.register(
+            kernel: "kernelFluidProjectDivergence", library: library)
+        projectPoissonKernel = try ComputePass.register(
+            kernel: "kernelFluidProjectPoisson", library: library)
+        projectPressureKernel = try ComputePass.register(
+            kernel: "kernelFluidProjectPressure", library: library)
         super.init(parent: parent)
         for _ in 1...2 {
-            textures.append(Texture2D(parent: self, size: size.double, format: .float4))
+            textures.append(Bitmap(parent: self, size: size.double, format: .float4))
         }
     }
 
-    func advance(dtime: Double) -> MTLFence? {
-        var fence: MTLFence?
-        for _ in 1...6 {
+    func advance(dtime: Double, fence f0: MTLFence? = nil) -> MTLFence? {
+        let iteration = 20
+        var fence: MTLFence? = f0
+        /*
+        let g = EffectGraphics(image: source)
+        if let fence = fence {
+            g.wait(fence: fence)
+        }
+        g.fillFloat(rect: source.bounds, blend: .alpha, color: Color(a: 0.001, l: 0))
+        fence = g.update()
+        */
+        for _ in 1...iteration {
             fence = diffuse(dtime: dtime, wait: fence) { result in
+                switch result {
+                case .discarded:
+                    Debug.info("discarded")
+                case .error(let message):
+                    Debug.info("error \(message)")
+                case .success:
+                    break
+                }
+            }
+            swap()
+            fence = boundary(wait: fence) { result in
+                switch result {
+                case .discarded:
+                    Debug.info("discarded")
+                case .error(let message):
+                    Debug.info("error \(message)")
+                case .success:
+                    break
+                }
+            }
+        }
+        fence = project(kernel: projectDivergenceKernel, wait: fence) { result in
+            switch result {
+            case .discarded:
+                Debug.info("discarded")
+            case .error(let message):
+                Debug.info("error \(message)")
+            case .success:
+                break
+            }
+        }
+        fence = boundary(wait: fence) { result in
+            switch result {
+            case .discarded:
+                Debug.info("discarded")
+            case .error(let message):
+                Debug.info("error \(message)")
+            case .success:
+                break
+            }
+        }
+        for _ in 1...iteration {
+            fence = project(kernel: projectPoissonKernel, wait: fence) { result in
                 switch result {
                 case .discarded:
                     Debug.info("discarded")
@@ -59,7 +120,26 @@ public class FluidSimulation: NodeUI, @unchecked Sendable {
                     break
                 }
             }
-            swap()
+        }
+        fence = project(kernel: projectPressureKernel, wait: fence) { result in
+            switch result {
+            case .discarded:
+                Debug.info("discarded")
+            case .error(let message):
+                Debug.info("error \(message)")
+            case .success:
+                break
+            }
+        }
+        fence = boundary(wait: fence) { result in
+            switch result {
+            case .discarded:
+                Debug.info("discarded")
+            case .error(let message):
+                Debug.info("error \(message)")
+            case .success:
+                break
+            }
         }
         return fence
     }
@@ -75,7 +155,32 @@ public class FluidSimulation: NodeUI, @unchecked Sendable {
         let compute = ComputePass(parent: viewport)
         compute.use(kernel: diffuseKernel)
         compute.use(texture: destination)
+        compute.use(texture: source, atIndex: 1)
         compute.use(params: FluidDiffuseParams(a: a, c: c))
+        if let fence = wait {
+            compute.wait(fence: fence)
+        }
+        compute.dispatch(size: size.mtl, threads: MTLSize(width: 8, height: 8, depth: 1))
+        let fence = compute.update()
+        compute.onDone.once { result in
+            fn?(result)
+        }
+        compute.commit()
+        return fence
+    }
+
+    private func project(
+        kernel: ComputeKernel, wait: MTLFence? = nil, fn: ((ComputePass.Result) -> Void)? = nil
+    )
+        -> MTLFence?
+    {
+        guard let viewport = viewport else { return nil }
+        let compute = ComputePass(parent: viewport)
+        compute.use(kernel: kernel)
+        compute.use(texture: source)
+        compute.use(
+            params: FluidProjectParams(
+                size: Float(max(destination.pixels.width, destination.pixels.height))))
         if let fence = wait {
             compute.wait(fence: fence)
         }
@@ -94,7 +199,7 @@ public class FluidSimulation: NodeUI, @unchecked Sendable {
         guard let viewport = viewport else { return nil }
         let compute = ComputePass(parent: viewport)
         compute.use(kernel: boundaryKernel)
-        compute.use(texture: destination)
+        compute.use(texture: source)
         if let fence = wait {
             compute.wait(fence: fence)
         }
@@ -163,6 +268,24 @@ extension ComputePass {
     public func use(params: FluidDiffuseParams) {
         let b = viewport!.gpu.buffers.get(MemoryLayout<FluidDiffuseParams>.stride)
         let ptr = b.ptr.assumingMemoryBound(to: FluidDiffuseParams.self)
+        ptr[0] = params
+        use(buffer: b)
+        onDone.once { result in
+            b.recycle()
+        }
+    }
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+public struct FluidProjectParams {
+    internal init(size: Float) {
+        self.isize = 1 / size
+    }
+    var isize: Float
+}
+extension ComputePass {
+    public func use(params: FluidProjectParams) {
+        let b = viewport!.gpu.buffers.get(MemoryLayout<FluidProjectParams>.stride)
+        let ptr = b.ptr.assumingMemoryBound(to: FluidProjectParams.self)
         ptr[0] = params
         use(buffer: b)
         onDone.once { result in

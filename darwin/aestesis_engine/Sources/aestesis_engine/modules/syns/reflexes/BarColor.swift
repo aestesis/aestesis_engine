@@ -36,7 +36,7 @@ class BarColor : Reflex, @unchecked Sendable {
                 x += dx
             }
             palette.set(pixels:data)
-            g.draw(rect: rect , image: palette, blend: .sub, rotation: .clockwise)
+            g.draw(rect: rect , image: palette, blend: .sub, rotation: Rotation.clockwise.angle)
         }
     }
 }

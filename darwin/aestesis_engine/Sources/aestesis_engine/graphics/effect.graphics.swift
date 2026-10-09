@@ -343,6 +343,42 @@ class EffectGraphics: Graphics, @unchecked Sendable {
     }
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
+    public func drawFloat(
+        rect: Rect, image: Bitmap, from: Rect? = nil,
+        blend: BlendMode = BlendMode.opaque, color: Color = Color.white,
+        rotation: Double = 0
+    ) {
+        var wrap = false
+        program("program.texture.float", blend: blend)
+        uniforms(matrix)
+        let vert = textureVertices(4)
+        let strip = rect.strip(rotation: rotation)
+        var rs = Rect(x: 0, y: 0, w: 1, h: 1)
+        if let r = from {
+            rs = r / image.size
+            wrap = rs.left < 0 || rs.top < 0 || rs.right > 1 || rs.bottom > 1
+        }
+        let uv = rs.strip
+        for i in 0...3 {
+            vert[i] = TextureVertice(
+                position: strip[i].infloat3, uv: uv[i].infloat2, color: color.infloat4)
+        }
+        sampler(wrap ? "sampler.wrap" : "sampler.clamp")
+        render.use(texture: image)
+        render.draw(trianglestrip: 4)
+    }
+    public func fillFloat(rect: Rect, blend: BlendMode = BlendMode.opaque, color: Color) {
+        program("program.color.float", blend: blend)
+        uniforms(matrix)
+        let vert = colorVertices(4)
+        let strip = rect.strip
+        for i in 0...3 {
+            vert[i] = ColorVertice(position: strip[i].infloat3, color: color.infloat4)
+        }
+        render.draw(trianglestrip: 4)
+    }
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////
     func fxDynamicPolar2Parameters(_ p: FxDynamicPolar2Parameters) {
         let b = buffer(MemoryLayout<FxDynamicPolar2Parameters>.stride)
         let ptr = b.ptr.assumingMemoryBound(to: FxDynamicPolar2Parameters.self)
@@ -391,9 +427,41 @@ class EffectGraphics: Graphics, @unchecked Sendable {
     }
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
+    func fluidAdvect(
+        rect: Rect, source: Bitmap, from: Rect? = nil, blend: BlendMode = BlendMode.opaque,
+        color: Color = Color.white, fluid: Bitmap
+    ) {
+        program("program.fluid.advect", blend: blend)
+        uniforms(matrix)
+        let vert = textureVertices(4)
+        let strip = rect.strip
+        let rs = from ?? Rect(x: 0, y: 0, w: 1, h: 1)
+        let uv = rs.strip
+        for i in 0...3 {
+            vert[i] = TextureVertice(
+                position: strip[i].infloat3, uv: uv[i].infloat2, color: color.infloat4)
+        }
+        render.use(texture: source)
+        render.use(texture: fluid, atIndex: 1)
+        render.draw(trianglestrip: 4)
+    }
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////
     static func initShareds(store: NodeUI) {
         //let gpu = store.viewport!.gpu
         let library = store.viewport!.library(bundle: Bundle.aestesis, name: "default")
+        Program.populateDefaultBlendModes(
+            store: store, key: "program.color.float", library: library,
+            vertex: "colorFuncVertex_float",
+            fragment: "fragmentColorFloat", vertexFormat: [.float3, .float4, .float2])
+        Program.populateDefaultBlendModes(
+            store: store, key: "program.texture.float", library: library,
+            vertex: "textureFuncVertex_float",
+            fragment: "fragmentTextureFloat", vertexFormat: [.float3, .float4, .float2])
+        Program.populateDefaultBlendModes(
+            store: store, key: "program.fluid.advect", library: library,
+            vertex: "textureFuncVertex",
+            fragment: "fragmentFluidAdvect", vertexFormat: [.float3, .float4, .float2])
         Program.populateDefaultBlendModes(
             store: store, key: "program.fx.dynamic.cartesian.float2", library: library,
             vertex: "textureFuncVertex_float",

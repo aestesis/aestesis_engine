@@ -113,6 +113,10 @@ struct ColorVertice {
     float4 position [[position]];
     half4 color;
 };
+struct ColorVertice_float {
+    float4 position [[position]];
+    float4 color;
+};
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 vertex ColorVertice colorFuncVertex(const device ColorVerticeIn *vin [[buffer(0)]],
                                     constant Uniforms &u [[buffer(1)]],
@@ -120,6 +124,15 @@ vertex ColorVertice colorFuncVertex(const device ColorVerticeIn *vin [[buffer(0)
     ColorVertice vout;
     vout.position = u.matrix * float4(vin[vid].position, 1);
     vout.color = half4(vin[vid].color);
+    return vout;
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+vertex ColorVertice_float colorFuncVertex_float(const device ColorVerticeIn *vin [[buffer(0)]],
+                                    constant Uniforms &u [[buffer(1)]],
+                                    uint vid [[vertex_id]]){
+    ColorVertice_float vout;
+    vout.position = u.matrix * float4(vin[vid].position, 1);
+    vout.color = vin[vid].color;
     return vout;
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -463,29 +476,43 @@ kernel void kernelFluidBoundary(
     if (gpos.x > 0 || gpos.x < w-1 || gpos.y > 0 || gpos.y < h-1) {
         return;
     }
-    float4 current = texture.read(gpos);
+    float4 current;
     if (gpos.x == 0) {
         if(gpos.y == 0) {
             float4 v = texture.read(gpos+uint2(1,1));
             current.xy = -v.xy;
             current.zw = v.zw;
         } else if (gpos.y == h-1) {
-            current.xy = -texture.read(gpos+uint2(1,-1)).xy;
+            float4 v = texture.read(gpos+uint2(1,-1));
+            current.xy = -v.xy;
+            current.zw = v.zw;
         } else {
-            current.xy = texture.read(gpos+uint2(1,0)).xy*float2(-1,1);
+            float4 v = texture.read(gpos+uint2(1,0));
+            current.xy = v.xy*float2(-1,1);
+            current.zw = v.zw;
         }
     } else if (gpos.x == w-1) {
         if(gpos.y == 0) {
-            current.xy = -texture.read(gpos+uint2(-1,1)).xy;
+            float4 v = texture.read(gpos+uint2(-1,1));
+            current.xy = -v.xy;
+            current.zw = v.zw;
         } else if (gpos.y == h-1) {
-            current.xy = -texture.read(gpos+uint2(-1,-1)).xy;
+            float4 v = texture.read(gpos+uint2(-1,-1));
+            current.xy = -v.xy;
+            current.zw = v.zw;
         } else {
-            current.xy = texture.read(gpos+uint2(-1,0)).xy*float2(-1,1);
+            float4 v = texture.read(gpos+uint2(-1,0));
+            current.xy = v.xy*float2(-1,1);
+            current.zw = v.zw;
         }
     } else if (gpos.y == 0) {
-        current.xy = texture.read(gpos+uint2(0,1)).xy*float2(1,-1);
+        float4 v = texture.read(gpos+uint2(0,1));
+        current.xy = v.xy*float2(1,-1);
+        current.zw = v.zw;
     } else {    // gpos.y == h-1
-        current.xy = texture.read(gpos+uint2(0,-1)).xy*float2(1,-1);
+        float4 v = texture.read(gpos+uint2(0,-1));
+        current.xy = v.xy*float2(1,-1);
+        current.zw = v.zw;
     }
     texture.write(current, gpos);
 }
@@ -526,7 +553,7 @@ kernel void kernelFluidProjectPoisson(
     current.z = (current.w + left.z + right.z + bottom.z + top.z) * 0.25;
     texture.write(current, gpos);
 }
-kernel void kernelFluidProjectPression(
+kernel void kernelFluidProjectPressure(
     texture2d<float, access::read_write> texture [[texture(0)]],
     uint2 gpos [[thread_position_in_grid]],
     constant FluidProjectParams &p[[buffer(0)]]) 
@@ -543,6 +570,22 @@ kernel void kernelFluidProjectPression(
     float4 bottom = texture.read(gpos-uint2(0,1));
     current.xy -= 0.5 * float2(right.z-left.z,top.z-bottom.z) * p.isize;
     texture.write(current, gpos);
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+fragment half4 fragmentFluidAdvect(TextureVertice v [[stage_in]], texture2d<half> t [[texture(0)]], texture2d<float> fluid [[texture(1)]]) {
+    constexpr sampler ss = sampler(filter::linear, address::clamp_to_edge);
+    float4 f = fluid.sample(ss, v.uv);
+    half4 c = t.sample(ss, v.uv-f.xy);
+    return c * v.color;
+}
+fragment float4 fragmentTextureFloat(TextureVertice_float v [[stage_in]], texture2d<float> t [[texture(0)]], sampler s [[sampler(0)]])
+{
+    float4 c = t.sample(s,v.uv);
+    return c * v.color;
+}
+fragment float4 fragmentColorFloat(ColorVertice_float v [[stage_in]], sampler s [[sampler(0)]])
+{
+    return v.color;
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////

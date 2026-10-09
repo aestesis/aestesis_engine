@@ -44,7 +44,7 @@ class SynCoastalWaves: Syn, @unchecked Sendable {
         time: Double, dtime: Double, fps: Double, audio: AudioAnalyzer.Info, output: Bitmap,
         _ fn: @escaping () -> Void
     ) {
-        let g = Graphics(image: output)
+        let g = Graphics(image: output, clear: .black)
 
         process(audio: audio)
 
@@ -269,10 +269,10 @@ class SynCoastalWaves: Syn, @unchecked Sendable {
         let h = size.height * 0.5
         g.draw(
             rect: Rect(x: 0, y: 0, w: size.w, h: h), image: line, color: Color.aeBlue,
-            rotation: .anticlockwise)
+            rotation: Rotation.anticlockwise.angle)
         g.draw(
             rect: Rect(x: 0, y: h, w: size.w, h: h), image: line, color: Color.aeAqua,
-            rotation: .clockwise)
+            rotation: Rotation.clockwise.angle)
     }
     func bass(_ p: Double) -> Double {
         let pd = (Double(eq.count - 1) - 0.001) * p

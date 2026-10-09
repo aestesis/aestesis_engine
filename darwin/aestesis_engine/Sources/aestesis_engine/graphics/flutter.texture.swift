@@ -49,7 +49,7 @@ class AEFlutterTexture: NSObject, FlutterTexture {
     }
     func publish(moduleId: String, assetId: String) {
         guard let id = id else { return }
-        Task.detached { @MainActor in
+        _ = Task.detached { @MainActor in
             try await AestesisEnginePlugin.message?.texture(
                 asset: AssetTexture(moduleId: moduleId, assetId: assetId, textureId: id))
         }
@@ -58,7 +58,7 @@ class AEFlutterTexture: NSObject, FlutterTexture {
     func updated() {
         guard let id = id else { return }
         Task.detached { @MainActor in
-            await AestesisEnginePlugin.instance.textures?.textureFrameAvailable(id)
+            AestesisEnginePlugin.instance.textures?.textureFrameAvailable(id)
         }
     }
 }

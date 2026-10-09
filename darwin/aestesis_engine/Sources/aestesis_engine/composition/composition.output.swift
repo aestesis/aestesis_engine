@@ -17,7 +17,7 @@ class CompositionOutput: NodeUI, @unchecked Sendable {
     {
         didSet {
             let st = states
-            Task.detached { @MainActor in
+            _ = Task.detached { @MainActor in
                 try await AestesisEnginePlugin.message?.states(states: st)
             }
         }
@@ -44,7 +44,7 @@ class CompositionOutput: NodeUI, @unchecked Sendable {
     }
 
     func error(message: String) {
-        Task.detached { @MainActor in
+        _ = Task.detached { @MainActor in
             try await AestesisEnginePlugin.message?.message(level: .error, message: message)
         }
     }

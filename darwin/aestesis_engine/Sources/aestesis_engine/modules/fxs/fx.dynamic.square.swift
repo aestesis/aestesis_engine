@@ -50,7 +50,7 @@ class FxDynamicSquare: Fx, @unchecked Sendable {
 
         let c = bfield.bounds.center
 
-        let t = time * 2
+        //let t = time * 2
         //let p0 = param.sin(t) * bfield.bounds.diagonal * 0.003
         let s: Double = max(bfield.size.width, bfield.size.height)
         let co = Color(l: 0.05)
