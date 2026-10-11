@@ -98,7 +98,8 @@ class FxDynamicDrop: Fx, @unchecked Sendable {
         for y in 0..<h {
             for x in 0..<w {
                 let d = (Point(Double(x), Double(y)) - c) / (sp.pixels * 0.5)
-                data[i] = ((-d).normalize * max(0, 1 - d.length)).infloat2
+                let v = max(0, 1 - d.length)
+                data[i] = ((-d).normalized * v).infloat2
                 i += 1
             }
         }

@@ -44,17 +44,17 @@ class FxDynamicPunch: Fx, @unchecked Sendable {
         eq = audio.eq * 0.5 + eq * 0.5
         data.insert(eq.low + eq.medium + eq.high, at: 0)
         data.removeLast()
-        var rayon = [Float](repeating: 0, count: data.count)
+        var radius = [Float](repeating: 0, count: data.count)
         let dr: Float = 2 / Float(data.count)
         var r: Float = 0
         var a: Float = 1
         for i in 0..<data.count {
             r -= data[i] * 0.045 * a * Float(level)  // very sensible constant value, don't change
-            rayon[i] = r
+            radius[i] = r
             r += dr
             a *= 0.99
         }
-        bdata?.set(pixels: rayon)
+        bdata?.set(pixels: radius)
     }
 
 }
