@@ -47,15 +47,18 @@ class SynFluid: Syn, @unchecked Sendable {
         guard let sim = sim, let sprite = vSprite else { return }
 
         let g0 = EffectGraphics(image: sim.texture, viewport: viewport)
-        t += dtime * (Double(audio.peak) * 20 + 0.5)
+        t += dtime * (Double(audio.eq.low) * 10 + 0.5)
         let position = spos.unity(t)
         let direction = (spos.unity(t + 0.01) - position).normalized
         let v = direction * 0.1
         var points: [Point] = []
-        let r = Rect(center: position, size: Size(0.05, 0.05))
-        let ri = Rect(center: Point.unity - position, size: Size(0.05, 0.05))
+        let m = size.double.area / size.double.crop(1).aera
+        let rsz = Size(0.15, 0.15) * m
+        let r = Rect(center: position, size: rsz)
+        let ri = Rect(center: Point.unity - position, size: rsz)
         g0.drawFloat(
-            rect: r * size.double.crop(1), image: sprite, color: Color(a: 1, r: v.x, g: v.y, b: 1))
+            rect: Rect(center: r.center * size.double, size: r.size * size.double.crop(1)),
+            image: sprite, color: Color(a: 1, r: v.x, g: v.y, b: 1))
         g0.drawFloat(
             rect: Rect(center: ri.center * size.double, size: ri.size * size.double.crop(1)),
             image: sprite,

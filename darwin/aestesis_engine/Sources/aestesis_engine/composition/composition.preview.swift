@@ -42,7 +42,7 @@ class CompositionPreview: NodeUI, @unchecked Sendable {
             guard let self = self else { return }
             var rect = Rect(left: 0, top: 0, right: 1280, bottom: 1280 / ratio)
             if let jrect = Application.db.json("preview.rect") {
-                rect = Rect(json: jrect)
+                rect = Rect(json: jrect).crop(ratio)
             }
             let window = OsWindow(
                 frame: rect.system,
