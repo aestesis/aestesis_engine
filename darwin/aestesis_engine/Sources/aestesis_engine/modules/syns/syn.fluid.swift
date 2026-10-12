@@ -54,9 +54,12 @@ class SynFluid: Syn, @unchecked Sendable {
         var points: [Point] = []
         let r = Rect(center: position, size: Size(0.05, 0.05))
         let ri = Rect(center: Point.unity - position, size: Size(0.05, 0.05))
-        g0.drawFloat(rect: r * size.double, image: sprite, color: Color(a: 1, r: v.x, g: v.y, b: 1))
         g0.drawFloat(
-            rect: ri * size.double, image: sprite, color: Color(a: 1, r: -v.x, g: -v.y, b: 1))
+            rect: r * size.double.crop(1), image: sprite, color: Color(a: 1, r: v.x, g: v.y, b: 1))
+        g0.drawFloat(
+            rect: Rect(center: ri.center * size.double, size: ri.size * size.double.crop(1)),
+            image: sprite,
+            color: Color(a: 1, r: -v.x, g: -v.y, b: 1))
         points.append(r.center)
         points.append(ri.center)
         var fence = g0.update()
@@ -77,7 +80,12 @@ class SynFluid: Syn, @unchecked Sendable {
         if let fence = fence {
             g.wait(fence: fence)
         }
-        g.fluidAdvect(rect: output.bounds, source: output, fluid: sim.texture)
+        do {
+            let src = try output.copy()
+            g.fluidAdvect(rect: output.bounds, source: src, fluid: sim.texture)
+        } catch {
+            Debug.info(error)
+        }
         drawColor(graphics: g, size: output.size, points: points, audio: audio)
         g.onDone { result in
             switch result {
@@ -100,7 +108,7 @@ class SynFluid: Syn, @unchecked Sendable {
         for i in 0..<16 {
             colors.append(
                 Color(
-                    r: Double(audio.bass[i]) * 100 + 0.5, g: Double(audio.medium[i]) * 5 + 0.5,
+                    r: Double(audio.bass[i]) * 20 + 0.5, g: Double(audio.medium[i]) * 20 + 0.5,
                     b: Double(audio.treeble[i]) * 20 + 0.5))
         }
         colors.append(contentsOf: colors.reversed())
@@ -116,8 +124,9 @@ class SynFluid: Syn, @unchecked Sendable {
         let rb = Rect(origin: .zero, size: size)
         g.fill(rect: rb, blend: .sub, color: Color(l: 0.01))
         for p in points {
-            let r = Rect(center: p, size: Size(0.6, 0.6))
-            g.draw(rect: r * size, image: sprite, blend: .alpha, color: Color(a: 0.8, l: 1))
+            let m = size.area / size.crop(1).aera
+            let r = Rect(center: p * size, size: Size(0.5, 0.5) * size.crop(1) * m)
+            g.draw(rect: r, image: sprite, blend: .alpha, color: Color(a: 0.9, l: 1))
         }
     }
 

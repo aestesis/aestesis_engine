@@ -150,7 +150,7 @@ public class FluidSimulation: NodeUI, @unchecked Sendable {
         -> MTLFence?
     {
         guard let viewport = viewport else { return nil }
-        let a = Float(dtime * diffusion) * Float((size - SizeI(2, 2)).surface)
+        let a = Float(dtime * diffusion) * Float((size - SizeI(2, 2)).area)
         let c = 1 + 4 * a
         let compute = ComputePass(parent: viewport)
         compute.use(kernel: diffuseKernel)
