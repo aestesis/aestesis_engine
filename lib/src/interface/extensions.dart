@@ -260,6 +260,8 @@ extension FxControlExtension on FxControl {
         return 'Fx';
       case FxControl.level:
         return 'Level';
+      case .feedback:
+        return 'Feedback';
     }
   }
 
@@ -269,6 +271,8 @@ extension FxControlExtension on FxControl {
         return ControlType.integer;
       case FxControl.level:
         return ControlType.unit;
+      case FxControl.feedback:
+        return .boolean;
     }
   }
 }

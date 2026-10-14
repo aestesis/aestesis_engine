@@ -94,11 +94,11 @@ enum ControlType { float, unit, integer, boolean, color }
 
 enum AnalogControl { zoom, blur, hue, saturation, brightness, white }
 
-enum AnalogSourceControl { opacity, color, blendMode, gain }
+enum AnalogSourceControl { opacity, color, blendMode, gain, lumaKey }
 
 enum CameraControl { asset }
 
-enum FxControl { asset, level }
+enum FxControl { asset, level, feedback }
 
 enum LutControl { asset, fade, intensity }
 

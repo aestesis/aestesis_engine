@@ -70,25 +70,6 @@ extension Preview {
 }
 /// ///////////////////////////////////////////////////////////////////////////////////////////////////////
 /// ///////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
- extension ControlType: CustomStringConvertible {
- var description: String {
- switch self {
- case .boolean:
- return "boolean"
- case .color:
- return "color"
- case .float:
- return "float"
- case .integer:
- return "integer"
- case .unit:
- return "unit"
- }
- }
- }
- */
-
 extension Control: @unchecked Sendable {
     func send() {
         Task.detached { @MainActor in
@@ -112,7 +93,7 @@ extension AnalogControl {
 }
 /// ///////////////////////////////////////////////////////////////////////////////////////////////////////
 extension AnalogSourceControl {
-    static let all: [AnalogSourceControl] = [.blendMode, .color, .opacity, .gain]
+    static let all: [AnalogSourceControl] = [.blendMode, .color, .opacity, .gain, .lumaKey]
     func id(source: Module) -> String {
         return "AnalogSource.\(source.id).AnalogSourceControl.\(self)"
     }
@@ -126,6 +107,8 @@ extension AnalogSourceControl {
             return "Opacity"
         case .gain:
             return "Gain"
+        case .lumaKey:
+            return "Luma Key"
         }
     }
     var type: ControlType {
@@ -138,6 +121,8 @@ extension AnalogSourceControl {
             return ControlType.unit
         case .gain:
             return ControlType.float
+        case .lumaKey:
+            return .float
         }
     }
     var value: Double {
@@ -150,6 +135,8 @@ extension AnalogSourceControl {
             return 0
         case .gain:
             return 0
+        case .lumaKey:
+            return 0
         }
     }
     var count: Int64 {
@@ -161,6 +148,8 @@ extension AnalogSourceControl {
         case .opacity:
             return 0
         case .gain:
+            return 0
+        case .lumaKey:
             return 0
         }
     }
