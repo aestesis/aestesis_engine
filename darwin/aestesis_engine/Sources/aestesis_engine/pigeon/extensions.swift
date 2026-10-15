@@ -83,6 +83,9 @@ extension Control: @unchecked Sendable {
     var color: Color {
         return Color(bgra: UInt32(count)).with(a: 1)
     }
+    var boolean: Bool {
+        return count != 0
+    }
     var blend: ControlBlendMode? {
         return ControlBlendMode(rawValue: Int(value))
     }

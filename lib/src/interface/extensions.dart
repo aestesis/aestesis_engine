@@ -698,6 +698,8 @@ extension ControlExtension on Control {
     count = cValue.count;
   }
 
+  bool get boolean => count != 0;
+  set boolean(bool v) => count = v ? 1 : 0;
   Color get color => Color(count);
   set color(Color color) => count = color.toARGB32();
 }

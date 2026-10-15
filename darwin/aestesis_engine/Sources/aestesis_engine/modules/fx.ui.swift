@@ -64,6 +64,26 @@ class FxUI: ModuleUI, @unchecked Sendable {
         guard index >= 0 else { return nil }
         return composition.modules[composition.composition.modules[index]!.id]
     }
+    var feedbackSource: ModuleUI? {
+        guard let composition = composition else { return nil }
+        guard let nindex = composition.composition.modules.firstIndex(where: { $0?.id == id })
+        else {
+            return nil
+        }
+        if composition.composition.modules.count <= nindex + 1 {
+            return nil
+        }
+        for i in stride(
+            from: nindex + 1, through: composition.composition.modules.count - 1, by: 1)
+        {
+            let m = composition.composition.modules[i]!
+            if m.type.isMixer {
+                return composition.modules[m.id]
+            }
+        }
+        let lid = composition.composition.modules[composition.composition.modules.count - 1]?.id
+        return composition.modules[lid!]
+    }
     override init(parent: NodeUI, id: String) {
         super.init(parent: parent, id: id)
         if let composition = composition {
@@ -102,7 +122,11 @@ class FxUI: ModuleUI, @unchecked Sendable {
     ) {
         guard let casset = module?[FxControl.asset.id]?.value else { return }
         guard let clevel = module?[FxControl.level.id]?.value else { return }
-        guard let input = source?.output.value else { return }
+        guard let cfeedback = module?[FxControl.feedback.id]?.boolean else { return }
+        guard
+            let input = cfeedback
+                ? feedbackSource?.output.value ?? source?.output.value : source?.output.value
+        else { return }
         let si = FxInfo.all[Int(casset)]
         if !fxs.has(key: si) {
             fxs[si] = si.create(self)
