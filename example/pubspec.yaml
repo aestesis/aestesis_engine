@@ -12,6 +12,7 @@ dependencies:
   aestesis_engine:
     path: ../
 
+  material_ui: any
   bb_dart:
     git: https://github.com/aestesis/bb.dart.git
   bb.flutter:

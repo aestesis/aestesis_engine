@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Metal
 import aestesis_alib
 
 // filters: https://github.com/Profiteam/iOS-Swift-Demos/blob/master/MetalImageFilters/MetalImageFilters/ImageFilters.swift
@@ -15,13 +16,24 @@ import aestesis_alib
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 class AnalogUI: ModuleUI, @unchecked Sendable {
     var genrandom: [String: Double] = [:]
-    var image: Bitmap?
+    var images: [Bitmap] = []
     var lut: LutManager?
+    var src: Bitmap {
+        return images.first!
+    }
+    var dst: Bitmap {
+        return images.last!
+    }
+    func swap() {
+        images.swapAt(0, 1)
+    }
     override init(parent: NodeUI, id: String) {
         super.init(parent: parent, id: id)
         if let composition = composition {
             output.value = FlutterBitmap(parent: self, assetId: id, size: composition.settings.size)
-            image = Bitmap(parent: self, size: composition.settings.size)
+            for _ in 1..<2 {
+                images.append(Bitmap(parent: self, size: composition.settings.size))
+            }
             lut = LutManager(parent: self, size: 64)
         }
     }
@@ -31,8 +43,10 @@ class AnalogUI: ModuleUI, @unchecked Sendable {
         }
         lut?.detach()
         lut = nil
-        image?.detach()
-        image = nil
+        for i in images {
+            i.detach()
+        }
+        images.removeAll()
         super.detach()
     }
     func sources(composition: Composition) -> [Module] {
@@ -54,8 +68,13 @@ class AnalogUI: ModuleUI, @unchecked Sendable {
     override func update(settings: CompositionSettings) {
         if output.value!.size != settings.size {
             output.value = FlutterBitmap(parent: self, assetId: id, size: settings.size)
-            image?.detach()
-            image = Bitmap(parent: self, size: settings.size)
+            for i in images {
+                i.detach()
+            }
+            images.removeAll()
+            for _ in 1..<2 {
+                images.append(Bitmap(parent: self, size: settings.size))
+            }
         }
     }
     override func update() {
@@ -93,7 +112,8 @@ class AnalogUI: ModuleUI, @unchecked Sendable {
         time: Double, dtime: Double, beat: Double, dbeat: Double, fps: Double,
         audio: AudioAnalyzer.Info
     ) {
-        guard let composition = composition, let output = output.value, let image = image else {
+        guard let composition = composition, let output = output.value, let viewport = viewport
+        else {
             return
         }
         guard let zoom = module![AnalogControl.zoom.id]?.value,
@@ -108,49 +128,80 @@ class AnalogUI: ModuleUI, @unchecked Sendable {
             composition.modules[$0.id]
         }.compactMap { $0 }
         processAssetOutputs(sources: sources)
-        if blur > 0 {
-            image.gaussianBlur(sigma: spow(blur, 3) * image.size.length * 0.01 * 60 / fps)
+        var fence : MTLFence?
+        if true {
+            let gs = Graphics(image: dst, viewport: viewport)
+            for source in sources {
+                processSource(graphics: gs, rect: dst.bounds, source: source)
+            }
+            fence = gs.update()
+            swap()
         }
-        let g = Graphics(image: image)
+
+        if abs(zoom) > 0.005 {
+            let z = 1 - spow(zoom, 1.5) * 0.075 * 30 / fps
+            let g = EffectGraphics(image: dst, viewport: viewport)
+            if let fence = fence {
+                g.wait(fence: fence)
+            }
+            g.draw(
+                rect: dst.bounds, image: src, zoom: z, rotation: sin(time) * 0.00001
+            )
+            fence = g.update()
+            swap()
+        }
+        if let f = fence, blur > 0 {
+            fence = dst.gaussianBlur(
+                source: src, sigma: spow(blur, 3) * dst.size.length * 0.01 * 60 / fps, fence: f)
+            swap()
+        }
         if hue != 0 || saturation != 0 || brightness != 0 {
             lut!.update(
                 hue: spow(hue, 2) * 0.1, saturation: spow(saturation, 2) * 0.1,
                 brightness: spow(brightness, 2) * 0.1)
-            g.draw(rect: image.bounds, image: image, lut: lut!.texture)
+            let g = Graphics(image: dst)
+            if let fence = fence {
+                g.wait(fence: fence)
+            }
+            g.draw(rect: src.bounds, image: src, lut: lut!.texture)
+            fence = g.update()
+            swap()
         }
-        g.fill(
-            rect: image.bounds, blend: white >= 0 ? .add : .sub,
-            color: Color(a: 1, l: apow(white, 3)))
-        for source in sources {
-            processSource(graphics: g, rect: output.bounds, source: source)
+        if abs(white) > 0.005 {
+            let g = Graphics(image: dst)
+            if let fence = fence {
+                g.wait(fence: fence)
+            }
+            g.fill(
+                rect: dst.bounds, blend: white >= 0 ? .add : .sub,
+                color: Color(a: 1, l: apow(white, 3)))
+            fence = g.update()
+            swap()
         }
-        g.onDone { [weak self] ok in
-            guard let self = self, self.attached else { return }
-            switch ok {
-            case .discarded:
-                Debug.warning("Analog: discarded")
-            case .error(let message):
-                Debug.error("Analog: error \(message)")
-            case .success:
-                bg { [weak self] in
-                    guard let self = self, self.attached, image.attached,
-                        let viewport = image.viewport
-                    else { return }
-                    output.copy(source: image)
-                    output.updated()
-                    if zoom != 0, self.attached, image.attached {
-                        do {
-                            let z = 1 - spow(zoom, 1.5) * 0.075 * 30 / fps
-                            let b = try image.copy()
-                            let g = EffectGraphics(image: image, viewport: viewport)
-                            g.draw(
-                                rect: image.bounds, image: b, zoom: z, rotation: sin(time) * 0.00001
-                            )
-                        } catch {}
+        if let fence = fence {
+            _ = output.copy(source: dst, fence: fence) {
+                output.updated()
+            }
+        }
+        /*
+              g.onDone { [weak self] ok in
+                guard let self = self, self.attached else { return }
+                switch ok {
+                case .discarded:
+                    Debug.warning("Analog: discarded")
+                case .error(let message):
+                    Debug.error("Analog: error \(message)")
+                case .success:
+                    bg { [weak self] in
+                        guard let self = self, self.attached, image.attached,
+                            let viewport = image.viewport
+                        else { return }
+                        output.copy(source: image)
+                        output.updated()
                     }
                 }
             }
-        }
+            */
     }
     func processSource(graphics g: Graphics, rect: Rect, source: ModuleUI) {
         guard let input = source.output.value,
@@ -159,6 +210,7 @@ class AnalogUI: ModuleUI, @unchecked Sendable {
             let cblend = control(source: source, control: .blendMode),
             let blend = ControlBlendMode(rawValue: Int(cblend.value)),
             let cgain = control(source: source, control: .gain),
+            let cluma = control(source: source, control: .lumaKey),
             copacity.value > 0
         else {
             return
@@ -166,7 +218,7 @@ class AnalogUI: ModuleUI, @unchecked Sendable {
         let color = (ccolor.color * gain(cgain)).with(a: pow(copacity.value, 2))
         g.draw(
             rect: rect, image: input, from: input.bounds.crop(rect.ratio), blend: blend.blendMode,
-            color: color)
+            color: color, lumaKey: spow(cluma.value, 2))
     }
 
     func processAssetOutputs(sources: [ModuleUI]) {
@@ -174,13 +226,15 @@ class AnalogUI: ModuleUI, @unchecked Sendable {
             guard let image = source.output.value,
                 let blend = control(source: source, control: .blendMode)?.blend,
                 let ccolor = control(source: source, control: .color),
-                let cgain = control(source: source, control: .gain)
+                let cgain = control(source: source, control: .gain),
+                let cluma = control(source: source, control: .lumaKey)
             else { continue }
             if genrandom[source.id] != image.generandom {
                 genrandom[source.id] = image.generandom
                 updateAssetOutput(
                     assetId: source.id, bitmap: image, blend: blend.isLuma ? .luma : .opaque,
-                    color: Color(rgb: ccolor.color.rgb * gain(cgain)))
+                    color: Color(rgb: ccolor.color.rgb * gain(cgain)), lumaKey: spow(cluma.value, 2)
+                )
             }
         }
     }

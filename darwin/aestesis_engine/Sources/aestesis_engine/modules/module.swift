@@ -95,7 +95,8 @@ public class ModuleUI: aestesis_alib.NodeUI, @unchecked Sendable {
     }
 
     func updateAssetOutput(
-        assetId: String, bitmap: Bitmap, blend: BlendMode = .opaque, color: Color = .white
+        assetId: String, bitmap: Bitmap, blend: BlendMode = .opaque, color: Color = .white,
+        lumaKey: Double = 0
     ) {
         bg { [weak self] in
             guard let self = self, self.attached else { return }
@@ -111,10 +112,10 @@ public class ModuleUI: aestesis_alib.NodeUI, @unchecked Sendable {
                 self.assetOutputs[assetId] = ab
             }
             guard let ab = ab else { fatalError("should not happen") }
-            let g = Graphics(image: ab)
+            let g = Graphics(image: ab, clear: lumaKey != 0.0 ? .black : nil)
             g.draw(
                 rect: ab.bounds, image: bitmap, from: bitmap.bounds.crop(ratio), blend: blend,
-                color: color)
+                color: color, lumaKey: lumaKey)
             g.onDone { [weak self] ok in
                 guard let self = self, self.attached else { return }
                 switch ok {
