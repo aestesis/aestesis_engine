@@ -183,25 +183,6 @@ class AnalogUI: ModuleUI, @unchecked Sendable {
             }
         }
         swap()
-        /*
-              g.onDone { [weak self] ok in
-                guard let self = self, self.attached else { return }
-                switch ok {
-                case .discarded:
-                    Debug.warning("Analog: discarded")
-                case .error(let message):
-                    Debug.error("Analog: error \(message)")
-                case .success:
-                    bg { [weak self] in
-                        guard let self = self, self.attached, image.attached,
-                            let viewport = image.viewport
-                        else { return }
-                        output.copy(source: image)
-                        output.updated()
-                    }
-                }
-            }
-            */
     }
     func processSource(graphics g: Graphics, rect: Rect, source: ModuleUI) {
         guard let input = source.output.value,
