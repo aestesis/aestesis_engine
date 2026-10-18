@@ -31,7 +31,7 @@ class AnalogUI: ModuleUI, @unchecked Sendable {
         super.init(parent: parent, id: id)
         if let composition = composition {
             output.value = FlutterBitmap(parent: self, assetId: id, size: composition.settings.size)
-            for _ in 1..<2 {
+            for _ in 0..<2 {
                 images.append(Bitmap(parent: self, size: composition.settings.size))
             }
             lut = LutManager(parent: self, size: 64)
@@ -72,7 +72,7 @@ class AnalogUI: ModuleUI, @unchecked Sendable {
                 i.detach()
             }
             images.removeAll()
-            for _ in 1..<2 {
+            for _ in 0..<2 {
                 images.append(Bitmap(parent: self, size: settings.size))
             }
         }
@@ -128,7 +128,7 @@ class AnalogUI: ModuleUI, @unchecked Sendable {
             composition.modules[$0.id]
         }.compactMap { $0 }
         processAssetOutputs(sources: sources)
-        var fence : MTLFence?
+        var fence: MTLFence?
         if true {
             let gs = Graphics(image: dst, viewport: viewport)
             for source in sources {
@@ -168,21 +168,21 @@ class AnalogUI: ModuleUI, @unchecked Sendable {
             swap()
         }
         if abs(white) > 0.005 {
-            let g = Graphics(image: dst)
+            let g = Graphics(image: src)
             if let fence = fence {
                 g.wait(fence: fence)
             }
             g.fill(
-                rect: dst.bounds, blend: white >= 0 ? .add : .sub,
+                rect: src.bounds, blend: white >= 0 ? .add : .sub,
                 color: Color(a: 1, l: apow(white, 3)))
             fence = g.update()
-            swap()
         }
         if let fence = fence {
-            _ = output.copy(source: dst, fence: fence) {
+            _ = output.copy(source: src, fence: fence) {
                 output.updated()
             }
         }
+        swap()
         /*
               g.onDone { [weak self] ok in
                 guard let self = self, self.attached else { return }
