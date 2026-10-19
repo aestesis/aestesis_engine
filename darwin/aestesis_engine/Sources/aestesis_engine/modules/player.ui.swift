@@ -79,6 +79,7 @@ class PlayerUI: ModuleUI, @unchecked Sendable {
         time: Double, dtime: Double, beat: Double, dbeat: Double, fps: Double,
         audio: AudioAnalyzer.Info
     ) {
+        let stime = ß.time
         if let control = module![PlayerControl.asset.id],
             control.count > 0 && control.value >= 0 && Int(control.value) < assets.count
         {
@@ -128,6 +129,8 @@ class PlayerUI: ModuleUI, @unchecked Sendable {
                         g.onDone { [weak self] _ in
                             guard let self = self, self.attached else { return }
                             output.updated()
+                            composition?.addModuleStatistics(
+                                ModuleStatistics(id: id, usage: ß.time - stime))
                         }
                     }
                 }

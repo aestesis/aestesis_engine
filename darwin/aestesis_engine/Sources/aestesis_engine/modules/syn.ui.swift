@@ -90,6 +90,7 @@ class SynUI: ModuleUI, @unchecked Sendable {
         time: Double, dtime: Double, beat: Double, dbeat: Double, fps: Double,
         audio: AudioAnalyzer.Info
     ) {
+        let stime = ß.time
         guard let control = module![SynControl.asset.id] else { return }
         let si = SynInfo.all[Int(control.value)]
         if !syns.has(key: si) {
@@ -107,6 +108,7 @@ class SynUI: ModuleUI, @unchecked Sendable {
             syn.process(dtime: dtime, fps: fps, audio: audio, output: output) {
                 output.updated()
                 self.updateAssetOutput(assetId: si.name, bitmap: output)
+                self.composition?.addModuleStatistics(ModuleStatistics(id: self.id, usage: ß.time - stime))
             }
         }
     }

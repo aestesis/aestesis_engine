@@ -48,6 +48,7 @@ class CameraUI: ModuleUI, @unchecked Sendable {
                         {
                             self.output.value = preview
                             bg { [weak self] in
+                                let stime = ß.time
                                 guard let self = self, self.attached, let output = flutterOutput
                                 else { return }
                                 let g = Graphics(image: output)
@@ -57,6 +58,8 @@ class CameraUI: ModuleUI, @unchecked Sendable {
                                 g.onDone { [weak self] _ in
                                     guard let self = self, self.attached else { return }
                                     output.updated()
+                                    composition?.addModuleStatistics(
+                                        ModuleStatistics(id: id, usage: ß.time - stime))
                                 }
                             }
                         }

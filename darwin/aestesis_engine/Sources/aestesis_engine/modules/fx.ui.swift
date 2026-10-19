@@ -120,6 +120,7 @@ class FxUI: ModuleUI, @unchecked Sendable {
         time: Double, dtime: Double, beat: Double, dbeat: Double, fps: Double,
         audio: AudioAnalyzer.Info
     ) {
+        let stime = ß.time
         guard let casset = module?[FxControl.asset.id]?.value else { return }
         guard let clevel = module?[FxControl.level.id]?.value else { return }
         guard let cfeedback = module?[FxControl.feedback.id]?.boolean else { return }
@@ -146,6 +147,7 @@ class FxUI: ModuleUI, @unchecked Sendable {
             ) {
                 output.updated()
                 self.updateAssetOutput(assetId: si.name, bitmap: output)
+                self.composition?.addModuleStatistics(ModuleStatistics(id: self.id, usage: ß.time - stime))
             }
         }
     }

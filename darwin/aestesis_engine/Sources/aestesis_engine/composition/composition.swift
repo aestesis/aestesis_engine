@@ -29,6 +29,7 @@ class CompositionUI: NodeUI, @unchecked Sendable {
     var time: Double = 0
     var beat: Double = 0
     let bpm: Double = 120
+    var moduleStatistics: [ModuleStatistics] = []
     var ratio: Double {
         return settings.width / settings.height
     }
@@ -49,10 +50,23 @@ class CompositionUI: NodeUI, @unchecked Sendable {
             guard let self = self else { return }
             let fps = self.fps
             if statFrame % 10 == 0 {
+                let ms = self.moduleStatistics
+                lock.async {
+                    self.moduleStatistics = []
+                }
                 self.io {
                     let cpu = cpuUsage()
+                    var mss: [String: ModuleStatistics] = [:]
+                    for s in ms {
+                        if mss.has(key: s.id) {
+                            mss[s.id]!.usage = (mss[s.id]!.usage + s.usage) * 0.5
+                        } else {
+                            mss[s.id] = s
+                        }
+                    }
                     let stats = CompositionStatistics(
-                        fps: fps, cpu: cpu.user, gpu: 0, ram: memoryMbUsed())
+                        fps: fps, cpu: cpu.user, gpu: 0, ram: memoryMbUsed(),
+                        modules: mss.values.compactMap { $0 })
                     stats.send()
                 }
             }
@@ -87,7 +101,7 @@ class CompositionUI: NodeUI, @unchecked Sendable {
         beat += dbeat
         self.time = time
         fps = (1 / dtime) * 0.01 + fps * 0.99
-        lock.sync {
+        sync {
             let audio = self.audioAnalyzer.info
             for m in self.composition.modules where m != nil {
                 modules[m!.id]!.process(
@@ -232,6 +246,11 @@ class CompositionUI: NodeUI, @unchecked Sendable {
     }
     func getAssetDatas() -> JSON? {
         return nil
+    }
+    func addModuleStatistics(_ ms: ModuleStatistics) {
+        async {
+            self.moduleStatistics.append(ms)
+        }
     }
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////

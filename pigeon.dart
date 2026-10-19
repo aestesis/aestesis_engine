@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:pigeon/pigeon.dart';
 
 /*
@@ -254,16 +255,25 @@ class CompositionSettings {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
+class ModuleStatistics {
+  String id;
+  double usage;
+  ModuleStatistics({required this.id, required this.usage});
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
 class CompositionStatistics {
   double fps;
   double cpu;
   double gpu;
   double ram;
+  List<ModuleStatistics> modules;
   CompositionStatistics({
     required this.fps,
     required this.cpu,
     required this.gpu,
     required this.ram,
+    required this.modules,
   });
 }
 

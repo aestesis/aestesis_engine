@@ -112,6 +112,7 @@ class AnalogUI: ModuleUI, @unchecked Sendable {
         time: Double, dtime: Double, beat: Double, dbeat: Double, fps: Double,
         audio: AudioAnalyzer.Info
     ) {
+        let stime = ß.time
         guard let composition = composition, let output = output.value, let viewport = viewport
         else {
             return
@@ -180,6 +181,8 @@ class AnalogUI: ModuleUI, @unchecked Sendable {
         if let fence = fence {
             _ = output.copy(source: src, fence: fence) {
                 output.updated()
+                composition.addModuleStatistics(
+                    ModuleStatistics(id: self.id, usage: ß.time - stime))
             }
         }
         swap()
