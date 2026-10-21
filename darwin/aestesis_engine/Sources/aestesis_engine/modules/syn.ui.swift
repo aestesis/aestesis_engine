@@ -26,7 +26,8 @@ struct SynInfo: Hashable {
         SynInfo(name: "Color", create: { SynColor(parent: $0) }),
         SynInfo(name: "Cygnus", create: { SynCygnus(parent: $0) }),
         SynInfo(name: "Equinox", create: { SynEquinox(parent: $0) }),
-        SynInfo(name: "Fluid", create: { SynFluid(parent: $0) }),
+        SynInfo(name: "Fluid Mental", create: { SynFluid(parent: $0) }),
+        SynInfo(name: "Fluid Eq", create: { SynFluid2(parent: $0) }),
         SynInfo(name: "Frequency", create: { SynFrequency(parent: $0) }),
         SynInfo(name: "Geometry", create: { SynGeometry(parent: $0) }),
         SynInfo(name: "Hanna", create: { SynHanna(parent: $0) }),
@@ -108,7 +109,8 @@ class SynUI: ModuleUI, @unchecked Sendable {
             syn.process(dtime: dtime, fps: fps, audio: audio, output: output) {
                 output.updated()
                 self.updateAssetOutput(assetId: si.name, bitmap: output)
-                self.composition?.addModuleStatistics(ModuleStatistics(id: self.id, usage: ß.time - stime))
+                self.composition?.addModuleStatistics(
+                    ModuleStatistics(id: self.id, usage: ß.time - stime))
             }
         }
     }

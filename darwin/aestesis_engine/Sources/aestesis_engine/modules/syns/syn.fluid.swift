@@ -139,7 +139,7 @@ class SynFluid: Syn, @unchecked Sendable {
         for y in 0..<32 {
             for x in 0..<32 {
                 let r = Point(x: Double(x) - 15.5, y: Double(y) - 15.5).radius
-                let v = Float(1 - (r / 16.0))
+                let v = Float(1 - (r / 16.0))   // set negative values if r > 16, but it gives a better effect..
                 data[i].uv = SIMD2<Float>(x: v, y: v)
                 i += 1
             }
