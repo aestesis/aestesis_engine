@@ -4,24 +4,19 @@ import simd
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
-class SynFluid2: Syn, @unchecked Sendable {
-    static let count = 40
-    var eq: [Double] = [Double](repeating: 0.0, count: count)
-    var times: [Double] = [Double](repeating: 0.0, count: count)
+class SynFluidMental: Syn, @unchecked Sendable {
     var sim: FluidSimulation?
     var size: SizeI = .zero
     var vSprite: Bitmap?
     var sprite: Bitmap?
     let spos = Parameter2(complexity: 4)
-    let sdir = Parameter2(complexity: 4)
     var t = ß.rnd * 10000
     override init(parent: NodeUI) {
         super.init(parent: parent)
         let ssize = 32
         vSprite = Bitmap(parent: self, size: Size(ssize, ssize), format: .float4)
-        vSprite?.set(pixels: vSpriteData(size: ssize))
+        vSprite?.set(pixels: spriteData(size: ssize))
         sprite = Bitmap(parent: self, size: Size(32, 32))
-        sprite?.set(pixels: spriteData(size: ssize))
     }
     override func detach() {
         sim?.detach()
@@ -50,31 +45,26 @@ class SynFluid2: Syn, @unchecked Sendable {
             self.size = size
         }
         guard let sim = sim, let sprite = vSprite else { return }
-        updateEq(audio: audio)
 
         let g0 = EffectGraphics(image: sim.texture, viewport: viewport)
         t += dtime * (Double(audio.eq.low) * 10 + 0.5)
-        var tt = t
+        let position = spos.unity(t)
+        let direction = (spos.unity(t + 0.01) - position).normalized
+        let v = direction * 0.1
         var points: [Point] = []
-        for e in eq {
-            let position = spos.unity(tt)
-            let direction = Point(
-                angle: sdir.sin(tt).normalized.angle
-                    + (position - spos.unity(tt + 0.1)).normalized.angle)
-            let v = direction * 0.1
-            let m = size.double.area / size.double.crop(1).aera
-            let rsz = Size(0.3, 0.3) * m * e
-            let r = Rect(center: position, size: rsz)
-            let ri = Rect(center: Point(1 - position.x, position.y), size: rsz)
-            g0.drawFloat(
-                rect: Rect(center: r.center * size.double, size: r.size * size.double.crop(1)),
-                image: sprite, color: Color(a: 1, r: v.x, g: v.y, b: 1))
-            g0.drawFloat(
-                rect: Rect(center: ri.center * size.double, size: ri.size * size.double.crop(1)),
-                image: sprite, color: Color(a: 1, r: -v.x, g: v.y, b: 1))
-            points.append(r.center)
-            tt -= 1
-        }
+        let m = size.double.area / size.double.crop(1).aera
+        let rsz = Size(0.15, 0.15) * m
+        let r = Rect(center: position, size: rsz)
+        let ri = Rect(center: Point.unity - position, size: rsz)
+        g0.drawFloat(
+            rect: Rect(center: r.center * size.double, size: r.size * size.double.crop(1)),
+            image: sprite, color: Color(a: 1, r: v.x, g: v.y, b: 1))
+        g0.drawFloat(
+            rect: Rect(center: ri.center * size.double, size: ri.size * size.double.crop(1)),
+            image: sprite,
+            color: Color(a: 1, r: -v.x, g: -v.y, b: 1))
+        points.append(r.center)
+        points.append(ri.center)
         var fence = g0.update()
 
         fence = sim.advance(dtime: dtime, fence: fence)
@@ -99,7 +89,7 @@ class SynFluid2: Syn, @unchecked Sendable {
         } catch {
             Debug.info(error)
         }
-        drawColor(graphics: g, size: output.size, points: points)
+        drawColor(graphics: g, size: output.size, points: points, audio: audio)
         g.onDone { result in
             switch result {
             case .discarded:
@@ -113,48 +103,44 @@ class SynFluid2: Syn, @unchecked Sendable {
     }
 
     func drawColor(
-        graphics g: EffectGraphics, size: Size, points: [Point]
+        graphics g: EffectGraphics, size: Size, points: [Point], audio: AudioAnalyzer.Info
     ) {
         guard let sprite = sprite else { return }
+        var pdata: [UInt32] = []
+        var colors: [Color] = []
+        for i in 0..<16 {
+            colors.append(
+                Color(
+                    r: Double(audio.bass[i]) * 20 + 0.5, g: Double(audio.medium[i]) * 20 + 0.5,
+                    b: Double(audio.treeble[i]) * 20 + 0.5))
+        }
+        colors.append(contentsOf: colors.reversed())
+        for y in 0..<32 {
+            for x in 0..<32 {
+                let p = Point(Double(x) - 15.5, Double(y) - 15.5)
+                let v = max(0, 1 - (p.radius / 16))
+                let c = (colors[x] + colors[y]) * 0.5
+                pdata.append(c.saturated.with(a: v).bgra)
+            }
+        }
+        sprite.set(pixels: pdata)
         let rb = Rect(origin: .zero, size: size)
         g.fill(rect: rb, blend: .sub, color: Color(l: 0.01))
-        var i = 0
-        var h = 0.0
-        let dh = 1.0 / Double(points.count)
         for p in points {
-            let m = eq[i] * size.area / size.crop(1).aera
-            let r = Rect(center: p * size, size: Size(0.4, 0.4) * size.crop(1) * m)
-            let ri = Rect(
-                center: Point(1 - p.x, p.y) * size, size: Size(0.4, 0.4) * size.crop(1) * m)
-            let c = Color(h: h, s: 1, b: 1)
-            g.draw(rect: r, image: sprite, blend: .add, color: c)
-            g.draw(rect: ri, image: sprite, blend: .add, color: c)
-            i += 1
-            h += dh
+            let m = size.area / size.crop(1).aera
+            let r = Rect(center: p * size, size: Size(0.5, 0.5) * size.crop(1) * m)
+            g.draw(rect: r, image: sprite, blend: .alpha, color: Color(a: 0.9, l: 1))
         }
     }
 
-    func vSpriteData(size: Int) -> [FPoint] {
+    func spriteData(size: Int) -> [FPoint] {
         var data: [FPoint] = [FPoint](repeating: .zero, count: size * size)
         var i = 0
         for y in 0..<32 {
             for x in 0..<32 {
                 let r = Point(x: Double(x) - 15.5, y: Double(y) - 15.5).radius
-                let v = max(Float(1 - (r / 16.0)), 0)
+                let v = Float(1 - (r / 16.0))   // set negative values if r > 16, but it gives a better effect..
                 data[i].uv = SIMD2<Float>(x: v, y: v)
-                i += 1
-            }
-        }
-        return data
-    }
-    func spriteData(size: Int) -> [UInt32] {
-        var data: [UInt32] = [uint32](repeating: .zero, count: size * size)
-        var i = 0
-        for y in 0..<32 {
-            for x in 0..<32 {
-                let r = Point(x: Double(x) - 15.5, y: Double(y) - 15.5).radius
-                let v = max(1 - (r / 16.0), 0)
-                data[i] = Color(a: 1, l: v).bgra
                 i += 1
             }
         }
@@ -167,20 +153,6 @@ class SynFluid2: Syn, @unchecked Sendable {
         }
         let position: Point
         let orientation: Double
-    }
-    func updateEq(audio: AudioAnalyzer.Info) {
-        var d = 4
-        var j = 0
-        for i in 0..<eq.count {
-            var v = 0.0
-            for _ in 0..<d {
-                v += Double(audio.fft.amplitude[j])
-                j += 1
-            }
-            d += 2
-            eq[i] = eq[i] * 0.2 + v * 0.8
-        }
-        Debug.info("\(d)")
     }
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////

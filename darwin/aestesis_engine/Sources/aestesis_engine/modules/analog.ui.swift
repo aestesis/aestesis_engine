@@ -247,6 +247,12 @@ func apow(_ value: Double, _ power: Double) -> Double {
     }
     return pow(value, power)
 }
+func apow(_ value: Float, _ power: Float) -> Float {
+    if value < 0 {
+        return pow(-value, power)
+    }
+    return pow(value, power)
+}
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 class LutManager: NodeUI, @unchecked Sendable {

@@ -377,6 +377,30 @@ class EffectGraphics: Graphics, @unchecked Sendable {
         }
         render.draw(trianglestrip: 4)
     }
+    public func drawFloat(
+        sprites: [PointSprite], image: Bitmap, scale: Double = 1,
+        blend: BlendMode = BlendMode.opaque
+    ) {
+        program("program.texture.float", blend: blend)
+        uniforms(matrix)
+        let vert = textureVertices(6 * sprites.count)
+        let s = Rect(x: 0, y: 0, w: 1, h: 1)
+        let ts = s.triangle
+        var vi = 0
+        for sp in sprites {
+            let cl = sp.color.infloat4
+            let d = sp.position.rect(image.size).scale(sp.scale * scale)
+            let td = d.triangle(rotation: sp.rotation)
+            for i in 0..<6 {
+                vert[vi] = TextureVertice(
+                    position: td[i].infloat3, uv: ts[i].infloat2, color: cl)
+                vi += 1
+            }
+        }
+        sampler("sampler.clamp")
+        render.use(texture: image)
+        render.draw(triangle: 6 * sprites.count)
+    }
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
     func fxDynamicPolar2Parameters(_ p: FxDynamicPolar2Parameters) {
