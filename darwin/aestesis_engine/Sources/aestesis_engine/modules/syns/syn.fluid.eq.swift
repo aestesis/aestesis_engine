@@ -62,9 +62,11 @@ class SynFluidEq: Syn, @unchecked Sendable {
         var i = 0
         for e in eq {
             let p = spos.unity(tt)
+            let pn = spos.unity(tt + 0.1)
+            let sd = sdir.sin(tt)
             let d = Point(
-                angle: sdir.sin(tt).normalized.angle
-                    + (p - spos.unity(tt + 0.1)).normalized.angle)
+                angle: sd.normalized.angle
+                    + (p - pn).normalized.angle)
             let v = d * (0.01 + abs(Double(audio.samples[i])) * 0.5)
             let s = e * sz
             pointSprites.append(
@@ -79,25 +81,6 @@ class SynFluidEq: Syn, @unchecked Sendable {
             i += 1
         }
         g0.drawFloat(sprites: pointSprites, image: sprite)
-        /*
-        for e in eq {
-            let position = spos.unity(tt)
-            let direction = sdir.sin(tt).normalized
-            let v = direction * 0.1
-            let m = size.double.area / size.double.crop(1).aera
-            let rsz = Size(0.15, 0.15) * m * e
-            let r = Rect(center: position, size: rsz)
-            let ri = Rect(center: Point(1 - position.x, position.y), size: rsz)
-            g0.drawFloat(
-                rect: Rect(center: r.center * size.double, size: r.size * size.double.crop(1)),
-                image: sprite, color: Color(a: 1, r: v.x, g: v.y, b: 1))
-            g0.drawFloat(
-                rect: Rect(center: ri.center * size.double, size: ri.size * size.double.crop(1)),
-                image: sprite, color: Color(a: 1, r: -v.x, g: v.y, b: 1))
-            points.append(r.center)
-            tt -= 0.1
-        }
-*/
         var fence = g0.update()
 
         fence = sim.advance(dtime: dtime, fence: fence)

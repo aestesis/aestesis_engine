@@ -143,11 +143,13 @@ class FxUI: ModuleUI, @unchecked Sendable {
         }
         if let fx = fxs[si], let output = output.value {
             fx.process(
-                dtime: dtime, fps: fps, audio: audio, input: input, output: output, level: level
+                dtime: dtime, fps: fps, audio: audio, input: input, output: output,
+                level: pow(level, 3)
             ) {
                 output.updated()
                 self.updateAssetOutput(assetId: si.name, bitmap: output)
-                self.composition?.addModuleStatistics(ModuleStatistics(id: self.id, usage: ß.time - stime))
+                self.composition?.addModuleStatistics(
+                    ModuleStatistics(id: self.id, usage: ß.time - stime))
             }
         }
     }

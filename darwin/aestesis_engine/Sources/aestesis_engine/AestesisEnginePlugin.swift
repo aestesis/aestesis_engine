@@ -280,7 +280,7 @@ public class AestesisEnginePlugin: NSObject, FlutterPlugin, AestesisEngineApi, @
                 let dialog = NSOpenPanel()
                 dialog.title = title
                 if let directory = directory {
-                    dialog.directoryURL = Foundation.URL(string: directory)
+                    dialog.directoryURL = Foundation.URL(filePath: directory, directoryHint: .isDirectory)
                 }
                 dialog.resolvesAliases = false
                 //dialog.showsResizeIndicator = true
@@ -312,7 +312,7 @@ public class AestesisEnginePlugin: NSObject, FlutterPlugin, AestesisEngineApi, @
                 let type = UTType(tag: ext, tagClass: .filenameExtension, conformingTo: nil)!
                 dialog.title = title
                 if let directory = directory {
-                    dialog.directoryURL = Foundation.URL(string: directory)
+                    dialog.directoryURL = Foundation.URL(filePath: directory, directoryHint: .isDirectory)
                 }
                 dialog.nameFieldStringValue = filename
                 dialog.currentContentType = type

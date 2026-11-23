@@ -50,7 +50,7 @@ class FxDynamicPunch: Fx, @unchecked Sendable {
         var a: Float = 1
         for i in 0..<data.count {
             r -= data[i] * 0.045 * a * Float(level)  // very sensible constant value, don't change
-            radius[i] = r
+            radius[i] = r + 0.01
             r += dr
             a *= 0.99
         }
