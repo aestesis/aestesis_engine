@@ -14,7 +14,8 @@ class SynFluidEq: Syn, @unchecked Sendable {
     var sprite: Bitmap?
     let spos = Parameter2(complexity: 4)
     let sdir = Parameter2(complexity: 4)
-    var t = ß.rnd * 10000
+    var t = ß.rnd * 100000
+    var speed = 0.0
     override init(parent: NodeUI) {
         super.init(parent: parent)
         let ssize = 32
@@ -53,7 +54,8 @@ class SynFluidEq: Syn, @unchecked Sendable {
         updateEq(audio: audio)
 
         let g0 = EffectGraphics(image: sim.texture, viewport: viewport)
-        t += dtime * (Double(audio.eq.low) * 10 + 0.5)
+        speed = (Double(audio.eq.low) * 10 + 0.5) * 0.3 + speed * 0.7
+        t += dtime * speed
         var tt = t
         var points: [Point] = []
         var pointSprites: [PointSprite] = []
